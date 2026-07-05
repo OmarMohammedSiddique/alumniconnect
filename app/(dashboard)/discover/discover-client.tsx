@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { MentorCard, type Mentor } from "./mentor-card";
+import { StaggerReveal } from "@/components/animations/stagger-reveal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -118,11 +119,11 @@ export function DiscoverClient({ canRequest }: { canRequest: boolean }) {
       )}
 
       {!loading && mentors && mentors.length > 0 && (
-        <div className="grid gap-4 lg:grid-cols-2">
+        <StaggerReveal className="grid gap-4 lg:grid-cols-2">
           {mentors.map((m) => (
             <MentorCard key={m.id} mentor={m} canRequest={canRequest} />
           ))}
-        </div>
+        </StaggerReveal>
       )}
     </div>
   );
