@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 
 type Mode = "semantic" | "keyword";
 
-export function DiscoverClient() {
+export function DiscoverClient({ canRequest }: { canRequest: boolean }) {
   const [mode, setMode] = useState<Mode>("semantic");
   const [query, setQuery] = useState("");
   const [mentors, setMentors] = useState<Mentor[] | null>(null);
@@ -120,7 +120,7 @@ export function DiscoverClient() {
       {!loading && mentors && mentors.length > 0 && (
         <div className="grid gap-4 lg:grid-cols-2">
           {mentors.map((m) => (
-            <MentorCard key={m.id} mentor={m} />
+            <MentorCard key={m.id} mentor={m} canRequest={canRequest} />
           ))}
         </div>
       )}

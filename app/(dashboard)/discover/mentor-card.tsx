@@ -2,9 +2,11 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { RequestButton } from "./request-button";
 
 export interface Mentor {
   id: string;
@@ -18,7 +20,13 @@ export interface Mentor {
   shared_skills?: string[];
 }
 
-export function MentorCard({ mentor }: { mentor: Mentor }) {
+export function MentorCard({
+  mentor,
+  canRequest = false,
+}: {
+  mentor: Mentor;
+  canRequest?: boolean;
+}) {
   const shared = new Set(
     (mentor.shared_skills ?? []).map((s) => s.toLowerCase()),
   );
@@ -78,6 +86,11 @@ export function MentorCard({ mentor }: { mentor: Mentor }) {
           </p>
         )}
       </CardContent>
+      {canRequest && (
+        <CardFooter className="mt-2">
+          <RequestButton mentorId={mentor.id} />
+        </CardFooter>
+      )}
     </Card>
   );
 }
