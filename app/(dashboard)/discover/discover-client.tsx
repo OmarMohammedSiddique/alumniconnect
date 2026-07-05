@@ -48,13 +48,10 @@ export function DiscoverClient({ canRequest }: { canRequest: boolean }) {
     setLoading(true);
     setNotice(null);
     const supabase = createClient();
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("id, full_name, headline, bio, skills, industry, graduation_year")
-      .eq("role", "mentor")
-      .eq("is_visible", true)
-      .textSearch("fts", query, { type: "websearch" })
-      .limit(20);
+    const { data, error } = await supabase.rpc("search_mentors", {
+      search_query: query,
+      match_count: 20,
+    });
     if (error) {
       setNotice("Search failed. Try different terms.");
       setMentors([]);
