@@ -9,7 +9,7 @@ export default function MarketingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative min-h-svh text-white">
+    <div className="relative min-h-svh text-foreground">
       <SiteBackground />
       <div className="relative z-10">{children}</div>
     </div>

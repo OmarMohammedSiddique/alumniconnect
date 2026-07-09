@@ -22,13 +22,13 @@ export function SiteBackground() {
   }, []);
 
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 bg-neutral-950">
+    <div aria-hidden className="pointer-events-none fixed inset-0 bg-background">
       {mounted && (
         <DotGrid
           dotSize={4}
           gap={26}
-          baseColor="#2b2550"
-          activeColor="#8b7cff"
+          baseColor="#bcbcd0"
+          activeColor="#5227ff"
           proximity={130}
           shockRadius={220}
           shockStrength={4}
@@ -37,8 +37,9 @@ export function SiteBackground() {
           interactive={!reducedMotion}
         />
       )}
-      {/* Vignette: subtle depth + keeps text readable over the dot field. */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(9,9,14,0.6)_100%)]" />
+      {/* Vignette fades the dot field toward the theme background at the
+          edges (works in light and dark mode via the CSS variable). */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,var(--background)_100%)]" />
     </div>
   );
 }
