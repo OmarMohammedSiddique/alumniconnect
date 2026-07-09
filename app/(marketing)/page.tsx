@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { HeroBackground } from "@/components/three/hero-scene";
 import { ScrollReveal } from "@/components/animations/scroll-reveal";
 
 const FEATURES = [
@@ -24,20 +23,15 @@ const FEATURES = [
 export default function LandingPage() {
   return (
     <div>
-      <section className="relative isolate flex min-h-svh flex-col items-center justify-center gap-6 overflow-hidden bg-neutral-950 p-6 text-center">
-        <HeroBackground />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_55%_45%_at_center,rgba(9,9,14,0.72),transparent_72%)]"
-        />
-        <h1 className="relative z-10 max-w-2xl text-5xl font-semibold tracking-tight text-white [text-shadow:0_2px_24px_rgba(2,2,10,0.65)]">
+      <section className="flex min-h-svh flex-col items-center justify-center gap-6 p-6 text-center">
+        <h1 className="max-w-2xl text-5xl font-semibold tracking-tight [text-shadow:0_2px_24px_rgba(2,2,10,0.6)]">
           Your alumni network, working for you
         </h1>
-        <p className="relative z-10 max-w-md text-lg text-white/80 [text-shadow:0_1px_16px_rgba(2,2,10,0.6)]">
+        <p className="max-w-md text-lg text-white/70 [text-shadow:0_1px_16px_rgba(2,2,10,0.55)]">
           AlumniConnect pairs mentees with the right mentors using semantic
           matching — intelligent from day one.
         </p>
-        <div className="relative z-10 flex gap-3">
+        <div className="flex gap-3">
           <Link
             href="/signup"
             className="inline-flex h-11 items-center justify-center rounded-lg bg-white px-6 text-sm font-medium text-neutral-900 transition hover:bg-white/90"
@@ -58,15 +52,13 @@ export default function LandingPage() {
           {FEATURES.map((f) => (
             <div key={f.title}>
               <h2 className="mb-2 text-xl font-semibold">{f.title}</h2>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                {f.body}
-              </p>
+              <p className="text-sm leading-relaxed text-white/70">{f.body}</p>
             </div>
           ))}
         </ScrollReveal>
       </section>
 
-      <footer className="border-t px-6 py-8 text-center text-sm text-muted-foreground">
+      <footer className="border-t border-white/10 px-6 py-8 text-center text-sm text-white/50">
         AlumniConnect — a Strathmore University capstone project.
       </footer>
     </div>
