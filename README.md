@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AlumniConnect
 
-## Getting Started
+A mentorship platform built with Next.js and Supabase. Mentees discover mentors through semantic matching or keyword search, send mentorship requests, and manage their connections. Administrators and moderators manage profile visibility and review audit logs.
 
-First, run the development server:
+Profiles use MiniLM embeddings with pgvector for semantic matching. PostgreSQL row-level security enforces access permissions.
+
+## Local development
+
+Prerequisites: Node.js, npm, and Docker running locally.
+
+```bash
+npm ci
+npx supabase start
+```
+
+Create `.env.local` with the values from your local Supabase stack:
+
+```dotenv
+NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<local anon key>
+SUPABASE_SERVICE_ROLE_KEY=<local service role key>
+```
+
+Keep `.env.local` out of version control. The service role key is server-only and must never use a `NEXT_PUBLIC_` prefix.
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [AlumniConnect](http://localhost:3000) or [local Supabase Studio](http://127.0.0.1:54323). Sign up as a mentee or mentor and save your profile to generate its matching embedding. The first embedding run downloads the model and requires internet access.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Verification
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run lint
+npm run build
+```
 
-## Learn More
+With local Supabase running, execute the database access-control tests:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+docker exec -i supabase_db_alumniconnect psql -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/rls_tests.sql
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The synthetic matching evaluation lives in [scripts/eval/run-eval.mjs](scripts/eval/run-eval.mjs); its recorded methodology and results are in [docs/eval-results.md](docs/eval-results.md).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project layout
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `app/(marketing)`: landing page with a continuous white dot-field background.
+- `app/(auth)`: registration and sign-in.
+- `app/(dashboard)`: profiles, discovery, mentorship requests, and administration.
+- `app/api`: embedding and matching endpoints.
+- `lib`: Supabase clients and embedding helpers.
+- `supabase/migrations`: versioned schema, policies, and database functions.
+- `supabase/tests`: SQL access-control tests.
+- `scripts`: local seed data, pipeline checks, and matching evaluation.
