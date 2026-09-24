@@ -1,4 +1,4 @@
--- AlumniConnect — Sprint 1: schema, RBAC via RLS, pgvector + full-text search.
+-- AlumniConnect - Sprint 1: schema, RBAC via RLS, pgvector + full-text search.
 -- Approved schema: one role per account; all authenticated users can browse
 -- visible profiles; embeddings written server-side only (service role).
 
@@ -68,7 +68,7 @@ as $$ select role from public.profiles where id = auth.uid() $$;
 
 -- ---------------------------------------------------------------------------
 -- Auto-create profile on sign-up. Role comes from sign-up metadata but is
--- clamped to mentee/mentor — staff roles are only assignable by an admin.
+-- clamped to mentee/mentor - staff roles are only assignable by an admin.
 -- ---------------------------------------------------------------------------
 create or replace function public.handle_new_user()
 returns trigger

@@ -5,7 +5,7 @@ import gsap from "gsap";
 
 // Match-result reveal: brief staggered fade-in of ranked mentor cards
 // (one of the micro-interactions the build instructions assign to GSAP).
-// Animation is decoration only — content is visible immediately without it.
+// Animation is decoration only - content is visible immediately without it.
 export function StaggerReveal({
   children,
   className,

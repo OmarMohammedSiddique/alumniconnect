@@ -150,7 +150,7 @@ export function generateMentors(perDomain, seed = 42) {
         domain: d.key,
         email: `mentor.${d.key}.${i}@eval.local`,
         full_name: name,
-        headline: `${role[0].toUpperCase()}${role.slice(1)} — ${focus}`,
+        headline: `${role[0].toUpperCase()}${role.slice(1)} - ${focus}`,
         bio: `${years} years working as a ${role}, focused on ${focus}. I enjoy mentoring people earlier in their ${d.industry.toLowerCase()} careers and sharing what I have learned.`,
         skills: pickN(r, d.skills, 4 + Math.floor(r() * 3)),
         industry: d.industry,

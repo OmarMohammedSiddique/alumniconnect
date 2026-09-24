@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { DiscoverClient } from "./discover-client";
 
-export const metadata = { title: "Discover — AlumniConnect" };
+export const metadata = { title: "Discover - AlumniConnect" };
 
 export default async function DiscoverPage() {
   const supabase = await createClient();

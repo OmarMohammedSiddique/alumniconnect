@@ -19,7 +19,7 @@ const getReducedMotionSnapshot = () =>
 const getServerReducedMotionSnapshot = () => false;
 
 // One fixed, full-viewport background for the whole marketing page. Because it
-// is fixed, it never scrolls out from under the content — the dot field is
+// is fixed, it never scrolls out from under the content - the dot field is
 // continuous from the hero through the footer (no seam between sections).
 //
 // pointer-events are disabled on the whole layer so content stays clickable;

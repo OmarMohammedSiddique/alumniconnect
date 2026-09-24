@@ -3,9 +3,9 @@
 // Seeds synthetic mentors (ground-truth domain labels) through the real
 // pipeline (auth trigger -> profile -> MiniLM embedding -> pgvector), then
 // scores three conditions over synthetic mentees:
-//   1. semantic-full     — pgvector cosine over the full mentee profile
-//   2. semantic-minimal  — cold start: headline + skills only, no bio
-//   3. keyword           — ranked tsvector full-text baseline
+//   1. semantic-full     - pgvector cosine over the full mentee profile
+//   2. semantic-minimal  - cold start: headline + skills only, no bio
+//   3. keyword           - ranked tsvector full-text baseline
 // A match is relevant when the mentor's ground-truth domain equals the
 // mentee's. Reports Precision@1/3/5, MRR, and coverage.
 //
@@ -130,7 +130,7 @@ async function keyword(terms) {
 
 // A mentee is in the "lexical-overlap" subset when any word of their listed
 // skills appears verbatim in their domain's mentor skill vocabulary; the
-// rest are "vocab-mismatch" — mentees who describe the same field in
+// rest are "vocab-mismatch" - mentees who describe the same field in
 // different words. Keyword matching is expected to degrade on the latter.
 const tokens = (arr) =>
   new Set(arr.flatMap((s) => s.toLowerCase().split(/[^a-z0-9+#]+/)).filter(Boolean));
@@ -217,15 +217,15 @@ Run date: ${process.env.EVAL_DATE ?? "(set EVAL_DATE)"} · dataset seed: 42/1337
 - **Queries:** ${mentees.length} synthetic mentees (${MENTEES_PER_DOMAIN}/domain). Mentee goal statements are written in natural language and deliberately do not always reuse mentor skill vocabulary.
 - **Ground truth:** a returned mentor is *relevant* iff their generator domain equals the mentee's.
 - **Conditions:**
-  - \`semantic-full\` — pgvector cosine similarity (\`match_mentors\`) over the full mentee profile.
-  - \`semantic-minimal\` — cold-start simulation: headline + skills only (no bio/industry), as at first sign-up.
-  - \`keyword+category\` — ranked PostgreSQL full-text search (\`search_mentors\`, ts_rank) over the mentee's skills **and industry** as an OR query. The industry term makes this a category/attribute-filtering baseline (what commercial alumni platforms do).
-  - \`keyword-skills-only\` — the same full-text search over skills alone: pure keyword matching with no category signal.
+  - \`semantic-full\` - pgvector cosine similarity (\`match_mentors\`) over the full mentee profile.
+  - \`semantic-minimal\` - cold-start simulation: headline + skills only (no bio/industry), as at first sign-up.
+  - \`keyword+category\` - ranked PostgreSQL full-text search (\`search_mentors\`, ts_rank) over the mentee's skills **and industry** as an OR query. The industry term makes this a category/attribute-filtering baseline (what commercial alumni platforms do).
+  - \`keyword-skills-only\` - the same full-text search over skills alone: pure keyword matching with no category signal.
 - **Metrics:** Precision@1/3/5 (fraction of relevant mentors in top k), MRR (reciprocal rank of first relevant), coverage (fraction of mentees receiving ≥1 scoreable result). Pre-existing unlabelled dev mentors remain in the pool as noise but are excluded from scoring.
 
 Mentees are additionally split by whether any of their listed skill words
 appear verbatim in their domain's mentor skill vocabulary (**lexical-overlap**)
-or not (**vocab-mismatch** — same field, different words).
+or not (**vocab-mismatch** - same field, different words).
 
 ## Results
 
@@ -253,9 +253,9 @@ ${t.map((r) => `| ${r.condition} | ${r.n} | ${r["P@1"]} | ${r["P@3"]} | ${r["P@5
 - **The subsets are the story.** When mentees use the same words as mentors,
   keyword matching is hard to beat. When they describe the same field in
   different vocabulary (the common case for early-career users who do not
-  yet know the field's terminology), pure keyword matching degrades — look
+  yet know the field's terminology), pure keyword matching degrades - look
   at \`keyword-skills-only\` coverage and precision on the vocab-mismatch
-  subset — while semantic matching holds.
+  subset - while semantic matching holds.
 - **semantic-minimal vs semantic-full** quantifies cold-start resilience: how
   much match quality a brand-new, sparse profile (headline + skills only)
   retains relative to a completed one.

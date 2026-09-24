@@ -28,12 +28,18 @@ export async function signUp(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: { data: { full_name: fullName, role } },
-  });
-  if (error) return { error: error.message };
+  try {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { full_name: fullName, role } },
+    });
+    if (error) return { error: error.message };
+  } catch {
+    return {
+      error: "Could not reach the authentication service. Please try again.",
+    };
+  }
 
   redirect("/profile");
 }
@@ -47,8 +53,14 @@ export async function signIn(
   const next = String(formData.get("next") ?? "") || "/discover";
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) return { error: "Invalid email or password." };
+  try {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return { error: "Invalid email or password." };
+  } catch {
+    return {
+      error: "Could not reach the authentication service. Please try again.",
+    };
+  }
 
   // Only allow internal redirect targets.
   redirect(next.startsWith("/") && !next.startsWith("//") ? next : "/discover");

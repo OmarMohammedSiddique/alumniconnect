@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { LoginForm } from "./login-form";
 
-export const metadata = { title: "Sign in — AlumniConnect" };
+export const metadata = { title: "Sign in - AlumniConnect" };
 
 export default function LoginPage() {
   return (

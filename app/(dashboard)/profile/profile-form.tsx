@@ -87,7 +87,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       <CardHeader>
         <CardTitle>Your profile</CardTitle>
         <CardDescription>
-          This information powers your mentorship matches — the richer it is,
+          This information powers your mentorship matches - the richer it is,
           the better they get.
         </CardDescription>
         <section aria-labelledby="profile-completeness" className="mt-4 rounded-lg border bg-muted/40 p-4">
@@ -206,7 +206,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               {embedStatus === "running" && " Updating your match profile…"}
               {embedStatus === "done" && " Match profile updated."}
               {embedStatus === "failed" &&
-                " Match profile update failed — it will retry on your next save."}
+                " Match profile update failed - it will retry on your next save."}
             </p>
           )}
         </CardContent>

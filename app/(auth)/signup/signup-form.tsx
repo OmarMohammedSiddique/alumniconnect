@@ -64,10 +64,10 @@ export function SignupForm() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="mentee">
-                  Mentee — seeking guidance
+                  Mentee - seeking guidance
                 </SelectItem>
                 <SelectItem value="mentor">
-                  Mentor — offering guidance
+                  Mentor - offering guidance
                 </SelectItem>
               </SelectContent>
             </Select>

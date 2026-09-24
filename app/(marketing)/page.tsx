@@ -5,7 +5,7 @@ import { ScrollReveal } from "@/components/animations/scroll-reveal";
 const FEATURES = [
   {
     title: "Semantic matching",
-    body: "Your profile becomes a 384-dimension vector. Mentors are ranked by meaning, not keyword luck — so a “data pipelines” mentee still finds the “ML platforms” mentor.",
+    body: "Your profile becomes a 384-dimension vector. Mentors are ranked by meaning, not keyword luck - so a “data pipelines” mentee still finds the “ML platforms” mentor.",
   },
   {
     title: "Explanations, not black boxes",
@@ -13,7 +13,7 @@ const FEATURES = [
   },
   {
     title: "No cold start",
-    body: "Matching works from your very first profile save — no months of interaction history needed before recommendations mean something.",
+    body: "Matching works from your very first profile save - no months of interaction history needed before recommendations mean something.",
   },
   {
     title: "Institution-controlled",
@@ -30,7 +30,7 @@ export default function LandingPage() {
         </h1>
         <p className="max-w-md text-lg text-muted-foreground">
           AlumniConnect pairs mentees with the right mentors using semantic
-          matching — intelligent from day one.
+          matching - intelligent from day one.
         </p>
         <div className="flex gap-3">
           <Link href="/signup" className={buttonVariants({ size: "lg" })}>
@@ -59,7 +59,7 @@ export default function LandingPage() {
       </section>
 
       <footer className="border-t px-6 py-8 text-center text-sm text-muted-foreground">
-        AlumniConnect — a Strathmore University capstone project.
+        AlumniConnect - a Strathmore University capstone project.
       </footer>
     </div>
   );

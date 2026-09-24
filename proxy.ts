@@ -26,7 +26,7 @@ export async function proxy(request: NextRequest) {
     },
   );
 
-  // Do not run code between createServerClient and getUser — a stale session
+  // Do not run code between createServerClient and getUser - a stale session
   // could be considered valid.
   const {
     data: { user },

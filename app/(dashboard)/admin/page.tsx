@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { setUserRole, setUserVisibility } from "./actions";
 import { Button } from "@/components/ui/button";
 
-export const metadata = { title: "Admin — AlumniConnect" };
+export const metadata = { title: "Admin - AlumniConnect" };
 
 interface ProfileRow {
   id: string;
@@ -114,7 +114,7 @@ export default async function AdminPage() {
                         value={p.is_visible ? "false" : "true"}
                       />
                       <Button type="submit" size="xs" variant="outline">
-                        {p.is_visible ? "Visible — hide" : "Hidden — show"}
+                        {p.is_visible ? "Visible - hide" : "Hidden - show"}
                       </Button>
                     </form>
                   </td>

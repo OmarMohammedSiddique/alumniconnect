@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     if (Number.isInteger(body?.count) && body.count > 0) count = body.count;
   } catch {
-    // empty body — use default count
+    // empty body - use default count
   }
 
   const { data: me } = await supabase

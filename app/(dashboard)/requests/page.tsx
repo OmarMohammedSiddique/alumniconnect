@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export const metadata = { title: "Requests — AlumniConnect" };
+export const metadata = { title: "Requests - AlumniConnect" };
 
 interface RequestRow {
   id: string;

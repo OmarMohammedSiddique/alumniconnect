@@ -30,7 +30,7 @@ export interface EmbeddableProfile {
 }
 
 // Embedding text is built from structured profile fields, so a profile is
-// matchable the moment it is saved — this is the cold-start mitigation.
+// matchable the moment it is saved - this is the cold-start mitigation.
 export function buildProfileEmbeddingText(p: EmbeddableProfile): string {
   return [
     p.headline,
