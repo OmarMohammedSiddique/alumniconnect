@@ -21,8 +21,6 @@ export function DiscoverClient({ canRequest }: { canRequest: boolean }) {
   useEffect(() => {
     if (mode !== "semantic") return;
     let cancelled = false;
-    setLoading(true);
-    setNotice(null);
     fetch("/api/match", { method: "POST", body: JSON.stringify({ count: 12 }) })
       .then(async (res) => {
         const body = await res.json();
@@ -70,7 +68,12 @@ export function DiscoverClient({ canRequest }: { canRequest: boolean }) {
             type="button"
             size="sm"
             variant={mode === "semantic" ? "secondary" : "ghost"}
-            onClick={() => setMode("semantic")}
+            onClick={() => {
+              if (mode === "semantic") return;
+              setLoading(true);
+              setNotice(null);
+              setMode("semantic");
+            }}
           >
             Recommended
           </Button>
@@ -79,6 +82,7 @@ export function DiscoverClient({ canRequest }: { canRequest: boolean }) {
             size="sm"
             variant={mode === "keyword" ? "secondary" : "ghost"}
             onClick={() => {
+              setLoading(false);
               setMode("keyword");
               setMentors([]);
               setNotice("Search mentors by name, skill, or field.");

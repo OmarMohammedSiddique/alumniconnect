@@ -75,7 +75,9 @@ for (const m of MENTORS) {
   const vec = Array.from(
     (await extractor(text, { pooling: "mean", normalize: true })).data,
   );
-  const { email: _email, ...fields } = m;
+  const fields = Object.fromEntries(
+    Object.entries(m).filter(([key]) => key !== "email"),
+  );
   const { error: e2 } = await admin
     .from("profiles")
     .update({ ...fields, embedding: JSON.stringify(vec) })

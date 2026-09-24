@@ -1,7 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import DotGrid from "./dot-grid";
+
+const subscribeToMount = () => () => {};
+const getClientMountSnapshot = () => true;
+const getServerMountSnapshot = () => false;
+
+function subscribeToReducedMotion(onStoreChange: () => void) {
+  const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  mediaQuery.addEventListener("change", onStoreChange);
+  return () => mediaQuery.removeEventListener("change", onStoreChange);
+}
+
+const getReducedMotionSnapshot = () =>
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const getServerReducedMotionSnapshot = () => false;
 
 // One fixed, full-viewport background for the whole marketing page. Because it
 // is fixed, it never scrolls out from under the content — the dot field is
@@ -11,15 +26,16 @@ import DotGrid from "./dot-grid";
 // DotGrid listens on `window`, so it still reacts to the cursor. Under
 // prefers-reduced-motion the grid renders completely static.
 export function SiteBackground() {
-  const [mounted, setMounted] = useState(false);
-  const [reducedMotion, setReducedMotion] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    setReducedMotion(
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-    );
-  }, []);
+  const mounted = useSyncExternalStore(
+    subscribeToMount,
+    getClientMountSnapshot,
+    getServerMountSnapshot,
+  );
+  const reducedMotion = useSyncExternalStore(
+    subscribeToReducedMotion,
+    getReducedMotionSnapshot,
+    getServerReducedMotionSnapshot,
+  );
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 bg-background">
