@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { formatFullName } from "@/lib/profile-name";
 
 export interface ProfileState {
   error: string | null;
@@ -20,7 +21,7 @@ export async function updateProfile(
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated.", saved: false };
 
-  const fullName = String(formData.get("full_name") ?? "").trim();
+  const fullName = formatFullName(String(formData.get("full_name") ?? ""));
   const headline = String(formData.get("headline") ?? "").trim();
   const bio = String(formData.get("bio") ?? "").trim();
   const industry = String(formData.get("industry") ?? "").trim();

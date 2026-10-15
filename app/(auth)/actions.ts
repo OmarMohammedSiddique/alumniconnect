@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { formatFullName } from "@/lib/profile-name";
 
 export interface AuthState {
   error: string | null;
@@ -13,7 +14,7 @@ export async function signUp(
 ): Promise<AuthState> {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  const fullName = String(formData.get("full_name") ?? "").trim();
+  const fullName = formatFullName(String(formData.get("full_name") ?? ""));
   const role = String(formData.get("role") ?? "mentee");
 
   if (!email || !password || !fullName) {
