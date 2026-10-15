@@ -6,11 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusMessage } from "@/components/ui/status-message";
+import { FieldGuidance } from "@/components/ui/field-guidance";
+import { MAX_INTRODUCTION_LENGTH } from "@/lib/form-limits";
 
 const initialState: RequestState = { error: null, ok: false };
 
 export function RequestButton({ mentorId }: { mentorId: string }) {
   const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState("");
   const [state, formAction, pending] = useActionState(
     createRequest,
     initialState,
@@ -37,10 +40,16 @@ export function RequestButton({ mentorId }: { mentorId: string }) {
       <Input
         id={`message-${mentorId}`}
         name="message"
-        maxLength={500}
+        maxLength={MAX_INTRODUCTION_LENGTH}
+        value={message}
+        onChange={(event) => setMessage(event.target.value)}
+        aria-describedby={`message-${mentorId}-help message-${mentorId}-count`}
         placeholder="Add a short note (optional)"
         autoFocus
       />
+      <FieldGuidance id={`message-${mentorId}`} label="Introduction" value={message} maxLength={MAX_INTRODUCTION_LENGTH}>
+        Mention your goal and why you would value guidance from this Mentor. You can also send without a note.
+      </FieldGuidance>
       <div className="flex gap-2">
         <Button type="submit" size="sm" disabled={pending}>
           {pending ? "Sending…" : "Send request"}
@@ -49,7 +58,7 @@ export function RequestButton({ mentorId }: { mentorId: string }) {
           type="button"
           size="sm"
           variant="ghost"
-          onClick={() => setOpen(false)}
+          onClick={() => { setOpen(false); setMessage(""); }}
         >
           Cancel
         </Button>

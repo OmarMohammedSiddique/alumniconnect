@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { updateMentorshipRequest, type RequestState } from "@/lib/mentorship-request";
+import { MAX_INTRODUCTION_LENGTH } from "@/lib/form-limits";
 
 export type { RequestState } from "@/lib/mentorship-request";
 
@@ -13,7 +14,7 @@ export async function createRequest(
   const mentorId = String(formData.get("mentor_id") ?? "");
   const message = String(formData.get("message") ?? "")
     .trim()
-    .slice(0, 500);
+    .slice(0, MAX_INTRODUCTION_LENGTH);
   if (!mentorId) return { error: "Missing mentor.", ok: false };
 
   const supabase = await createClient();

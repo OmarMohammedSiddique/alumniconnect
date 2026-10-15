@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusMessage } from "@/components/ui/status-message";
+import { FieldGuidance } from "@/components/ui/field-guidance";
+import { MAX_BIO_LENGTH, MAX_HEADLINE_LENGTH } from "@/lib/form-limits";
 import { getSkillsLimitError, MAX_PROFILE_SKILLS, normalizeSkills } from "@/lib/profile-skills";
 import { createProfileMatchUpdater, type MatchUpdateStatus } from "@/lib/profile-match-update";
 import {
@@ -59,8 +61,8 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       const year = Number(value);
       return !value || !Number.isInteger(year) || year < 1950 || year > new Date().getFullYear();
     }
-    if (name === "headline") return !value || value.length > 120;
-    if (name === "bio") return !value || value.length > 2000;
+    if (name === "headline") return !value || value.length > MAX_HEADLINE_LENGTH;
+    if (name === "bio") return !value || value.length > MAX_BIO_LENGTH;
     return !value;
   });
   const completed = PROFILE_FIELDS.length - missing.length;
@@ -166,9 +168,13 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               name="headline"
               value={draft.headline}
               onChange={updateDraft}
-              maxLength={120}
+              maxLength={MAX_HEADLINE_LENGTH}
+              aria-describedby="headline-help headline-count"
               placeholder="e.g. Data engineer at a fintech"
             />
+            <FieldGuidance id="headline" label="Headline" value={draft.headline} maxLength={MAX_HEADLINE_LENGTH}>
+              Sum up your current role or career direction in one line.
+            </FieldGuidance>
           </div>
           <div className="grid gap-2">
             <Label htmlFor="bio">Bio</Label>
@@ -177,11 +183,15 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               name="bio"
               value={draft.bio}
               onChange={updateDraft}
-              maxLength={2000}
+              maxLength={MAX_BIO_LENGTH}
+              aria-describedby="bio-help bio-count"
               rows={5}
               placeholder="Your background, interests, and what you're looking for in mentorship"
               className="form-control resize-y"
             />
+            <FieldGuidance id="bio" label="Bio" value={draft.bio} maxLength={MAX_BIO_LENGTH}>
+              Share your background, interests, and the guidance you can offer or hope to find.
+            </FieldGuidance>
           </div>
           <div className="grid gap-2">
             <Label htmlFor="skills">Skills</Label>
@@ -227,7 +237,11 @@ export function ProfileForm({ profile }: ProfileFormProps) {
                 onChange={updateDraft}
                 min={1950}
                 max={new Date().getFullYear()}
+                aria-describedby="graduation-year-help"
               />
+              <p id="graduation-year-help" className="text-sm text-muted-foreground">
+                Optional. Enter a year from 1950 to {new Date().getFullYear()}.
+              </p>
             </div>
           </div>
           {state.error && (

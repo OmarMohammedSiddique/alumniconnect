@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { formatFullName } from "@/lib/profile-name";
 import { getSkillsLimitError, normalizeSkills } from "@/lib/profile-skills";
+import { MAX_BIO_LENGTH, MAX_HEADLINE_LENGTH } from "@/lib/form-limits";
 
 export type ProfileState =
   | { error: string | null; saved: false }
@@ -31,10 +32,10 @@ export async function updateProfile(
 
   if (!fullName) return { error: "Full name is required.", saved: false };
   if (skillsError) return { error: skillsError, saved: false };
-  if (headline.length > 120)
-    return { error: "Headline must be 120 characters or fewer.", saved: false };
-  if (bio.length > 2000)
-    return { error: "Bio must be 2000 characters or fewer.", saved: false };
+  if (headline.length > MAX_HEADLINE_LENGTH)
+    return { error: `Headline must be ${MAX_HEADLINE_LENGTH} characters or fewer.`, saved: false };
+  if (bio.length > MAX_BIO_LENGTH)
+    return { error: `Bio must be ${MAX_BIO_LENGTH} characters or fewer.`, saved: false };
 
   let graduationYear: number | null = null;
   if (yearRaw) {
