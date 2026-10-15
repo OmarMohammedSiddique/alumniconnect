@@ -9,7 +9,7 @@
 
 | Milestone | Deliverable | Status | Completion gate |
 | --- | --- | --- | --- |
-| M0 · Intake | Preserved Gemini export + source inventory | 🟡 Awaiting file | Export inspected; actual profiles/pairs identified |
+| M0 · Intake | Preserved Gemini export + source inventory | 🟡 Structural inventory recorded | Full source/provenance review remains; see `ml-source-intake.md` |
 | M1 · Experiment design | Agreed task, rubric, model route and protocol | ⬜ Pending | Inputs, labels, comparisons and split policy documented |
 | M2 · Dataset audit and freeze | Validated dataset v1 + leakage report | ⬜ Pending | Blocking integrity/leakage problems resolved; manifests frozen |
 | M3 · Reproducible baseline | Working versioned notebook + saved baseline | ⬜ Pending | Fresh-runtime baseline reproduces on validation data |
@@ -23,7 +23,7 @@
 - [x] Existing application contains a frozen MiniLM embedding/ranking pipeline.
 - [x] Existing synthetic domain-retrieval evaluation is available as historical evidence.
 - [x] User reports Gemini prompting is complete and a Markdown conversation export exists.
-- [ ] Export received and inspected in this chat.
+- [x] Export received and structurally inspected: 60 profiles and 60 labelled training pairs.
 - [ ] New synthetic dataset quality or leakage status established.
 - [ ] Project-specific training performed and verified.
 
@@ -37,8 +37,8 @@ with older findings from chat history.
 **Achievement:** we know what was actually generated, without mistaking instructions
 or discussion for training records.
 
-- [ ] Receive the Markdown export; locate separate JSON/JSONL/CSV files if referenced.
-- [ ] Preserve the original export unchanged and record its hash/provenance.
+- [x] Receive the Markdown export and identify inline JSON records.
+- [x] Leave the original export unchanged and record its hash/path in `ml-source-intake.md`.
 - [ ] Identify prompts, profile records, pair labels, proposed splits and audit output.
 - [ ] Inventory actual counts, fields, score scale and generation batches/model identity.
 - [ ] Identify private material before copying anything into a public repository.
@@ -49,6 +49,51 @@ Do not train on the complete Markdown transcript.
 
 **Gate:** enough actual records exist to inspect. A conversation promising a dataset
 is not a dataset. Request missing referenced files rather than inventing records.
+
+## Proposed tools and training route
+
+This is a recommendation for M1, not an implemented or evaluated architecture.
+
+| Tool | Role |
+| --- | --- |
+| Existing local editor/terminal | Author Python modules, notebooks and tests alongside the app |
+| Git/GitHub | Version reviewed source, configurations and sanitised evidence |
+| Gemini | Generate candidate synthetic profiles/labels; never certify its own labels as human-reviewed |
+| Python + pandas | Extract records, validate schemas, inspect distributions and overlaps |
+| scikit-learn | Train-only text vocabulary/TF-IDF and simple supervised baselines |
+| PyTorch | Train and save a small project-specific neural text encoder |
+| Google Colab | Execute the versioned Python notebook; GPU optional for initial checks |
+| Google Drive | Store versioned data and persistent run outputs |
+| Matplotlib | Plot training/validation history and evaluation figures |
+| Existing Next.js + Supabase/pgvector | Application/database integration after model verification |
+
+Suggested baseline: TF-IDF with an explicitly defined pair-feature representation
+and a supervised relevance estimator. Fit the vectoriser and estimator on training
+data only. Record both how pair features are formed and how mentor candidates rank.
+
+Suggested neural experiment if avoiding pretrained weights: a small Siamese-style
+text encoder with randomly initialised token embeddings and a trainable sequence
+encoder/projection. Encode mentee and mentor text, compare vectors and optimise
+against reviewed pair relevance. Pin down shared versus role-specific encoders,
+output width, score mapping and loss in M1; do not assume a new architecture is
+already approved or will outperform a lexical baseline.
+
+Training loop: input text -> train-fitted tokenisation -> profile vectors -> pair
+score -> loss against the training label -> gradients -> parameter update. Run in
+batches over epochs; validate periodically and select checkpoints on validation
+only. Test the selected configuration later on untouched test queries/candidates.
+
+The inspected export has only 60 labelled pairs, all marked training. Use it for
+audit and a future pipeline smoke test, not a claim of adequate neural training
+or final generalisation. Validation/test records are absent from this export.
+Generating more records without fixing label/template problems is not a remedy.
+
+Earlier Colab examples use pretrained MiniLM fine-tuning; they are not the
+from-scratch implementation above and need adapting if that route is selected.
+Tools have not been installed or training launched by this planning update.
+
+References: [PyTorch training loop](https://docs.pytorch.org/tutorials/beginner/basics/optimization_tutorial.html),
+[scikit-learn text features](https://scikit-learn.org/stable/modules/feature_extraction.html).
 
 ## M1 · Freeze the question and requirements
 
