@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState, type ChangeEvent } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { updateProfile, type ProfileState } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusMessage } from "@/components/ui/status-message";
 import { getSkillsLimitError, MAX_PROFILE_SKILLS, normalizeSkills } from "@/lib/profile-skills";
+import { createProfileMatchUpdater, type MatchUpdateStatus } from "@/lib/profile-match-update";
 import {
   Card,
   CardContent,
@@ -86,9 +87,9 @@ export function ProfileForm({ profile }: ProfileFormProps) {
     },
     initialState,
   );
-  const [embedStatus, setEmbedStatus] = useState<
-    "idle" | "running" | "done" | "failed"
-  >("idle");
+  const [embedStatus, setEmbedStatus] = useState<MatchUpdateStatus>("idle");
+  const updateMatchProfile = useMemo(() => createProfileMatchUpdater(setEmbedStatus), []);
+  const matchUpdateNeedsAttention = embedStatus === "failed" || embedStatus === "retrying";
   const lastRun = useRef<ProfileState | null>(null);
 
   // On successful save, regenerate the profile embedding via the server-side
@@ -96,11 +97,8 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   useEffect(() => {
     if (!state.saved || state === lastRun.current) return;
     lastRun.current = state;
-    setEmbedStatus("running");
-    fetch("/api/embed", { method: "POST" })
-      .then((res) => setEmbedStatus(res.ok ? "done" : "failed"))
-      .catch(() => setEmbedStatus("failed"));
-  }, [state]);
+    void updateMatchProfile();
+  }, [state, updateMatchProfile]);
 
   return (
     <Card className="max-w-2xl">
@@ -238,14 +236,31 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           {hasUnsavedChanges && !pending && (
             <StatusMessage>Unsaved changes. Save your profile to keep them.</StatusMessage>
           )}
-          {state.saved && !state.error && !hasUnsavedChanges && !pending && (
-            <StatusMessage tone={embedStatus === "failed" ? "info" : "success"}>
+          {state.saved && !state.error && !hasUnsavedChanges && !pending && !matchUpdateNeedsAttention && (
+            <StatusMessage tone="success">
               Profile saved.
               {embedStatus === "running" && " Updating your match profile…"}
               {embedStatus === "done" && " Match profile updated."}
-              {embedStatus === "failed" &&
-                " Match profile update failed - it will retry on your next save."}
             </StatusMessage>
+          )}
+          {matchUpdateNeedsAttention && !pending && (
+            <StatusMessage aria-busy={embedStatus === "retrying"}>
+              <p>
+                {state.saved && !hasUnsavedChanges && "Profile saved. "}
+                {embedStatus === "failed"
+                  ? "Match profile update failed."
+                  : "Retrying the match profile update…"}
+              </p>
+              <p className="mt-1">This update uses your last saved profile. Any unsaved edits stay in this form.</p>
+              <Button type="button" variant="outline" className="mt-3"
+                disabled={embedStatus === "retrying"}
+                onClick={() => { void updateMatchProfile(true); }}>
+                {embedStatus === "retrying" ? "Retrying update…" : "Retry update"}
+              </Button>
+            </StatusMessage>
+          )}
+          {embedStatus === "done" && (!state.saved || hasUnsavedChanges) && !pending && (
+            <StatusMessage>Match profile updated using your last saved profile.</StatusMessage>
           )}
         </CardContent>
         <CardFooter className="mt-6">
