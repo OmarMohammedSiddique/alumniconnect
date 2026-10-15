@@ -43,8 +43,8 @@ export function SiteBackground() {
         <DotGrid
           dotSize={4}
           gap={26}
-          baseColor="#bcbcd0"
-          activeColor="#5227ff"
+          baseColor="#c2c0bf"
+          activeColor="#ed1c24"
           proximity={130}
           shockRadius={220}
           shockStrength={4}

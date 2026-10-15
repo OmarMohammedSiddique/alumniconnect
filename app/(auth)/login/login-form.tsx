@@ -7,6 +7,7 @@ import { signIn, type AuthState } from "../actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { StatusMessage } from "@/components/ui/status-message";
 import {
   Card,
   CardContent,
@@ -25,11 +26,11 @@ export function LoginForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Sign in</CardTitle>
-        <CardDescription>Welcome back to AlumniConnect.</CardDescription>
+        <CardTitle><h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1></CardTitle>
+        <CardDescription>Sign in to your mentorship workspace.</CardDescription>
       </CardHeader>
-      <form action={formAction}>
-        <CardContent className="grid gap-4">
+      <form action={formAction} aria-busy={pending}>
+        <CardContent className="grid gap-5">
           <input type="hidden" name="next" value={next} />
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
@@ -46,9 +47,7 @@ export function LoginForm() {
             />
           </div>
           {state.error && (
-            <p role="alert" className="text-sm text-destructive">
-              {state.error}
-            </p>
+            <StatusMessage tone="error">{state.error}</StatusMessage>
           )}
         </CardContent>
         <CardFooter className="mt-6 flex flex-col gap-3">
@@ -57,7 +56,7 @@ export function LoginForm() {
           </Button>
           <p className="text-sm text-muted-foreground">
             No account?{" "}
-            <Link href="/signup" className="underline underline-offset-4">
+            <Link href="/signup" className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4">
               Sign up
             </Link>
           </p>

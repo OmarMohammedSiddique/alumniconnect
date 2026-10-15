@@ -4,6 +4,8 @@ import { useActionState, useState } from "react";
 import { createRequest, type RequestState } from "../requests/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { StatusMessage } from "@/components/ui/status-message";
 
 const initialState: RequestState = { error: null, ok: false };
 
@@ -16,9 +18,7 @@ export function RequestButton({ mentorId }: { mentorId: string }) {
 
   if (state.ok) {
     return (
-      <p className="text-sm text-muted-foreground" role="status">
-        Request sent.
-      </p>
+      <StatusMessage tone="success">Request sent. Track the response on your requests page.</StatusMessage>
     );
   }
 
@@ -31,9 +31,11 @@ export function RequestButton({ mentorId }: { mentorId: string }) {
   }
 
   return (
-    <form action={formAction} className="grid w-full gap-2">
+    <form action={formAction} aria-busy={pending} className="grid w-full gap-3">
       <input type="hidden" name="mentor_id" value={mentorId} />
+      <Label htmlFor={`message-${mentorId}`}>Introduction <span className="font-normal text-muted-foreground">(optional)</span></Label>
       <Input
+        id={`message-${mentorId}`}
         name="message"
         maxLength={500}
         placeholder="Add a short note (optional)"
@@ -53,9 +55,7 @@ export function RequestButton({ mentorId }: { mentorId: string }) {
         </Button>
       </div>
       {state.error && (
-        <p role="alert" className="text-sm text-destructive">
-          {state.error}
-        </p>
+        <StatusMessage tone="error">{state.error}</StatusMessage>
       )}
     </form>
   );

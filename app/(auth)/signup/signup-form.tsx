@@ -6,6 +6,7 @@ import { signUp, type AuthState } from "../actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { StatusMessage } from "@/components/ui/status-message";
 import {
   Card,
   CardContent,
@@ -30,13 +31,13 @@ export function SignupForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Create your account</CardTitle>
+        <CardTitle><h1 className="text-2xl font-semibold tracking-tight">Create your account</h1></CardTitle>
         <CardDescription>
-          Join AlumniConnect as a mentee or a mentor.
+          Join the professional community as a Mentor or Mentee.
         </CardDescription>
       </CardHeader>
-      <form action={formAction}>
-        <CardContent className="grid gap-4">
+      <form action={formAction} aria-busy={pending}>
+        <CardContent className="grid gap-5">
           <div className="grid gap-2">
             <Label htmlFor="full_name">Full name</Label>
             <Input id="full_name" name="full_name" required autoComplete="name" />
@@ -60,22 +61,20 @@ export function SignupForm() {
             <Label htmlFor="role">I&apos;m joining as</Label>
             <Select name="role" defaultValue="mentee">
               <SelectTrigger id="role">
-                <SelectValue />
+                <SelectValue>{(value: string) => value === "mentor" ? "Mentor: offering guidance" : "Mentee: seeking guidance"}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="mentee">
-                  Mentee - seeking guidance
+                  Mentee: seeking guidance
                 </SelectItem>
                 <SelectItem value="mentor">
-                  Mentor - offering guidance
+                  Mentor: offering guidance
                 </SelectItem>
               </SelectContent>
             </Select>
           </div>
           {state.error && (
-            <p role="alert" className="text-sm text-destructive">
-              {state.error}
-            </p>
+            <StatusMessage tone="error">{state.error}</StatusMessage>
           )}
         </CardContent>
         <CardFooter className="mt-6 flex flex-col gap-3">
@@ -84,7 +83,7 @@ export function SignupForm() {
           </Button>
           <p className="text-sm text-muted-foreground">
             Already registered?{" "}
-            <Link href="/login" className="underline underline-offset-4">
+            <Link href="/login" className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4">
               Sign in
             </Link>
           </p>

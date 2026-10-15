@@ -1,7 +1,11 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { cancelRequest, respondRequest } from "./actions";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageHeading } from "@/components/ui/page-heading";
 import {
   Card,
   CardContent,
@@ -71,35 +75,33 @@ export default async function RequestsPage() {
     .returns<ConnectionRow[]>();
 
   return (
-    <div className="grid max-w-3xl gap-8">
+    <div className="grid max-w-4xl gap-10">
       <section>
-        <h1 className="mb-1 text-2xl font-semibold">
-          {isMentor ? "Incoming requests" : "Your requests"}
-        </h1>
-        <p className="mb-4 text-sm text-muted-foreground">
-          {isMentor
-            ? "Mentees who would like your guidance."
-            : "Mentorship requests you have sent."}
-        </p>
+        <PageHeading title={isMentor ? "Incoming requests" : "Your requests"}>
+          {isMentor ? "Review introductions from Mentees seeking your guidance." : "Keep track of the introductions you have made and their responses."}
+        </PageHeading>
         {!requests?.length && (
-          <p className="text-sm text-muted-foreground">No requests yet.</p>
+          <EmptyState title={isMentor ? "Your next introduction starts here" : "Start with a Mentor who understands your goals"}
+            action={<Link href={isMentor ? "/profile" : "/discover"} className={buttonVariants({ variant: "outline" })}>{isMentor ? "Review your profile" : "Discover Mentors"}</Link>}>
+            {isMentor ? "When a Mentee requests your guidance, their introduction will appear here." : "Explore the community and send a mentorship request when you find a relevant connection."}
+          </EmptyState>
         )}
         <div className="grid gap-3">
           {requests?.map((req) => (
             <Card key={req.id}>
               <CardHeader>
-                <div className="flex items-center justify-between gap-3">
-                  <CardTitle className="text-base">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <CardTitle className="min-w-0 break-words text-base"><h2>
                     {isMentor
                       ? (req.mentee?.full_name ?? "Unknown")
                       : `To: ${req.mentor?.full_name ?? "Unknown"}`}
-                  </CardTitle>
-                  <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium">
+                  </h2></CardTitle>
+                  <Badge tone={req.status === "accepted" ? "success" : req.status === "pending" ? "warning" : "neutral"}>
                     {STATUS_LABEL[req.status] ?? req.status}
-                  </span>
+                  </Badge>
                 </div>
                 {req.message && (
-                  <CardDescription>“{req.message}”</CardDescription>
+                  <CardDescription className="mt-3 whitespace-pre-wrap break-words">“{req.message}”</CardDescription>
                 )}
               </CardHeader>
               {req.status === "pending" && (
@@ -136,23 +138,25 @@ export default async function RequestsPage() {
         </div>
       </section>
 
-      <section>
-        <h2 className="mb-1 text-xl font-semibold">Connections</h2>
+      <section id="connections" className="scroll-mt-8">
+        <h2 className="section-heading mb-1">Your connections</h2>
         <p className="mb-4 text-sm text-muted-foreground">
           Your active mentorship relationships.
         </p>
         {!connections?.length && (
-          <p className="text-sm text-muted-foreground">No connections yet.</p>
+          <EmptyState title="Room for your first connection" headingLevel={3}>
+            Accepted mentorship requests become connections. You can follow their progress in the request list above.
+          </EmptyState>
         )}
         <div className="grid gap-3">
           {connections?.map((c) => (
             <Card key={c.id}>
               <CardHeader>
-                <CardTitle className="text-base">
+                <CardTitle className="break-words text-base"><h3>
                   {isMentor
                     ? (c.mentee?.full_name ?? "Unknown")
                     : (c.mentor?.full_name ?? "Unknown")}
-                </CardTitle>
+                </h3></CardTitle>
                 <CardDescription>
                   Connected since{" "}
                   {new Date(c.created_at).toLocaleDateString("en-GB", {

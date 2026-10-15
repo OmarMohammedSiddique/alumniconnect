@@ -18,19 +18,18 @@ export function StaggerReveal({
   useEffect(() => {
     const el = ref.current;
     if (!el || el.children.length === 0) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    const ctx = gsap.context(() => {
+    const media = gsap.matchMedia();
+    media.add("(prefers-reduced-motion: no-preference)", () => {
+      const duration = parseFloat(getComputedStyle(el).getPropertyValue("--motion-standard")) / 1000;
       gsap.from(el.children, {
-        y: 12,
-        opacity: 0,
-        duration: 0.25,
+        y: 8,
+        duration: Number.isFinite(duration) ? duration : 0.22,
         ease: "power1.out",
-        stagger: 0.05,
+        stagger: 0.03,
         clearProps: "all",
       });
     }, el);
-    return () => ctx.revert();
+    return () => media.revert();
   }, []);
 
   return (

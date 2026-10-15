@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { DiscoverClient } from "./discover-client";
+import { QuickActions } from "@/components/quick-actions";
+import { PageHeading } from "@/components/ui/page-heading";
 
 export const metadata = { title: "Discover - AlumniConnect" };
 
@@ -19,10 +21,8 @@ export default async function DiscoverPage() {
 
   return (
     <div>
-      <h1 className="mb-1 text-2xl font-semibold">Discover mentors</h1>
-      <p className="mb-6 text-sm text-muted-foreground">
-        Ranked by how well their experience matches your profile.
-      </p>
+      <PageHeading title="Discover Mentors">Find people whose experience can help you move forward. Explore recommendations or search your community.</PageHeading>
+      <QuickActions />
       <DiscoverClient canRequest={profile?.role === "mentee"} />
     </div>
   );

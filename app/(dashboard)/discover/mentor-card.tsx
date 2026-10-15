@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { RequestButton } from "./request-button";
+import { Badge } from "@/components/ui/badge";
 
 export interface Mentor {
   id: string;
@@ -32,41 +33,31 @@ export function MentorCard({
   );
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <CardTitle>{mentor.full_name}</CardTitle>
-            <CardDescription>{mentor.headline}</CardDescription>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="flex min-w-0 items-start gap-3">
+            <span className="grid size-11 shrink-0 place-items-center rounded-lg border bg-surface font-semibold" aria-hidden="true">{mentor.full_name.trim().slice(0, 1).toUpperCase()}</span>
+            <div className="min-w-0"><CardTitle><h2 className="break-words">{mentor.full_name}</h2></CardTitle><CardDescription className="mt-1">{mentor.headline}</CardDescription></div>
           </div>
           {typeof mentor.similarity === "number" && (
-            <span
-              className="shrink-0 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
-              title="Semantic match score"
-            >
+            <Badge tone="accent" title="Profile similarity score, not a guarantee of mentorship fit">
               {Math.round(mentor.similarity * 100)}% match
-            </span>
+            </Badge>
           )}
         </div>
       </CardHeader>
       <CardContent className="grid gap-3">
         {mentor.bio && (
-          <p className="line-clamp-3 text-sm text-muted-foreground">
+          <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">
             {mentor.bio}
           </p>
         )}
         <div className="flex flex-wrap gap-1.5">
           {mentor.skills.map((skill) => (
-            <span
-              key={skill}
-              className={
-                shared.has(skill.toLowerCase())
-                  ? "rounded-md bg-primary px-2 py-0.5 text-xs text-primary-foreground"
-                  : "rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground"
-              }
-            >
+            <Badge key={skill} tone={shared.has(skill.toLowerCase()) ? "accent" : "neutral"}>
               {skill}
-            </span>
+            </Badge>
           ))}
         </div>
         <p className="text-xs text-muted-foreground">
@@ -87,7 +78,7 @@ export function MentorCard({
         )}
       </CardContent>
       {canRequest && (
-        <CardFooter className="mt-2">
+        <CardFooter className="mt-auto">
           <RequestButton mentorId={mentor.id} />
         </CardFooter>
       )}

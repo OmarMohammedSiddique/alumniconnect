@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ProfileForm } from "./profile-form";
+import { PageHeading } from "@/components/ui/page-heading";
 
 export const metadata = { title: "Profile - AlumniConnect" };
 
@@ -21,7 +22,7 @@ export default async function ProfilePage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-semibold">Profile</h1>
+      <PageHeading title="Your profile">Help your community understand your experience, interests, and the guidance you seek or offer.</PageHeading>
       <ProfileForm profile={profile} />
     </div>
   );

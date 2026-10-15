@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "AlumniConnect",
   description:
-    "Intelligent alumni mentorship with semantic matching and explainable recommendations.",
+    "Independent academic prototype for professional mentorship and networking. Inspired by Kenya Airways, not an official airline product.",
   applicationName: "AlumniConnect",
 };
 

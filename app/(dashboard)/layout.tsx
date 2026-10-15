@@ -20,9 +20,10 @@ export default async function DashboardLayout({
     .single();
 
   return (
-    <div className="flex min-h-svh flex-col md:flex-row">
+    <div className="flex min-h-svh flex-col bg-surface md:flex-row">
+      <a href="#workspace" className="product-skip">Skip to workspace</a>
       <DashboardNavigation name={profile?.full_name ?? "Your account"} role={profile?.role ?? ""} />
-      <main className="min-w-0 flex-1 p-4 sm:p-6 md:p-8">{children}</main>
+      <main id="workspace" className="min-w-0 flex-1 px-4 py-7 sm:px-6 sm:py-9 lg:px-10"><div className="product-page">{children}</div></main>
     </div>
   );
 }

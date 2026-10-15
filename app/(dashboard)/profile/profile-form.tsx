@@ -5,6 +5,7 @@ import { updateProfile, type ProfileState } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { StatusMessage } from "@/components/ui/status-message";
 import {
   Card,
   CardContent,
@@ -85,21 +86,20 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   return (
     <Card className="max-w-2xl">
       <CardHeader>
-        <CardTitle>Your profile</CardTitle>
+        <CardTitle><h2>Professional details</h2></CardTitle>
         <CardDescription>
-          This information powers your mentorship matches - the richer it is,
-          the better they get.
+          Share your experience and interests to give your community a clear starting point.
         </CardDescription>
-        <section aria-labelledby="profile-completeness" className="mt-4 rounded-lg border bg-muted/40 p-4">
+        <section aria-labelledby="profile-completeness" className="mt-5 border-t pt-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 id="profile-completeness" className="text-sm font-medium">Profile completeness</h2>
+            <h3 id="profile-completeness" className="text-sm font-medium">Profile completeness</h3>
             <span className="text-sm font-semibold tabular-nums">{percent}%</span>
           </div>
           <progress
             aria-label="Profile completeness"
             value={completed}
             max={PROFILE_FIELDS.length}
-            className="mt-3 h-2 w-full overflow-hidden rounded-full [&::-webkit-progress-bar]:bg-muted [&::-webkit-progress-value]:bg-primary [&::-moz-progress-bar]:bg-primary"
+            className="profile-progress mt-3 h-2 w-full overflow-hidden rounded"
           />
           <p aria-live="polite" className="mt-2 text-sm text-muted-foreground">
             {completed} of {PROFILE_FIELDS.length} fields complete.
@@ -125,8 +125,8 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           <p className="mt-2 text-xs text-muted-foreground">Progress reflects this form. Save your profile to keep your changes.</p>
         </section>
       </CardHeader>
-      <form action={formAction}>
-        <CardContent className="grid gap-4">
+      <form action={formAction} aria-busy={pending}>
+        <CardContent className="grid gap-6">
           <div className="grid gap-2">
             <Label htmlFor="full_name">Full name</Label>
             <Input
@@ -158,7 +158,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               maxLength={2000}
               rows={5}
               placeholder="Your background, interests, and what you're looking for in mentorship"
-              className="flex w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              className="form-control resize-y"
             />
           </div>
           <div className="grid gap-2">
@@ -196,18 +196,16 @@ export function ProfileForm({ profile }: ProfileFormProps) {
             </div>
           </div>
           {state.error && (
-            <p role="alert" className="text-sm text-destructive">
-              {state.error}
-            </p>
+            <StatusMessage tone="error">{state.error}</StatusMessage>
           )}
           {state.saved && !state.error && (
-            <p role="status" className="text-sm text-muted-foreground">
+            <StatusMessage tone={embedStatus === "failed" ? "info" : "success"}>
               Profile saved.
               {embedStatus === "running" && " Updating your match profile…"}
               {embedStatus === "done" && " Match profile updated."}
               {embedStatus === "failed" &&
                 " Match profile update failed - it will retry on your next save."}
-            </p>
+            </StatusMessage>
           )}
         </CardContent>
         <CardFooter className="mt-6">
