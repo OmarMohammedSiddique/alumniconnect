@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { formatFullName } from "@/lib/profile-name";
+import { getSkillsLimitError, normalizeSkills } from "@/lib/profile-skills";
 
 export interface ProfileState {
   error: string | null;
@@ -26,13 +27,11 @@ export async function updateProfile(
   const bio = String(formData.get("bio") ?? "").trim();
   const industry = String(formData.get("industry") ?? "").trim();
   const yearRaw = String(formData.get("graduation_year") ?? "").trim();
-  const skills = String(formData.get("skills") ?? "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .slice(0, 20);
+  const skills = normalizeSkills(String(formData.get("skills") ?? ""));
+  const skillsError = getSkillsLimitError(skills.length);
 
   if (!fullName) return { error: "Full name is required.", saved: false };
+  if (skillsError) return { error: skillsError, saved: false };
   if (headline.length > 120)
     return { error: "Headline must be 120 characters or fewer.", saved: false };
   if (bio.length > 2000)

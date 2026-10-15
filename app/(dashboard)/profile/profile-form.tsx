@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusMessage } from "@/components/ui/status-message";
+import { getSkillsLimitError, MAX_PROFILE_SKILLS, normalizeSkills } from "@/lib/profile-skills";
 import {
   Card,
   CardContent,
@@ -46,9 +47,11 @@ export function ProfileForm({ profile }: ProfileFormProps) {
     industry: profile.industry ?? "",
     graduation_year: String(profile.graduation_year ?? ""),
   });
+  const skills = normalizeSkills(draft.skills);
+  const skillsError = getSkillsLimitError(skills.length);
   const missing = PROFILE_FIELDS.filter(({ name }) => {
     const value = draft[name].trim();
-    if (name === "skills") return !value.split(",").some((skill) => skill.trim());
+    if (name === "skills") return skills.length === 0 || Boolean(skillsError);
     if (name === "graduation_year") {
       const year = Number(value);
       return !value || !Number.isInteger(year) || year < 1950 || year > new Date().getFullYear();
@@ -125,7 +128,12 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           <p className="mt-2 text-xs text-muted-foreground">Progress reflects this form. Save your profile to keep your changes.</p>
         </section>
       </CardHeader>
-      <form action={formAction} aria-busy={pending}>
+      <form action={formAction} aria-busy={pending} onSubmit={(event) => {
+        if (skillsError) {
+          event.preventDefault();
+          event.currentTarget.querySelector<HTMLInputElement>("#skills")?.focus();
+        }
+      }}>
         <CardContent className="grid gap-6">
           <div className="grid gap-2">
             <Label htmlFor="full_name">Full name</Label>
@@ -168,8 +176,21 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               name="skills"
               value={draft.skills}
               onChange={updateDraft}
+              onBlur={() => setDraft((current) => ({
+                ...current,
+                skills: normalizeSkills(current.skills).join(", "),
+              }))}
+              aria-invalid={Boolean(skillsError)}
+              aria-describedby={`skills-help skills-count${skillsError ? " skills-error" : ""}`}
               placeholder="Comma-separated, e.g. Python, SQL, Public Speaking"
             />
+            <p id="skills-help" className="text-sm text-muted-foreground">
+              Separate skills with commas. Duplicates are removed automatically; your spelling is kept.
+            </p>
+            <p id="skills-count" aria-live="polite" className="text-xs tabular-nums text-muted-foreground">
+              {skills.length} of {MAX_PROFILE_SKILLS} unique skills
+            </p>
+            {skillsError && <p id="skills-error" role="alert" className="text-sm text-destructive">{skillsError}</p>}
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
