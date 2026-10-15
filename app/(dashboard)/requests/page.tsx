@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { cancelRequest, respondRequest } from "./actions";
+import { RequestActions } from "./request-actions";
 import Link from "next/link";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeading } from "@/components/ui/page-heading";
@@ -105,32 +105,8 @@ export default async function RequestsPage() {
                 )}
               </CardHeader>
               {req.status === "pending" && (
-                <CardContent className="flex gap-2">
-                  {isMentor ? (
-                    <>
-                      <form action={respondRequest}>
-                        <input type="hidden" name="request_id" value={req.id} />
-                        <input type="hidden" name="accept" value="true" />
-                        <Button type="submit" size="sm">
-                          Accept
-                        </Button>
-                      </form>
-                      <form action={respondRequest}>
-                        <input type="hidden" name="request_id" value={req.id} />
-                        <input type="hidden" name="accept" value="false" />
-                        <Button type="submit" size="sm" variant="outline">
-                          Decline
-                        </Button>
-                      </form>
-                    </>
-                  ) : (
-                    <form action={cancelRequest}>
-                      <input type="hidden" name="request_id" value={req.id} />
-                      <Button type="submit" size="sm" variant="outline">
-                        Cancel request
-                      </Button>
-                    </form>
-                  )}
+                <CardContent>
+                  <RequestActions requestId={req.id} isMentor={isMentor} />
                 </CardContent>
               )}
             </Card>

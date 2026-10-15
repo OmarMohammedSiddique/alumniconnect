@@ -2,11 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { updateMentorshipRequest, type RequestState } from "@/lib/mentorship-request";
 
-export interface RequestState {
-  error: string | null;
-  ok: boolean;
-}
+export type { RequestState } from "@/lib/mentorship-request";
 
 export async function createRequest(
   _prev: RequestState,
@@ -46,26 +44,24 @@ export async function createRequest(
   return { error: null, ok: true };
 }
 
-export async function cancelRequest(formData: FormData) {
+export async function cancelRequest(
+  _prev: RequestState,
+  formData: FormData,
+): Promise<RequestState> {
   const id = String(formData.get("request_id") ?? "");
-  const supabase = await createClient();
-  // RLS: only the requesting mentee may set their pending request cancelled.
-  await supabase
-    .from("mentorship_requests")
-    .update({ status: "cancelled" })
-    .eq("id", id);
-  revalidatePath("/requests");
+  const result = await updateMentorshipRequest(createClient, id, "cancel");
+  if (result.ok) revalidatePath("/requests");
+  return result;
 }
 
-export async function respondRequest(formData: FormData) {
+export async function respondRequest(
+  _prev: RequestState,
+  formData: FormData,
+): Promise<RequestState> {
   const id = String(formData.get("request_id") ?? "");
-  const accept = formData.get("accept") === "true";
-  const supabase = await createClient();
-  // respond_to_request validates the caller is the recipient mentor and the
-  // request is pending; accepting creates the connection atomically.
-  await supabase.rpc("respond_to_request", {
-    p_request_id: id,
-    p_accept: accept,
-  });
-  revalidatePath("/requests");
+  const accept = formData.get("accept");
+  const decision = accept === "true" ? "accept" : accept === "false" ? "decline" : null;
+  const result = await updateMentorshipRequest(createClient, id, decision);
+  if (result.ok) revalidatePath("/requests");
+  return result;
 }
