@@ -47,6 +47,8 @@ export function ProfileForm({ profile }: ProfileFormProps) {
     industry: profile.industry ?? "",
     graduation_year: String(profile.graduation_year ?? ""),
   });
+  const [savedDraft, setSavedDraft] = useState(draft);
+  const hasUnsavedChanges = PROFILE_FIELDS.some(({ name }) => draft[name] !== savedDraft[name]);
   const skills = normalizeSkills(draft.skills);
   const skillsError = getSkillsLimitError(skills.length);
   const missing = PROFILE_FIELDS.filter(({ name }) => {
@@ -67,7 +69,15 @@ export function ProfileForm({ profile }: ProfileFormProps) {
     setDraft((current) => ({ ...current, [name]: value }));
   };
   const [state, formAction, pending] = useActionState(
-    updateProfile,
+    async (previous: ProfileState, formData: FormData) => {
+      // Capture this submission so edits made while saving remain unsaved.
+      const submitted = Object.fromEntries(
+        PROFILE_FIELDS.map(({ name }) => [name, String(formData.get(name) ?? "")]),
+      ) as typeof draft;
+      const result = await updateProfile(previous, formData);
+      if (result.saved) setSavedDraft(submitted);
+      return result;
+    },
     initialState,
   );
   const [embedStatus, setEmbedStatus] = useState<
@@ -219,7 +229,10 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           {state.error && (
             <StatusMessage tone="error">{state.error}</StatusMessage>
           )}
-          {state.saved && !state.error && (
+          {hasUnsavedChanges && !pending && (
+            <StatusMessage>Unsaved changes. Save your profile to keep them.</StatusMessage>
+          )}
+          {state.saved && !state.error && !hasUnsavedChanges && !pending && (
             <StatusMessage tone={embedStatus === "failed" ? "info" : "success"}>
               Profile saved.
               {embedStatus === "running" && " Updating your match profile…"}
