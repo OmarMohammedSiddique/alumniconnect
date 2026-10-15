@@ -5,6 +5,7 @@ import Link from "next/link";
 import { signUp, type AuthState } from "../actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { StatusMessage } from "@/components/ui/status-message";
 import {
@@ -48,10 +49,9 @@ export function SignupForm() {
           </div>
           <div className="grid gap-2">
             <Label htmlFor="password">Password</Label>
-            <Input
+            <PasswordInput
               id="password"
               name="password"
-              type="password"
               required
               minLength={8}
               autoComplete="new-password"
