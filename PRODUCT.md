@@ -38,6 +38,14 @@ Professional, confident, human, trustworthy, and welcoming. Premium through rest
 
 Meet WCAG AA text contrast and visible non-text control contrast. Preserve semantic headings, landmarks, labels, keyboard access, and visible focus. Aim for 44px touch targets. Support narrow mobile, tablet, laptop, and wide desktop without horizontal page overflow. Use text as well as color for status. Never hide essential content behind animation. Respect reduced motion; feedback transitions are brief and tokenized. Avoid continuous decoration, layout shifts, hydration differences, and added heavy dependencies.
 
+## Elevated glass exception
+
+Liquid glass is a secondary material only for marketing navigation over the hero, the landing Mentor discovery utility panel, mobile navigation, dropdowns/popovers, and one compact dashboard shortcut bar. Ordinary content, Mentor cards, forms, tables, profiles, and alerts stay solid. The authenticated application remains primarily solid.
+
+Use the shared `glass-surface` class on a positioned surface with the existing radius scale. Central tokens: `--glass-background-light` (82% white), `--glass-background-dark` (84% dark), `--glass-border`, `--glass-highlight`, `--glass-shadow`, `--glass-blur` (20px, 16px on mobile), and `--glass-saturation` (130%). A stable pseudo-element adds an upper-edge inset highlight. Muted text and hover links use glass-specific contrast tokens. Never animate blur, refraction, or shimmer.
+
+Solid theme-aware backgrounds are the default and explicit unsupported-browser fallback. Reduced transparency and forced colors also disable the filter. Verify text contrast after compositing over both black and white backdrops, with or without decoration; retain keyboard focus and reduced-motion rules.
+
 ## Anti-patterns
 
-No official-endorsement language, proprietary fonts, fabricated data or functionality, airplane decoration, gradients, glass effects, glow, excessive pills or nested cards, red on every surface, or em dash characters. Keep copy specific and concise. Preserve routes, authentication, Supabase, ML logic, schemas, and unrelated research documentation.
+No official-endorsement language, proprietary fonts, fabricated data or functionality, airplane decoration, gradients, glass outside the elevated exception, glow, excessive pills or nested cards, red on every surface, or em dash characters. Keep copy specific and concise. Preserve routes, authentication, Supabase, ML logic, schemas, and unrelated research documentation.

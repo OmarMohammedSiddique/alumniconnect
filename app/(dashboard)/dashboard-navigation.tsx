@@ -53,7 +53,7 @@ export function DashboardNavigation({ name, role }: { name: string; role: string
 
   return (
     <>
-      <header className="border-b bg-card px-4 py-3 md:hidden">
+      <header className="glass-surface sticky top-0 z-(--z-navigation) max-h-svh overflow-y-auto border-x-0 border-t-0 px-4 py-3 md:hidden">
         <Link href="/discover" className="inline-flex min-h-11 items-center" onClick={closeMenu}><Brand /></Link>
         <details ref={menu} className="group mt-2" onKeyDown={(event) => {
           if (event.key === "Escape" && menu.current?.open) {
