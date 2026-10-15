@@ -75,7 +75,13 @@ export function ProfileForm({ profile }: ProfileFormProps) {
         PROFILE_FIELDS.map(({ name }) => [name, String(formData.get(name) ?? "")]),
       ) as typeof draft;
       const result = await updateProfile(previous, formData);
-      if (result.saved) setSavedDraft(submitted);
+      if (result.saved) {
+        setSavedDraft({ ...submitted, full_name: result.fullName });
+        // Only replace the submitted name, preserving newer edits in this form.
+        setDraft((current) => current.full_name === submitted.full_name
+          ? { ...current, full_name: result.fullName }
+          : current);
+      }
       return result;
     },
     initialState,

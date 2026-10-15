@@ -5,10 +5,9 @@ import { createClient } from "@/lib/supabase/server";
 import { formatFullName } from "@/lib/profile-name";
 import { getSkillsLimitError, normalizeSkills } from "@/lib/profile-skills";
 
-export interface ProfileState {
-  error: string | null;
-  saved: boolean;
-}
+export type ProfileState =
+  | { error: string | null; saved: false }
+  | { error: null; saved: true; fullName: string };
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -64,5 +63,5 @@ export async function updateProfile(
   if (error) return { error: error.message, saved: false };
 
   revalidatePath("/profile");
-  return { error: null, saved: true };
+  return { error: null, saved: true, fullName };
 }
