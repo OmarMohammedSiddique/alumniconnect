@@ -64,7 +64,7 @@ export default async function AdminPage() {
         <div className="overflow-x-auto rounded-lg border">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b bg-muted/50 text-left">
+              <tr className="border-b bg-muted text-left">
                 <th className="px-3 py-2 font-medium">Name</th>
                 <th className="px-3 py-2 font-medium">Role</th>
                 <th className="px-3 py-2 font-medium">Visibility</th>
@@ -136,7 +136,7 @@ export default async function AdminPage() {
         <div className="overflow-x-auto rounded-lg border">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b bg-muted/50 text-left">
+              <tr className="border-b bg-muted text-left">
                 <th className="px-3 py-2 font-medium">When</th>
                 <th className="px-3 py-2 font-medium">Action</th>
                 <th className="px-3 py-2 font-medium">Detail</th>

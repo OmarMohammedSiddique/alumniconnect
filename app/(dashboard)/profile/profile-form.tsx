@@ -118,7 +118,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
             aria-label="Profile completeness"
             value={completed}
             max={PROFILE_FIELDS.length}
-            className="profile-progress mt-3 h-2 w-full overflow-hidden rounded"
+            className="profile-progress mt-3 h-2 w-full overflow-hidden rounded-sm"
           />
           <p aria-live="polite" className="mt-2 text-sm text-muted-foreground">
             {completed} of {PROFILE_FIELDS.length} fields complete.

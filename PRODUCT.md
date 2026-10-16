@@ -20,9 +20,9 @@ Professional, confident, human, trustworthy, and welcoming. Premium through rest
 
 - Reuse Tailwind and shadcn semantic variables in `app/globals.css`.
 - Reference red `#ED1C24` for large accents and brand marks; deeper red `#C1171E` for small white-text actions. Ink `#0D0D0D`, supporting gray `#545352`, white `#FFFFFF`, light gray `#EBEBEB`, and soft surface `#F8F7F7`.
-- Red marks priority and selection; most controls and surfaces stay neutral. Blue is reserved for semantic information only.
+- Red marks priority and selection; most controls and surfaces stay neutral. Supporting Kenyan green `#006B3F` is reserved for success, accepted connections, and small meaningful status markers. This is an AlumniConnect supporting token, not a claim about an official airline specification. Blue is reserved for semantic information only.
 - Centralize font scale, line heights, spacing, control height, radii, shadows, focus, and motion tokens. Product headings use a fixed rem scale; landing display type can be fluid.
-- White and soft-gray surfaces, subtle full borders, modest corners, and restrained shadows. Keep the existing light-first presentation and coherent dark tokens.
+- Square corners throughout, with a shared radius of zero. Solid white and soft-gray content surfaces contrast with dark navigation and neutral secondary actions. Use clear full borders instead of floating shadows. Keep the existing light-first presentation and coherent dark tokens.
 
 ## Interface patterns and surfaces
 
@@ -38,14 +38,12 @@ Professional, confident, human, trustworthy, and welcoming. Premium through rest
 
 Meet WCAG AA text contrast and visible non-text control contrast. Preserve semantic headings, landmarks, labels, keyboard access, and visible focus. Aim for 44px touch targets. Support narrow mobile, tablet, laptop, and wide desktop without horizontal page overflow. Use text as well as color for status. Never hide essential content behind animation. Respect reduced motion; feedback transitions are brief and tokenized. Avoid continuous decoration, layout shifts, hydration differences, and added heavy dependencies.
 
-## Elevated glass exception
+## Surface material
 
-Liquid glass is a secondary material only for marketing navigation over the hero, the landing Mentor discovery utility panel, mobile navigation, dropdowns/popovers, and one compact dashboard shortcut bar. Ordinary content, Mentor cards, forms, tables, profiles, and alerts stay solid. The authenticated application remains primarily solid.
+All navigation, utility panels, dropdowns, cards, forms, alerts, and profile sections use opaque backgrounds. The current direction replaces the earlier liquid-glass exception. Do not restore backdrop blur, translucent containers, inset highlights, decorative opacity, or pill-shaped surfaces.
 
-Use the shared `glass-surface` class on a positioned surface with the existing radius scale. Central tokens: `--glass-background-light` (82% white), `--glass-background-dark` (84% dark), `--glass-border`, `--glass-highlight`, `--glass-shadow`, `--glass-blur` (20px, 16px on mobile), and `--glass-saturation` (130%). A stable pseudo-element adds an upper-edge inset highlight. Muted text and hover links use glass-specific contrast tokens. Never animate blur, refraction, or shimmer.
-
-Solid theme-aware backgrounds are the default and explicit unsupported-browser fallback. Reduced transparency and forced colors also disable the filter. Verify text contrast after compositing over both black and white backdrops, with or without decoration; retain keyboard focus and reduced-motion rules.
+Use the shared `solid-surface` class for utility panels and popup menus. Workspace navigation has a scoped dark palette with readable light text, solid hover states, a red current-page treatment, and a white focus outline. Keep feedback states identifiable through text and icons as well as color.
 
 ## Anti-patterns
 
-No official-endorsement language, proprietary fonts, fabricated data or functionality, airplane decoration, gradients, glass outside the elevated exception, glow, excessive pills or nested cards, red on every surface, or em dash characters. Keep copy specific and concise. Preserve routes, authentication, Supabase, ML logic, schemas, and unrelated research documentation.
+No official-endorsement language, proprietary fonts, fabricated data or functionality, airplane decoration, gradients, glass, glow, rounded containers, decorative translucency, nested cards, green as a competing primary color, red on every surface, or em dash characters. Keep copy specific and concise. Preserve routes, authentication, Supabase, ML logic, schemas, and unrelated research documentation.

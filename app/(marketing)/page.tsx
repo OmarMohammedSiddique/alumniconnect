@@ -36,7 +36,7 @@ export default function LandingPage() {
   return (
     <div className={styles.page}>
       <a className={styles.skipLink} href="#main">Skip to content</a>
-      <header className={`glass-surface ${styles.header}`}>
+      <header className={`solid-surface ${styles.header}`}>
         <div className={styles.navbar}>
           <Link href="/" aria-label="AlumniConnect home"><Brand className={styles.brand} /></Link>
           <nav className={styles.navLinks} aria-label="Main navigation">
@@ -69,7 +69,7 @@ export default function LandingPage() {
             <figcaption>Good guidance starts with common ground.</figcaption>
           </figure>
         </section>
-        <nav className={`glass-surface ${styles.container} ${styles.utilityPanel}`} aria-label="Start exploring AlumniConnect">
+        <nav className={`solid-surface ${styles.container} ${styles.utilityPanel}`} aria-label="Start exploring AlumniConnect">
           <div><h2>Put your experience in good company.</h2><p>Explore your next connection or learn what goes into a recommendation.</p></div>
           <div className={styles.utilityActions}><Link href="/discover" className={styles.primaryButton}>Discover Mentors <ArrowRight size={18} aria-hidden="true" /></Link><a href="#matching" className={styles.textLink}>How matching works <ArrowRight size={17} aria-hidden="true" /></a></div>
         </nav>

@@ -53,7 +53,7 @@ export function DashboardNavigation({ name, role }: { name: string; role: string
 
   return (
     <>
-      <header className="glass-surface sticky top-0 z-(--z-navigation) max-h-svh overflow-y-auto border-x-0 border-t-0 px-4 py-3 md:hidden">
+      <header className="workspace-navigation sticky top-0 z-(--z-navigation) max-h-svh overflow-y-auto border-b px-4 py-3 md:hidden">
         <Link href="/discover" className="inline-flex min-h-11 items-center" onClick={closeMenu}><Brand /></Link>
         <details ref={menu} className="group mt-2" onKeyDown={(event) => {
           if (event.key === "Escape" && menu.current?.open) {
@@ -71,7 +71,7 @@ export function DashboardNavigation({ name, role }: { name: string; role: string
           <div className="pb-3 pt-4">{links}{account}</div>
         </details>
       </header>
-      <aside className="sticky top-0 hidden h-svh w-64 shrink-0 flex-col overflow-y-auto border-r bg-card px-4 py-6 md:flex">
+      <aside className="workspace-navigation sticky top-0 hidden h-svh w-64 shrink-0 flex-col overflow-y-auto border-r bg-card px-4 py-6 md:flex">
         <Link href="/discover" className="mb-8 inline-flex min-h-11 items-center px-2"><Brand /></Link>
         <p className="mb-3 px-3 text-xs font-medium text-muted-foreground">Your workspace</p>
         {links}{account}

@@ -10,7 +10,7 @@ const ACTIONS = [
 
 export function QuickActions() {
   return (
-    <nav aria-label="Workspace shortcuts" className="glass-surface relative mb-8 grid grid-cols-1 divide-y rounded-lg min-[360px]:grid-cols-2 xl:grid-cols-4 xl:divide-y-0">
+    <nav aria-label="Workspace shortcuts" className="solid-surface relative mb-8 grid grid-cols-1 divide-y rounded-lg min-[360px]:grid-cols-2 xl:grid-cols-4 xl:divide-y-0">
       {ACTIONS.map(({ href, label, icon: Icon }) => (
         <Link key={label} href={href} className="group flex min-h-20 min-w-0 items-center gap-3 px-4 py-4 text-sm font-medium transition-colors duration-(--motion-fast) ease-(--ease-out) hover:bg-surface xl:border-r xl:last:border-r-0">
           <Icon className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />

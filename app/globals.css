@@ -70,10 +70,10 @@
   --brand-surface: oklch(0.976 0.001 27); /* #f8f7f7 reference */
   --brand-gray: oklch(0.44285 0.00208 67.77); /* #545352 */
   --brand-gray-light: oklch(0.94 0 0); /* #ebebeb reference */
-  --brand-tint: oklch(0.97 0.012 27);
+  --brand-green: oklch(0.46442 0.11076 156.908); /* #006b3f */ /* Supporting Kenyan green, reserved for success states. */
   --surface: var(--brand-surface);
-  --success: oklch(0.96 0.025 155);
-  --success-foreground: oklch(0.35 0.08 155);
+  --success: var(--card);
+  --success-foreground: var(--brand-green);
   --warning: oklch(0.97 0.035 85);
   --warning-foreground: oklch(0.38 0.08 65);
   --info: oklch(0.96 0.018 245);
@@ -83,18 +83,8 @@
   --inverse-muted: oklch(0.82 0 0);
   --inverse-border: oklch(0.44 0 0);
   --inverse-accent: oklch(0.83 0.09 27);
-  --shadow-subtle: 0 1px 3px oklch(0.159 0 0 / 0.04);
-  --shadow-panel: 0 8px 24px -12px oklch(0.159 0 0 / 0.16);
-  --glass-background-light: oklch(1 0 0 / 82%);
-  --glass-background-dark: oklch(0.205 0 0 / 84%);
-  --glass-background: var(--glass-background-light);
-  --glass-border: oklch(0.159 0 0 / 16%);
-  --glass-highlight: oklch(1 0 0 / 80%);
-  --glass-shadow: 0 8px 24px -12px oklch(0.159 0 0 / 18%);
-  --glass-blur: 20px;
-  --glass-saturation: 130%;
-  --glass-muted-foreground: var(--brand-gray);
-  --glass-link: oklch(0.43 0.17 27);
+  --shadow-subtle: none;
+  --shadow-panel: none;
   --space-unit: 0.25rem;
   --space-section: 3rem;
   --content-width: 76rem;
@@ -125,14 +115,14 @@
   --popover-foreground: var(--brand-ink);
   --primary: var(--brand-red-deep);
   --primary-foreground: oklch(1 0 0);
-  --secondary: var(--brand-gray-light);
-  --secondary-foreground: var(--brand-ink);
+  --secondary: var(--brand-ink);
+  --secondary-foreground: oklch(1 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: var(--brand-gray);
-  --accent: var(--brand-tint);
-  --accent-foreground: var(--brand-red-deep);
+  --accent: var(--brand-ink);
+  --accent-foreground: oklch(1 0 0);
   --destructive: oklch(0.43 0.17 27);
-  --border: oklch(0.922 0 0);
+  --border: oklch(0.84 0 0);
   --input: oklch(0.58 0 0);
   --ring: var(--brand-red-deep);
   --chart-1: var(--brand-red-deep);
@@ -140,7 +130,7 @@
   --chart-3: oklch(0.66 0.17 27);
   --chart-4: oklch(0.48 0 0);
   --chart-5: oklch(0.78 0.1 27);
-  --radius: 0.5rem;
+  --radius: 0rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: var(--brand-red-deep);
@@ -152,13 +142,8 @@
 }
 
 .dark {
-  --glass-background: var(--glass-background-dark);
-  --glass-border: oklch(1 0 0 / 20%);
-  --glass-highlight: oklch(1 0 0 / 14%);
-  --glass-muted-foreground: oklch(0.8 0 0);
-  --glass-link: oklch(0.88 0.06 27);
   --surface: oklch(0.18 0 0);
-  --success: oklch(0.25 0.035 155);
+  --success: var(--card);
   --success-foreground: oklch(0.86 0.08 155);
   --warning: oklch(0.27 0.035 65);
   --warning-foreground: oklch(0.9 0.08 85);
@@ -172,14 +157,14 @@
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.78 0.12 27);
   --primary-foreground: var(--brand-ink);
-  --secondary: oklch(0.26 0.025 27);
-  --secondary-foreground: oklch(0.91 0.045 27);
+  --secondary: oklch(0.94 0 0);
+  --secondary-foreground: var(--brand-ink);
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.26 0.025 27);
-  --accent-foreground: oklch(0.91 0.045 27);
+  --accent: oklch(0.94 0 0);
+  --accent-foreground: var(--brand-ink);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
+  --border: oklch(0.42 0 0);
   --input: oklch(0.58 0 0);
   --ring: oklch(0.78 0.12 27);
   --chart-1: oklch(0.78 0.12 27);
@@ -193,13 +178,13 @@
   --sidebar-primary-foreground: var(--brand-ink);
   --sidebar-accent: oklch(0.26 0.025 27);
   --sidebar-accent-foreground: oklch(0.91 0.045 27);
-  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-border: oklch(0.42 0 0);
   --sidebar-ring: oklch(0.78 0.12 27);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring;
   }
   body {
     @apply bg-background text-foreground;
@@ -241,40 +226,29 @@
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0ms !important; scroll-behavior: auto !important; }
 }
 
-/* Reserved for elevated navigation, utility surfaces, and portal menus. */
-.glass-surface {
-  --muted-foreground: var(--glass-muted-foreground);
-  isolation: isolate;
+/* Navigation and utility panels stay opaque above scrolling content. */
+.solid-surface {
   color: var(--foreground);
   background: var(--card);
   border: 1px solid var(--border);
-  box-shadow: var(--glass-shadow);
 }
-.glass-surface::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  box-shadow: inset 0 1px 0 var(--glass-highlight);
+
+.workspace-navigation {
+  --background: var(--brand-ink);
+  --foreground: var(--inverse-foreground);
+  --card: var(--brand-ink);
+  --muted: oklch(0.28 0 0);
+  --muted-foreground: var(--inverse-muted);
+  --border: var(--inverse-border);
+  --accent: var(--brand-red-deep);
+  --accent-foreground: var(--inverse-foreground);
+  --primary: var(--brand-red-deep);
+  --primary-foreground: var(--inverse-foreground);
+  --ring: var(--inverse-foreground);
+  color: var(--foreground);
+  background: var(--background);
 }
-@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass-surface {
-    background: var(--glass-background);
-    border-color: var(--glass-border);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  }
-}
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass-surface { background: var(--card); border-color: var(--border); box-shadow: var(--shadow-subtle); }
-  .glass-surface::before { content: none; }
-}
+
 @media (max-width: 767px) {
   #workspace { scroll-margin-top: var(--navigation-clearance); }
-  .glass-surface { --glass-blur: 16px; }
-}
-@media (prefers-reduced-transparency: reduce), (forced-colors: active) {
-  .glass-surface { background: var(--card); border-color: var(--border); -webkit-backdrop-filter: none; backdrop-filter: none; }
-  .glass-surface::before { content: none; }
 }

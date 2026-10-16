@@ -3,8 +3,8 @@ import { CheckCircle2, CircleAlert, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const TONES = {
-  error: "border-destructive/25 bg-destructive/5 text-destructive",
-  success: "border-success-foreground/20 bg-success text-success-foreground",
+  error: "border-destructive bg-card text-destructive",
+  success: "border-success-foreground bg-success text-success-foreground",
   info: "border-border bg-surface text-foreground",
 };
 
