@@ -161,6 +161,8 @@ update public.profiles set role = 'mentee' where id = '00000000-0000-0000-0000-0
 select pg_temp.impersonate('00000000-0000-0000-0000-000000000001');
 insert into public.mentorship_requests (mentee_id, mentor_id, message)
 values ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 'Please mentor me');
+select set_config('test.request_id', (select id::text from public.mentorship_requests
+  where mentee_id = auth.uid() and status = 'pending'), true);
 do $$ begin
   begin
     insert into public.mentorship_requests (mentee_id, mentor_id, message)
@@ -193,10 +195,42 @@ do $$ begin
 end $$;
 
 -- TEST 11: only the recipient mentor can accept; accept creates connection.
+-- Use a known request ID so this exercises authorization rather than an empty
+-- RLS-filtered subquery. Anonymous and missing-subject contexts must fail too.
+select pg_temp.reset_role();
+set local role anon;
+select set_config('request.jwt.claims', '{"role":"anon"}', true);
+do $$ begin
+  begin
+    perform public.respond_to_request(current_setting('test.request_id')::uuid, true);
+    raise exception 'FAIL 11a: anonymous caller accepted a known request';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+select pg_temp.reset_role();
+set local role authenticated;
+select set_config('request.jwt.claims', '{"role":"authenticated"}', true);
+do $$ begin
+  begin
+    perform public.respond_to_request(current_setting('test.request_id')::uuid, false);
+    raise exception 'FAIL 11b: caller without a subject declined a known request';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+select pg_temp.reset_role();
+do $$ begin
+  if (select status from public.mentorship_requests
+      where id = current_setting('test.request_id')::uuid) <> 'pending'
+     or exists (select 1 from public.connections
+                where request_id = current_setting('test.request_id')::uuid) then
+    raise exception 'FAIL 11: unauthorized response changed the request or connections';
+  end if;
+end $$;
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000006');
 do $$ begin
   begin
     perform public.respond_to_request(
-      (select id from public.mentorship_requests limit 1), true);
+      current_setting('test.request_id')::uuid, true);
     raise exception 'FAIL 11: non-recipient responded to request';
   exception when others then
     if sqlerrm like 'FAIL%' then raise; end if;
