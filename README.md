@@ -133,6 +133,7 @@ Git and must never be committed.
 | `npm run typecheck` | Validate TypeScript without emitting files |
 | `npm run build` | Create an optimized production build |
 | `npm run check` | Run lint, type checking, and the production build |
+| `npm run smoke:local` | Verify the local HTTP/API/database mentorship workflow using disposable accounts |
 | `node scripts/seed-dev.mjs` | Add local mentor profiles and embeddings |
 | `node scripts/eval/run-eval.mjs` | Reproduce the matching evaluation |
 
@@ -149,6 +150,28 @@ With local Supabase running, execute the database access-control tests:
 ```bash
 docker exec -i supabase_db_alumniconnect psql -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/rls_tests.sql
 ```
+
+To verify the mentorship workflow, apply pending local migrations with
+`npx supabase migration up --local`, run `npm run check`, and start that production
+build with `npm run start -- --port 3002`. In a second terminal, run:
+
+```bash
+npm run smoke:local
+```
+
+The test reads `.env.local`, requires loopback app/Supabase URLs and the local
+auto-confirm signup setting, and uses real Next.js Server Actions, embedding and
+matching APIs, and database policies. It creates four temporary accounts and
+removes only that run's fixtures in a cleanup block. Normal auth/audit events may
+remain. Do not interrupt cleanup. It never resets the database or applies hosted
+migrations. Use `SMOKE_APP_URL=http://localhost:3001 npm run smoke:local` to target
+another local port running the same freshly built revision and configuration.
+
+The runner resolves action references from the current `.next` build and uses
+the installed Next.js 16 action encoder. Recheck it after upgrading Next.js.
+This is HTTP integration coverage, not browser automation or hosted acceptance.
+See [environment verification](docs/environment-verification.md) for results and
+the remaining browser checks.
 
 ## Project structure
 

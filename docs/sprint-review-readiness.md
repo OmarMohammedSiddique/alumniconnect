@@ -1,9 +1,9 @@
 # AlumniConnect · Sprint review board
 
-**Review: 15 October 2026 · Evidence updated: 15 October 2026**
+**Review: 15 October 2026 · Evidence updated: 28 October 2026**
 
-> **Current position:** substantial mentorship implementation, preliminary ML evidence,
-> incomplete live verification and research/documentation deliverables.
+> **Current position:** local core HTTP/API/database workflow verified, browser
+> acceptance incomplete, preliminary ML evidence, and research/report gaps.
 > No defensible overall completion percentage is available.
 
 **Legend:** ✅ evidenced item · 🟡 partial · 🔎 runtime verification outstanding · ⬜ not evidenced here.
@@ -40,9 +40,9 @@ Statuses refer to this checkout and inspected files, not unseen documents or hos
 | Lecturer's expectation | Status | Where we stand / why | To close the requirement |
 | --- | --- | --- | --- |
 | Sprint tasks linked to objectives and supervisor priorities | 🟡 Partial | Local traceability audit maps approved objectives to code/gaps. Current supervisor priority approval not verified. | Select review scope, link tasks to objectives, and record supervisor decisions. |
-| Working input → processing → output workflow | 🔎 Implemented; verify live | Profile save, embedding generation, pgvector ranking, discover UI and request/response code exist. No complete browser journey verified today. | Demonstrate profile → stored vector → mentor results → accepted request/connection. |
-| Integrated interface, logic, database and model | 🔎 Implemented; verify live | `/api/embed`, `/api/match`, SQL RPCs and UI form the integration. Standalone ML walkthrough does not exercise those boundaries. | Capture API output, stored vector and browser result on isolated local data. |
-| Initial tests including invalid inputs/failures | 🟡 Partial | Static checks, temporary-user password sign-in and own-profile read passed. Anonymous profile access correctly rejected. SQL RLS/pipeline scripts exist; full matrix and failure/retry evidence remain outstanding. | Extend the recorded tests to the core workflow, failure/retry and local RLS suite. |
+| Working input → processing → output workflow | 🟡 HTTP verified; browser pending | On 28 October, actual signup/profile/request/auth actions, real embedding and matching APIs, and persisted connections passed using disposable local accounts. | Verify the same journey through browser interactions, including automatic embedding after save. |
+| Integrated interface, logic, database and model | 🟡 Server path verified | Real 384-value vectors, pgvector/shared-skill output, acceptance, party-visible connections and rendered request pages were checked. Browser control was unavailable. | Capture browser acceptance evidence; HTTP checks do not execute client effects or navigation. |
+| Initial tests including invalid inputs/failures | 🟡 Expanded local evidence | Twelve HTTP/integration checks and the expanded RLS suite pass. Known-ID anonymous response vulnerability reproduced and fixed locally; invalid input, duplicates and stale actions covered. | Verify live browser feedback and service-outage recovery; hosted checks remain separate. |
 | Initial ML baseline/pipeline, validation and metrics | 🟡 Partial | Frozen MiniLM and keyword baselines; historical synthetic P@1/MRR/coverage report. Candidate filtering alters ranks; no independent suitability labels. | Explain historical/provisional numbers; repair protocol and preserve raw rankings before final claims. |
 | Chapter 5 implementation/testing; changed Chapter 4 diagrams | ⬜ Not evidenced in inspected files | Local ML guide exists, but it is not a completed Chapter 5. Current diagram set and submitted chapters not reviewed. | Add real implementation, integration, screenshots and test evidence to the actual report. |
 | Current Git repository and reproducible demo | 🟡 Partial | Setup guide and ML walkthrough are versioned; capstone traceability is being checkpointed separately. | Commit reviewed work, identify the demonstrated commit and record dependencies/data. |
@@ -57,8 +57,11 @@ Statuses refer to this checkout and inspected files, not unseen documents or hos
 - [x] Staff role/visibility controls, audit logging and RLS definitions.
 - [x] Initial synthetic comparison report and test tooling.
 - [x] Local credential comparison, sign-in and profile access-control checks recorded in `environment-verification.md`.
-- [ ] Complete browser/API/database demo verified and recorded.
-- [ ] Invalid-input, missing-embedding and failure/retry tests recorded.
+- [x] Local HTTP/API/database workflow and scoped cleanup verified on 28 October; see `environment-verification.md`.
+- [ ] Complete browser demo verified and recorded. Browser bridge unavailable on 28 October.
+- [x] Invalid-input, missing-embedding and stale-action HTTP checks recorded;
+  mocked failure/retry tests pass as a separate layer.
+- [ ] Browser failure/retry feedback verified during a live service outage.
 - [ ] Evaluation calculations independently checked with raw rankings.
 - [ ] Chapter 5 and revised design evidence ready for review.
 
@@ -88,8 +91,9 @@ or removing jobs/cohorts/events. There is no claim that unseen research or repor
 
 | Priority | Next concrete outcome | Evidence of completion |
 | --- | --- | --- |
-| NOW | Set up the requested local → GitHub → Colab → Drive experiment workflow | Versioned notebook; exact code revision; saved run manifest and outputs |
-| BEFORE REVIEW | Demonstrate the implemented core on isolated local data | Browser journey, API/database checks, dated test matrix |
+| NOW | Close the remaining browser acceptance checks for the verified local core | Browser signup → profile save/automatic embedding → matching → request/response → connection; visible failures and pending states |
+| NEXT | Set up the requested local → GitHub → Colab → Drive experiment workflow | Versioned notebook; exact code revision; saved run manifest and outputs |
+| BEFORE REVIEW | Demonstrate the core on isolated local data | Dated HTTP/API/database matrix now recorded; browser evidence still needed |
 | BEFORE REVIEW | Explain the ML and recorded comparison accurately | Oral rehearsal; no training/superiority claims unsupported by evidence |
 | BEFORE REVIEW | Put real implementation/testing evidence in the actual report | Current Chapter 5 and changed Chapter 4 diagrams |
 | NEXT | Fine-tune after labelled data and splits are ready | Saved checkpoints, learning curves, validation decision, held-out results |
@@ -160,3 +164,23 @@ Companion: [detailed Colab workflow](colab-training-workflow.md).
   existing Node module-type warning does not change that verification boundary.
 - The earlier environment observations above retain their original dates and
   scope. Neither local checks nor a source checkpoint establish hosted readiness.
+
+## 07 · Core workflow verification · 28 October 2026
+
+- `npm run smoke:local` passed 12 checks using actual Next.js Server Actions
+  over HTTP, real embedding/matching APIs and local database assertions. Four
+  disposable accounts were removed; no fixture profiles, requests or connections
+  remained. It is not browser automation.
+- Expanded rollback-only SQL tests reproduced and then verified the fix for an
+  anonymous caller responding to a known request ID. Security commit `f8fb640`
+  adds migration `20261028000001_request_response_auth.sql`; applied locally only.
+- Fresh `npm run check` passed lint, TypeScript and the production build. The
+  configured URL and keys match the running local instance; secrets were not
+  printed or committed.
+- Browser bridge startup failed twice, including after reset. Client effects,
+  automatic embedding after a browser save, interactive pending/error feedback
+  and complete browser acceptance remain unverified in this run.
+- The seven QoL improvements and square, opaque visual system are committed
+  through `021e2af`. They do not imply hosted or representative-user acceptance.
+- Full test matrix, reproducible commands, cleanup, defect and limitations:
+  [`environment-verification.md`](environment-verification.md).

@@ -1,6 +1,6 @@
-# Local environment verification · 14–15 October 2026
+# Local environment verification · October 2026
 
-Scope: isolated temporary account on the existing local AlumniConnect stack.
+Original 14–15 October scope: isolated temporary account on the existing local AlumniConnect stack.
 The target was checked as loopback before requests. No hosted project was used.
 
 ## Diagnosis
@@ -60,3 +60,82 @@ This is user-performed local manual smoke-test evidence. It is not an automated
 end-to-end test or an independently repeated agent test. It did not verify
 persistence after stopping and restarting Supabase, and it did not verify a
 hosted Supabase environment. No personal account data is recorded here.
+
+## Core mentorship workflow · 28 October 2026
+
+Scope: the local production build on port 3002, local Supabase on port 54321,
+and four fresh disposable accounts per successful smoke run. Application code
+is based on `021e2af`; the authorization fix is `f8fb640`. The application URL
+and both configured keys were checked against the running local CLI instance
+without printing secrets. No service-role key uses a `NEXT_PUBLIC` variable.
+
+### Results
+
+| Check | Actual result | Boundary |
+| --- | --- | --- |
+| Unsigned-in access | `/profile` redirects to login; `/api/embed` and `/api/match` return 401 | Actual HTTP requests |
+| Invalid signup role | Signup action returns `Invalid role.` before creating an account | Actual Next.js Server Action over HTTP |
+| Signup and profile creation | Four accounts receive sessions and correct roles; lowercase names are formatted | Actual signup action and local auth trigger |
+| Empty profile recovery | Embedding and matching return 422, then succeed after a valid profile save | Actual APIs; no artificial service outage |
+| Profile save and embedding | Save action returns the formatted name; skills are deduplicated; `/api/embed` persists finite, normalized 384-value vectors | Actual profile action, frozen model inference and database reads |
+| Invalid profile input | Invalid graduation year returns a validation error without changing saved fields | Actual profile action and database read |
+| Mentor discovery | pgvector and keyword search return the visible fixture Mentor; shared skills are correct; hidden Mentor excluded even with an embedding | Controlled identical profile text, not a suitability or model-quality evaluation |
+| Column/row permissions | Role escalation, client embedding writes, other-profile edits and hidden-Mentor requests are rejected | Real SDK calls under fixture user sessions |
+| Request permissions and duplicates | Duplicate pending request returns a clear action error; non-parties cannot read requests; non-recipient response and anonymous known-ID RPC attempt are rejected | Actual request actions, SDK/RPC and database assertions |
+| Acceptance and connection | Recipient acceptance creates one connection; both parties can read it and their rendered request pages show Accepted and Your connections; repeat acceptance fails | Actual response action, server-rendered HTML and database assertions |
+| Decline, cancel and stale actions | Decline works; only the Mentee cancels; stale cancel/accept returns failure and preserves connection count | Actual request actions and database assertions |
+| Logout and login persistence | Logout action removes API access; login action restores saved profile, matching and connection | Actual auth actions and subsequent reads; no Supabase restart |
+
+The smoke runner reads action IDs from the matching production build and uses
+the installed Next.js 16 action encoder. It invokes real server functions over
+HTTP. It does not execute React event handlers, effects, client navigation or
+browser-native validation. Profile-triggered automatic embedding, pending
+button interaction, keyboard/mobile behavior and in-browser failure/retry
+feedback still need a browser acceptance pass.
+
+### Permission defect found and corrected
+
+The original `respond_to_request` function was executable by `anon`. With no
+authenticated subject, its `req.mentor_id <> auth.uid()` comparison evaluated
+to NULL, bypassing the rejection. An expanded rollback-only SQL test reproduced
+`FAIL 11a: anonymous caller accepted a known request`. The existing unrelated-
+user test was also improved to supply an actual known ID instead of an empty
+RLS-filtered subquery.
+
+Migration `20261028000001_request_response_auth.sql` adds an explicit subject
+check, uses a null-safe recipient comparison, and revokes PUBLIC/anonymous
+execution. It was applied with `supabase migration up --local` only. The
+expanded SQL suite now passes, including a missing-subject authenticated
+context, and a real anonymous REST RPC call returns PostgreSQL 42501 without
+changing the pending request or creating a connection. Existing migrations
+were not rewritten. Hosted environments have not received this fix.
+
+### Verification and cleanup
+
+- `npm run smoke:local`: 12 checks passed; four temporary auth accounts removed;
+  no fixture profiles, requests or connections remained after the run.
+- `docker exec -i supabase_db_alumniconnect psql -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/rls_tests.sql`:
+  `ALL RLS TESTS PASSED`, followed by `ROLLBACK`.
+- `npm run check`: lint, TypeScript and the Next.js 16.3.6 production build passed.
+- `node --experimental-strip-types --test lib/profile-name.test.mjs lib/profile-skills.test.mjs lib/profile-match-update.test.mjs lib/mentorship-request.test.mjs`:
+  26 passed, zero failed. These remain a separate mocked/unit layer and do not
+  establish live outage recovery. The existing Node module-type warning remains.
+- The first version of the new smoke runner supplied the wrong keyword RPC
+  argument. That test-harness error was corrected to `search_query`; its four
+  fixtures were cleaned up. It was not an application defect.
+- Browser control failed twice with `Sky Computer Use native pipe startup
+  failed`, including after a session reset; no alternate browser connection
+  was available. No browser result is claimed for this run.
+
+Docker Desktop was started, resuming existing containers through their restart
+policies. Only the AlumniConnect database received the new migration; no stack
+or database was reset. Fixture signup uses public auth, and service-role access
+is limited to test-only visibility setup, scoped assertions and cleanup. Normal
+local auth/audit events may remain. No personal account data, credentials,
+tokens, generated model files or raw fixture identifiers are committed.
+
+Remaining gates: complete browser acceptance, test persistence across a
+Supabase restart, apply migrations to any hosted target when authorized, and
+verify hosted configuration and role-specific behavior separately. This work
+does not establish model quality, project-specific training, concurrency/load
+behavior or representative-user usability.

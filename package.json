@@ -17,7 +17,8 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "ml:walkthrough": "node --conditions=react-server --experimental-strip-types scripts/ml-walkthrough.mjs",
-    "check": "npm run lint && npm run typecheck && npm run build"
+    "check": "npm run lint && npm run typecheck && npm run build",
+    "smoke:local": "node --env-file=.env.local scripts/smoke-local.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

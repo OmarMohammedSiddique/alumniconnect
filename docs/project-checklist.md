@@ -1,6 +1,6 @@
 # AlumniConnect Project Checklist
 
-Last updated: 30 September 2026
+Last updated: 28 October 2026
 
 This is the working checklist for the capstone. The approved proposal is the
 source of truth. Detailed evidence and gaps are recorded in
@@ -100,10 +100,22 @@ without relying on generated text.
 - [x] Static checks and production build command.
 - [x] Initial RLS test suite.
 - [x] Synthetic matching evaluation.
-- [ ] Add automated tests for embedding failure and retry behaviour.
+- [x] Add automated unit tests for embedding failure and retry behaviour in
+  `lib/profile-match-update.test.mjs`; rerun successfully on 28 October.
+- [ ] Verify embedding failure and retry feedback during a live browser outage.
 - [ ] Add an end-to-end test for signup, profile completion, embedding, and
   first recommendations.
-- [ ] Create a module-level functional test matrix.
+- [x] Verify the local HTTP signup, profile, embedding, discovery, request,
+  response, connection and re-login path using `npm run smoke:local`.
+  Twelve checks and fixture cleanup passed on 28 October. This does not replace
+  the browser end-to-end gate above.
+- [x] Expand request-response permission regression coverage for anonymous,
+  missing-subject and known-ID non-recipient callers; apply the authentication
+  fix locally. See `supabase/tests/rls_tests.sql` and migration
+  `20261028000001_request_response_auth.sql`.
+- [x] Create a module-level functional test matrix in
+  [`environment-verification.md`](environment-verification.md), recording HTTP,
+  database and browser verification boundaries separately.
 - [ ] Prepare a representative-user usability protocol.
 - [ ] Obtain any required supervisor or ethics approval before recruitment.
 - [ ] Recruit representative Mentor and Mentee participants.
