@@ -41,3 +41,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 supabase/.temp/
+
+# Private ML inputs and experiment outputs
+/ml/data/
+/ml/runs/
+/ml/artifacts/
+__pycache__/
+*.py[cod]

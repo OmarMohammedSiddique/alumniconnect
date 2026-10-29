@@ -35,3 +35,13 @@ original labels and review each proposed correction; do not mechanically rebalan
 scores or change a valid label just to meet a desired class quota.
 
 Next: perform M1 protocol decisions and M2 data audit in `ml-delivery-plan.md`.
+
+## Reproducible follow-up, 29 October 2026
+
+`ml/audit_export.py` confirms the original hash and counts, schema/reference
+integrity, score distribution and pending machine annotations. It corrects the
+source's unused-Mentor count to three and confirms that ambiguity perfectly
+separates grades 1/2 from 0/3. Validation and test remain absent. Duplicate and
+lexical similarity checks do not clear conceptual templates or ungenerated pools.
+See [the findings and research gates](ml-data-audit.md). The original source and
+labels remain unchanged; no human approval, data freeze or training is claimed.
