@@ -1,6 +1,6 @@
 # AlumniConnect · ML delivery plan
 
-**Created: 15 October 2026 · Current milestone: M0 — source intake**
+**Created: 15 October 2026 · Updated: 29 October 2026 · Current gate: M1 protocol decisions**
 
 > One milestone at a time. Tick an item only when its evidence exists.
 > Training completion, model quality and application acceptance are separate achievements.
@@ -9,9 +9,9 @@
 
 | Milestone | Deliverable | Status | Completion gate |
 | --- | --- | --- | --- |
-| M0 · Intake | Preserved Gemini export + source inventory | 🟡 Structural inventory recorded | Full source/provenance review remains; see `ml-source-intake.md` |
-| M1 · Experiment design | Agreed task, rubric, model route and protocol | ⬜ Pending | Inputs, labels, comparisons and split policy documented |
-| M2 · Dataset audit and freeze | Validated dataset v1 + leakage report | ⬜ Pending | Blocking integrity/leakage problems resolved; manifests frozen |
+| M0 · Intake | Preserved Gemini export + source inventory | 🟡 Source hash and fenced records verified | Full privacy/provenance review remains; see `ml-source-intake.md` |
+| M1 · Experiment design | Agreed task, rubric, model route and protocol | 🟡 Draft v0.1 recorded | Confirm initialization and approve `ml-experiment-protocol.md`; no training approval yet |
+| M2 · Dataset audit and freeze | Validated dataset v1 + leakage report | 🟡 Reproducible structural audit passed | Held-out pools, human/template review and freeze remain; see `ml-data-audit.md` |
 | M3 · Reproducible baseline | Working versioned notebook + saved baseline | ⬜ Pending | Fresh-runtime baseline reproduces on validation data |
 | M4 · Train and improve | Trained artefact + logs + controlled experiments | ⬜ Pending | Saved model reloads; selection uses validation only |
 | M5 · Held-out evaluation | Locked comparison + raw test predictions | ⬜ Pending | Metrics independently checked; limitations preserved |
@@ -39,8 +39,10 @@ or discussion for training records.
 
 - [x] Receive the Markdown export and identify inline JSON records.
 - [x] Leave the original export unchanged and record its hash/path in `ml-source-intake.md`.
-- [ ] Identify prompts, profile records, pair labels, proposed splits and audit output.
-- [ ] Inventory actual counts, fields, score scale and generation batches/model identity.
+- [x] Identify prompts, profile records, pair labels, proposed splits and audit output.
+- [x] Inventory actual counts, fields and score scale; the source has four prompt
+  stages and two JSONL blocks. Exact generator model/version and timestamps are
+  not established by the export and remain provenance gaps.
 - [ ] Identify private material before copying anything into a public repository.
 
 **Deliverable:** source inventory and extraction notes. The conversation's embedded
@@ -117,6 +119,11 @@ compatibility classifier is not automatically equivalent to a semantic embedding
 model; document/approve material changes to the project architecture or research task.
 Synthetic-data auditing can proceed while this model-route decision is clarified.
 
+**29 October evidence:** [draft protocol v0.1](ml-experiment-protocol.md) records
+the proposed task, source rubric, allowed fields, strict person/template separation,
+complete candidate judgments, comparisons and metric definitions. Initialization,
+human approval and dataset freeze are unresolved. A draft is not protocol v1.
+
 ## M2 · Audit, repair and freeze the dataset
 
 **Achievement:** a documented dataset suitable for a bounded pilot; no claim of
@@ -125,9 +132,10 @@ real-world suitability merely because records are synthetic or well formatted.
 ### Structure and integrity
 
 - [ ] Extract profiles and pairs into separate structured files.
-- [ ] Check unique globally consistent person IDs, roles and pair IDs.
-- [ ] Check every pair references existing profiles with the correct roles/split.
-- [ ] Validate text, skills, score types/ranges, missing fields and ID/text consistency.
+- [x] Check unique globally consistent person IDs, roles and pair IDs in the source.
+- [x] Check every source pair references existing profiles with the correct roles/split.
+- [x] Validate source schema, text/skill types, score ranges and required fields.
+  Semantic ID/text consistency remains a manual review requirement.
 - [ ] Record counts by split, independent people, domain and score; explain imbalances.
 
 ### Leakage checks
@@ -165,6 +173,12 @@ Paths are proposed outputs, not files already created.
 **Gate:** blocking leakage/integrity issues are resolved, rubric reviewed, dataset
 version/hashes recorded. If repairs require regeneration, preserve the original and
 record what changed. Do not silently edit the held-out set after evaluating a model.
+
+**29 October evidence:** `ml/audit_export.py` and 15 regression tests verify source
+integrity, missing pools, overlap triage, connected components and metadata shortcuts.
+The source contains three unused Mentors, not the generating assistant's claimed six.
+All 60 labels remain machine-generated and only 60 of 800 possible training pairs
+are judged. No leakage clearance, human approval, split freeze or training is claimed.
 
 ## M3 · Reproduce a baseline through the full experiment workflow
 

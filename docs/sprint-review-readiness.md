@@ -93,7 +93,7 @@ or removing jobs/cohorts/events. There is no claim that unseen research or repor
 | Priority | Next concrete outcome | Evidence of completion |
 | --- | --- | --- |
 | NEXT | Automate browser regression and broaden failure coverage | Controlled browser journey now recorded; add automation, real outage recovery and slowed pending feedback |
-| NEXT | Set up the requested local → GitHub → Colab → Drive experiment workflow | Versioned notebook; exact code revision; saved run manifest and outputs |
+| NEXT | Confirm M1 initialization/rubric and finish M2 review/freeze, then set up local → GitHub → Colab → Drive | Source audit and draft protocol exist; approved route, reviewed independent pools, versioned notebook and saved run evidence remain |
 | BEFORE REVIEW | Demonstrate the core on isolated local data | Dated HTTP/API/database and browser matrix recorded; preserve the local-only boundary |
 | BEFORE REVIEW | Explain the ML and recorded comparison accurately | Oral rehearsal; no training/superiority claims unsupported by evidence |
 | BEFORE REVIEW | Put real implementation/testing evidence in the actual report | Current Chapter 5 and changed Chapter 4 diagrams |
@@ -206,3 +206,21 @@ Companion: [detailed Colab workflow](colab-training-workflow.md).
 - Signup was visually inspected at desktop width and 320 × 844, and native
   keyboard role selection was checked. Full results and remaining boundaries
   are in `environment-verification.md`.
+
+## 09 · ML audit and protocol preparation · 29 October 2026
+
+- `d18ce0a` adds a read-only Python source audit and 15 passing regression tests.
+  A separate direct parse/graph calculation confirms 60 profiles, 60 pairs,
+  score distribution, three unused Mentors and component sizes. Repeated output
+  agrees and the original source hash is unchanged.
+- All records are training and all labels await human review. Only 60 of 800
+  candidate pairs are judged. Metadata ambiguity perfectly separates grades
+  1/2 from 0/3; it must remain outside features. Missing held-out pools prevent
+  cross-split clearance. See `ml-data-audit.md` for findings and limitations.
+- `ml-experiment-protocol.md` is draft v0.1: task, input contract, source rubric,
+  person/template separation, candidate judgments, comparisons and metrics.
+  Course permission for pretrained weights is not confirmed. Initialization,
+  human review and dataset freeze remain open; M1 and M2 are partial.
+- `npm run lint` passed for the audit milestone. No app, database or dependency
+  changed; no training/Colab run or new evaluation score is claimed. The working
+  frozen MiniLM pipeline and historical negative comparison remain intact.

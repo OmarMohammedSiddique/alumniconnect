@@ -61,6 +61,11 @@ without relying on generated text.
 
 ## ML evidence and improvements
 
+- [x] Add a read-only reproducible source audit with corruption/leakage regression
+  tests. On 29 October, 15 tests passed; source counts, graph and metadata findings
+  were independently checked. See [`ml-data-audit.md`](ml-data-audit.md).
+- [ ] Approve the draft experiment protocol and permitted initialization route;
+  see [`ml-experiment-protocol.md`](ml-experiment-protocol.md).
 - [ ] Save raw per-query rankings instead of only aggregate metrics.
 - [ ] Correct and independently verify the evaluation calculations identified
   in the traceability audit.
