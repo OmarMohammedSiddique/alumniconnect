@@ -1,6 +1,6 @@
 # AlumniConnect Project Checklist
 
-Last updated: 28 October 2026
+Last updated: 29 October 2026
 
 This is the working checklist for the capstone. The approved proposal is the
 source of truth. Detailed evidence and gaps are recorded in
@@ -88,7 +88,14 @@ without relying on generated text.
 - [x] Database-level row-level security and staff controls.
 - [x] Mentorship requests, responses, and connections.
 - [x] Audit logging and basic recommendation explanation.
-- [ ] Make the minimum-profile-to-first-match path reliable and tested.
+- [x] Verify the local minimum-profile-to-first-match path: a new Mentee saves
+  headline and skills, receives the automatic embedding update and discovers a
+  Mentor without prior activity. Browser observation recorded on 29 October;
+  hosted reliability and measured latency/coverage remain unverified.
+- [x] First-time onboarding milestone: clearer audience/role guidance,
+  role-specific setup and next actions, optional completeness detail, and
+  distinct missing-profile/no-recommendations states. See
+  [`environment-verification.md`](environment-verification.md).
 - [ ] Add independent free-text semantic search if retained in the approved
   interpretation.
 - [ ] Complete or formally re-scope the job referral board.
@@ -103,8 +110,13 @@ without relying on generated text.
 - [x] Add automated unit tests for embedding failure and retry behaviour in
   `lib/profile-match-update.test.mjs`; rerun successfully on 28 October.
 - [ ] Verify embedding failure and retry feedback during a live browser outage.
-- [ ] Add an end-to-end test for signup, profile completion, embedding, and
+- [x] Verify a real empty-profile 422, retry preserving unsaved text, and recovery
+  after a valid browser save, recorded on 29 October.
+- [ ] Add an automated browser end-to-end test for signup, profile completion, embedding, and
   first recommendations.
+- [x] Manually verify browser signup, automatic match update, recommendations,
+  introduction, Mentor acceptance, connection, and re-login persistence on
+  disposable local accounts, recorded on 29 October.
 - [x] Verify the local HTTP signup, profile, embedding, discovery, request,
   response, connection and re-login path using `npm run smoke:local`.
   Twelve checks and fixture cleanup passed on 28 October. This does not replace

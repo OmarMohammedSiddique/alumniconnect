@@ -14,12 +14,13 @@ import { StatusMessage } from "@/components/ui/status-message";
 
 type Mode = "semantic" | "keyword";
 
-export function DiscoverClient({ canRequest }: { canRequest: boolean }) {
+export function DiscoverClient({ canRequest, isMentor }: { canRequest: boolean; isMentor: boolean }) {
   const [mode, setMode] = useState<Mode>("semantic");
   const [query, setQuery] = useState("");
   const [mentors, setMentors] = useState<Mentor[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState<string | null>(null);
+  const [needsProfile, setNeedsProfile] = useState(false);
 
   // Semantic mode: ranked matches from /api/match (pgvector cosine).
   useEffect(() => {
@@ -31,8 +32,10 @@ export function DiscoverClient({ canRequest }: { canRequest: boolean }) {
         if (cancelled) return;
         if (!res.ok) {
           setMentors([]);
-          setNotice(body.error ?? "Could not load matches.");
+          setNeedsProfile(res.status === 422);
+          setNotice(res.status === 422 ? null : body.error ?? "Could not load matches.");
         } else {
+          setNeedsProfile(false);
           setMentors(body.matches);
         }
       })
@@ -77,6 +80,7 @@ export function DiscoverClient({ canRequest }: { canRequest: boolean }) {
               if (mode === "semantic") return;
               setLoading(true);
               setNotice(null);
+              setNeedsProfile(false);
               setMode("semantic");
             }}
           >
@@ -89,6 +93,7 @@ export function DiscoverClient({ canRequest }: { canRequest: boolean }) {
             variant={mode === "keyword" ? "secondary" : "ghost"}
             onClick={() => {
               setLoading(false);
+              setNeedsProfile(false);
               setMode("keyword");
               setMentors([]);
               setNotice("Search mentors by name, skill, or field.");
@@ -118,6 +123,15 @@ export function DiscoverClient({ canRequest }: { canRequest: boolean }) {
 
       {loading && <LoadingState label="Finding relevant Mentors" />}
 
+      {!loading && needsProfile && (
+        <EmptyState title={isMentor ? "Help Mentees understand your experience" : "Start with your career direction"}
+          action={<Link href="/profile" className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4">Set up your profile</Link>}>
+          Add a headline and relevant skills, save your profile, and wait for the match-profile update to finish.
+          {isMentor ? " You can then review incoming introductions on your requests page." : " Then return here for recommendations."}
+          {" "}You can use keyword search while you get set up.
+        </EmptyState>
+      )}
+
       {!loading && notice && (
         <StatusMessage tone={notice.includes("failed") || notice.includes("Could not") ? "error" : "info"}>
           {notice}{" "}
@@ -129,9 +143,9 @@ export function DiscoverClient({ canRequest }: { canRequest: boolean }) {
         </StatusMessage>
       )}
 
-      {!loading && mentors && mentors.length === 0 && !notice && (
-        <EmptyState title="No recommendations yet" action={<Link href="/profile" className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4">Complete your profile</Link>}>
-          Add your skills and interests to help us find relevant Mentors. You can also switch to keyword search.
+      {!loading && mentors && mentors.length === 0 && !notice && !needsProfile && (
+        <EmptyState title="No Mentors to recommend yet" action={<Link href="/profile" className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4">Review your profile</Link>}>
+          Try keyword search or check back as Mentors join. You can also review your saved interests to keep recommendations relevant.
         </EmptyState>
       )}
 

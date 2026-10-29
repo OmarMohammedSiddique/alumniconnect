@@ -23,7 +23,7 @@ export default async function DiscoverPage() {
     <div>
       <PageHeading title="Discover Mentors">Find people whose experience can help you move forward. Explore recommendations or search your community.</PageHeading>
       <QuickActions />
-      <DiscoverClient canRequest={profile?.role === "mentee"} />
+      <DiscoverClient canRequest={profile?.role === "mentee"} isMentor={profile?.role === "mentor"} />
     </div>
   );
 }

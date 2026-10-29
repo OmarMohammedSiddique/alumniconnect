@@ -14,16 +14,18 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, headline, bio, skills, industry, graduation_year")
+    .select("full_name, headline, bio, skills, industry, graduation_year, role, embedding")
     .eq("id", user.id)
     .single();
 
   if (!profile) redirect("/login");
+  // Only send readiness to the client, not the stored embedding vector.
+  const { embedding, ...details } = profile;
 
   return (
     <div>
       <PageHeading title="Your profile">Help your community understand your experience, interests, and the guidance you seek or offer.</PageHeading>
-      <ProfileForm profile={profile} />
+      <ProfileForm profile={details} hasMatchProfile={Boolean(embedding)} />
     </div>
   );
 }

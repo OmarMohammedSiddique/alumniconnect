@@ -143,6 +143,17 @@ try {
   assert.deepEqual(invalidSignup, { error: "Invalid role." });
   pass("signup server action rejects self-assigned staff roles before account creation");
 
+  const signupPage = await fetch(new URL("/signup", appUrl));
+  assert.equal(signupPage.status, 200);
+  const signupHtml = await signupPage.text();
+  const roleInputs = [...signupHtml.matchAll(/<input\b[^>]*>/g)]
+    .map(([input]) => input).filter(input => input.includes('name="role"'));
+  assert.equal(roleInputs.length, 2);
+  assert.ok(roleInputs.every(input => input.includes('type="radio"')));
+  assert.ok(roleInputs.some(input => input.includes('value="mentor"')));
+  assert.ok(roleInputs.some(input => input.includes('value="mentee"') && input.includes("checked")));
+  assert.ok(signupHtml.includes("Registration does not verify employment or airline affiliation."));
+
   const mentee = await account("mentee", "Mentee");
   const mentor = await account("mentor", "Mentor");
   const stranger = await account("mentee", "Stranger");
@@ -151,8 +162,14 @@ try {
     const profile = expectOk(await person.sdk.from("profiles").select("role, full_name").eq("id", person.id).single(), "Signup profile missing");
     assert.equal(profile.role, person === mentor || person === hidden ? "mentor" : "mentee");
     assert.ok(profile.full_name.startsWith("Smoke "));
+    const page = await fetch(new URL("/profile", appUrl), { headers: person.headers() });
+    assert.equal(page.status, 200);
+    const html = await page.text();
+    assert.ok(html.includes('id="profile-setup"'));
+    assert.ok(html.includes(profile.role === "mentor" ? "Build your Mentor profile" : "Find your first Mentor"));
   }
   pass("signup server action creates all four profiles, formats names and issues working sessions");
+  pass("signup presents both roles and unverified-affiliation wording; first-time profiles get role-specific setup guidance");
 
   assert.equal((await mentee.api("/api/match")).status, 422);
   assert.equal((await mentee.api("/api/embed")).status, 422);
@@ -176,6 +193,9 @@ try {
     assert.equal(vector.length, 384);
     assert.ok(vector.every(Number.isFinite));
     assert.ok(Math.abs(Math.hypot(...vector) - 1) < 0.001);
+    const returningPage = await fetch(new URL("/profile", appUrl), { headers: person.headers() });
+    assert.equal(returningPage.status, 200);
+    assert.ok(!(await returningPage.text()).includes('id="profile-setup"'), "Returning profiles must not repeat first-time setup");
   }
   pass("saved structured profiles produce stored, finite, normalized 384-value vectors through /api/embed");
 

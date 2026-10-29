@@ -27,10 +27,11 @@ Professional, confident, human, trustworthy, and welcoming. Premium through rest
 ## Interface patterns and surfaces
 
 - Marketing: original AlumniConnect identity, mentor/matching utility panel, concise journey explanation, Mentor and Mentee invitations, and visible independence notice.
-- Authentication: home link, readable single-column forms, clear pending/error states, and quiet academic identity.
+- Authentication: home link, readable single-column forms, clear pending/error states, and quiet academic identity. Explain the current audience without implying affiliation verification. Native radio choices distinguish seeking guidance as a Mentee from offering it as a Mentor; each account keeps its existing single role.
 - Product: responsive sidebar/mobile menu, Discover Mentors, Complete Profile, View Requests, and Manage Connections using existing destinations. `/discover` currently serves as the authenticated entry screen; no separate dashboard route exists.
 - Discovery: labeled search, clear selection modes, mentor cards with shared skills and contextual request actions.
-- Profile: retain current fields, completion calculation, save action, and match-profile update flow.
+- Profile: retain current fields, completion calculation, save action, and match-profile update flow. Before a stored match profile exists, offer a short role-specific setup guide. Headline and skills come first; other context can follow. The detailed completeness checklist starts collapsed for new users, and 100% completeness is not a prerequisite. Offer the next action only after the match update succeeds, with failure/retry and unsaved-draft guidance. Returning profiles do not repeat first-time setup.
+- First value: a Mentee proceeds to Discover Mentors and sends an introduction; a Mentor proceeds to incoming requests. Discovery without an embedding explains how to prepare a profile and offers keyword exploration. A valid profile with no available recommendations gets a different empty state. Setup is optional and does not add affiliation fields, a membership verification claim, or a new authentication gate.
 - Requests/connections: distinguish status with text and semantic treatment; preserve current request and response actions.
 - Shared controls: consistent buttons, inputs, select menus, cards, badges, notices, empty states, skeletons, and error recovery. Data and authentication logic remain unchanged.
 

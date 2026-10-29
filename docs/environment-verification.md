@@ -139,3 +139,56 @@ Supabase restart, apply migrations to any hosted target when authorized, and
 verify hosted configuration and role-specific behavior separately. This work
 does not establish model quality, project-specific training, concurrency/load
 behavior or representative-user usability.
+
+## First-time onboarding and browser journey · 29 October 2026
+
+Scope: the updated production build on local port 3003, the existing local
+Supabase stack, and an isolated Chrome Incognito window. The browser bridge
+worked today. This adds new observations; it does not change the recorded
+28 October browser-control failure or establish hosted acceptance.
+
+### Observed browser results
+
+| Check | Actual result |
+| --- | --- |
+| Signup audience | Current audience and unverified-affiliation wording visible; independence notice retained |
+| Role selection | Both role descriptions visible; keyboard arrow selection changes Mentee to Mentor and updates next-step guidance |
+| Mentor onboarding | Signup creates the Mentor role and formats the name; profile shows the Mentor setup guide |
+| Minimal Mentor profile | Saving headline and skills alone triggers the embedding update automatically; ready state links to incoming requests at 50% completeness |
+| Mentee onboarding | Signup creates the Mentee role and shows the first-Mentor guide; full completeness checklist initially collapsed |
+| Explore before setup | Discovery displays profile preparation guidance and an available keyword-search mode instead of a generic matching error |
+| Empty save and retry | Saving a name-only profile shows matching failure, never a ready state; retry preserves an unsaved headline and uses the still-empty saved profile |
+| Minimal Mentee profile | Saving headline and skills automatically completes matching setup and enables Discover Mentors, with bio/industry/year still empty |
+| First recommendations | The disposable Mentor appears in the recommendations with shared skills; controlled near-identical profile text is not a model-quality evaluation |
+| Introduction and acceptance | Mentee sends a request to the disposable Mentor; Mentee sees Pending; Mentor logs in and accepts; Mentor sees Accepted and a connection |
+| Re-login and returning profile | Mentee logs in again and sees the accepted connection; profile retains headline/skills and no longer repeats the setup guide |
+| Responsive and keyboard checks | Signup inspected at desktop width and 320 × 844; copy/role controls fit without visible horizontal overflow. Native keyboard role selection and form traversal work |
+
+Two browser fixtures were used. Scoped database reads confirmed their chosen
+roles, persisted minimal fields, finite normalized 384-value vectors, one
+accepted request, and one corresponding connection. Both temporary auth
+accounts and dependent profile/request/connection rows were removed and cleanup
+verified. The temporary credential file was removed, and the logged-out
+Incognito window was closed. No real account was edited. Normal local auth
+and audit events may remain.
+
+### Reproducible checks and boundaries
+
+- `npm run check`: ESLint, TypeScript and the Next.js 16.3.6 production build passed.
+- `SMOKE_APP_URL=http://localhost:3003 npm run smoke:local`: 13 checks passed,
+  including rendered signup roles, per-role first-time guidance and its absence
+  after a stored embedding exists. All four runner fixtures were removed.
+- The existing name, skills, match-update and request-action unit suites passed
+  again: 26 tests, zero failures. The existing Node module-type warning remains.
+- The runner remains an HTTP integration test. The browser results above are
+  separate agent-performed manual acceptance observations, not an automated
+  browser suite or a representative-user usability study.
+- Existing semantic tokens, square opaque surfaces, minimum-height controls,
+  focus rules and reduced-motion styles were reused. No animation was added.
+  Dark mode and reduced-motion emulation were not separately exercised today.
+- Eligibility remains the current product audience, not enforced membership
+  verification. No affiliation records, role-schema changes, OAuth, database
+  migrations, authentication logic or ML logic were added in this milestone.
+- A real 422 empty-profile failure and recovery were observed. A live service
+  outage, deliberately slowed pending states, cross-browser coverage, Supabase
+  restart persistence and hosted behavior remain separate verification gates.

@@ -1,7 +1,9 @@
 "use client";
 
 import { useActionState, useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { ChevronDown } from "lucide-react";
 import { updateProfile, type ProfileState } from "./actions";
+import { ProfileSetup } from "./profile-setup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,7 +22,9 @@ import {
 } from "@/components/ui/card";
 
 interface ProfileFormProps {
+  hasMatchProfile: boolean;
   profile: {
+    role: string;
     full_name: string;
     headline: string;
     bio: string;
@@ -41,7 +45,9 @@ const PROFILE_FIELDS = [
   { name: "graduation_year", label: "Graduation year" },
 ] as const;
 
-export function ProfileForm({ profile }: ProfileFormProps) {
+export function ProfileForm({ profile, hasMatchProfile }: ProfileFormProps) {
+  const isMentor = profile.role === "mentor";
+  const showSetup = !hasMatchProfile && (isMentor || profile.role === "mentee");
   const [draft, setDraft] = useState({
     full_name: profile.full_name ?? "",
     headline: profile.headline ?? "",
@@ -103,17 +109,20 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   }, [state, updateMatchProfile]);
 
   return (
-    <Card className="max-w-2xl">
+    <div className="grid max-w-2xl gap-6">
+      {showSetup && <ProfileSetup isMentor={isMentor} status={embedStatus} saving={pending} unsaved={hasUnsavedChanges} />}
+    <Card>
       <CardHeader>
         <CardTitle><h2>Professional details</h2></CardTitle>
         <CardDescription>
           Share your experience and interests to give your community a clear starting point.
         </CardDescription>
-        <section aria-labelledby="profile-completeness" className="mt-5 border-t pt-5">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h3 id="profile-completeness" className="text-sm font-medium">Profile completeness</h3>
-            <span className="text-sm font-semibold tabular-nums">{percent}%</span>
-          </div>
+        <details open={!showSetup} className="mt-5 border-t pt-3">
+          <summary className="flex min-h-11 cursor-pointer flex-wrap items-center justify-between gap-2 text-sm">
+            <span id="profile-completeness" className="font-medium">Profile completeness</span>
+            <span className="flex items-center gap-2 text-sm font-semibold tabular-nums">{percent}%<ChevronDown className="size-4" aria-hidden="true" /></span>
+          </summary>
+          <section aria-labelledby="profile-completeness">
           <progress
             aria-label="Profile completeness"
             value={completed}
@@ -141,8 +150,9 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               </ul>
             </div>
           )}
-          <p className="mt-2 text-xs text-muted-foreground">Progress reflects this form. Save your profile to keep your changes.</p>
-        </section>
+          <p className="mt-2 text-xs text-muted-foreground">These details add context, but you do not need 100% to get started. Progress reflects this form; save to keep your changes.</p>
+          </section>
+        </details>
       </CardHeader>
       <form action={formAction} aria-busy={pending} onSubmit={(event) => {
         if (skillsError) {
@@ -170,27 +180,10 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               onChange={updateDraft}
               maxLength={MAX_HEADLINE_LENGTH}
               aria-describedby="headline-help headline-count"
-              placeholder="e.g. Data engineer at a fintech"
+              placeholder={isMentor ? "e.g. Data engineer at a fintech" : "e.g. Aspiring data engineer seeking career guidance"}
             />
             <FieldGuidance id="headline" label="Headline" value={draft.headline} maxLength={MAX_HEADLINE_LENGTH}>
-              Sum up your current role or career direction in one line.
-            </FieldGuidance>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="bio">Bio</Label>
-            <textarea
-              id="bio"
-              name="bio"
-              value={draft.bio}
-              onChange={updateDraft}
-              maxLength={MAX_BIO_LENGTH}
-              aria-describedby="bio-help bio-count"
-              rows={5}
-              placeholder="Your background, interests, and what you're looking for in mentorship"
-              className="form-control resize-y"
-            />
-            <FieldGuidance id="bio" label="Bio" value={draft.bio} maxLength={MAX_BIO_LENGTH}>
-              Share your background, interests, and the guidance you can offer or hope to find.
+              {isMentor ? "Sum up your experience and the guidance you can offer." : "Describe your career direction and the guidance you are looking for."}
             </FieldGuidance>
           </div>
           <div className="grid gap-2">
@@ -209,12 +202,29 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               placeholder="Comma-separated, e.g. Python, SQL, Public Speaking"
             />
             <p id="skills-help" className="text-sm text-muted-foreground">
-              Separate skills with commas. Duplicates are removed automatically; your spelling is kept.
+              {isMentor ? "List skills you can help others develop." : "List skills relevant to the guidance you seek."} Separate them with commas. Duplicates are removed automatically; your spelling is kept.
             </p>
             <p id="skills-count" aria-live="polite" className="text-xs tabular-nums text-muted-foreground">
               {skills.length} of {MAX_PROFILE_SKILLS} unique skills
             </p>
             {skillsError && <p id="skills-error" role="alert" className="text-sm text-destructive">{skillsError}</p>}
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="bio">Bio</Label>
+            <textarea
+              id="bio"
+              name="bio"
+              value={draft.bio}
+              onChange={updateDraft}
+              maxLength={MAX_BIO_LENGTH}
+              aria-describedby="bio-help bio-count"
+              rows={5}
+              placeholder="Your background, interests, and what you're looking for in mentorship"
+              className="form-control resize-y"
+            />
+            <FieldGuidance id="bio" label="Bio" value={draft.bio} maxLength={MAX_BIO_LENGTH}>
+              Share your background, interests, and the guidance you can offer or hope to find.
+            </FieldGuidance>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
@@ -258,7 +268,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
             </StatusMessage>
           )}
           {matchUpdateNeedsAttention && !pending && (
-            <StatusMessage aria-busy={embedStatus === "retrying"}>
+            <StatusMessage id="match-update" tabIndex={-1} aria-busy={embedStatus === "retrying"}>
               <p>
                 {state.saved && !hasUnsavedChanges && "Profile saved. "}
                 {embedStatus === "failed"
@@ -278,11 +288,12 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           )}
         </CardContent>
         <CardFooter className="mt-6">
-          <Button type="submit" disabled={pending}>
+          <Button type="submit" variant={showSetup && embedStatus === "done" && !hasUnsavedChanges ? "outline" : "default"} disabled={pending}>
             {pending ? "Saving…" : "Save profile"}
           </Button>
         </CardFooter>
       </form>
     </Card>
+    </div>
   );
 }
