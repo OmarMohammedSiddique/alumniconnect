@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatFullName } from "@/lib/profile-name";
+import { getSafeSignInRedirect } from "@/lib/auth-redirect";
 
 export interface AuthState {
   error: string | null;
@@ -51,7 +52,7 @@ export async function signIn(
 ): Promise<AuthState> {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  const next = String(formData.get("next") ?? "") || "/discover";
+  const next = getSafeSignInRedirect(String(formData.get("next") ?? ""));
 
   const supabase = await createClient();
   try {
@@ -63,8 +64,7 @@ export async function signIn(
     };
   }
 
-  // Only allow internal redirect targets.
-  redirect(next.startsWith("/") && !next.startsWith("//") ? next : "/discover");
+  redirect(next);
 }
 
 export async function signOut() {
