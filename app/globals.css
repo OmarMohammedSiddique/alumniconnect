@@ -66,8 +66,8 @@
   /* Kenya Airways website palette; darker red keeps small white button text readable. */
   --brand-red: oklch(0.60301 0.23470 26.987); /* #ed1c24 */
   --brand-red-deep: oklch(0.51814 0.19990 26.644); /* #c1171e */
-  --brand-ink: oklch(0.15907 0 0); /* #0d0d0d */
-  --brand-surface: oklch(0.976 0.001 27); /* #f8f7f7 reference */
+  --brand-ink: #010101;
+  --brand-surface: #f7f7f7;
   --brand-gray: oklch(0.44285 0.00208 67.77); /* #545352 */
   --brand-gray-light: oklch(0.94 0 0); /* #ebebeb reference */
   --brand-green: oklch(0.46442 0.11076 156.908); /* #006b3f */ /* Supporting Kenyan green, reserved for success states. */
@@ -97,7 +97,7 @@
   --text-display: clamp(2.25rem, 4vw, 3.75rem);
   --leading-body: 1.65;
   --leading-heading: 1.2;
-  --tracking-heading: -0.035em;
+  --tracking-heading: -0.025em;
   --focus-width: 2px;
   --focus-offset: 3px;
   --motion-fast: 160ms;
@@ -206,9 +206,9 @@
 @layer components {
   .product-page { width: 100%; max-width: var(--content-width); margin-inline: auto; }
   .page-heading { margin-bottom: 2rem; }
-  .page-heading h1 { font-size: var(--text-title); line-height: var(--leading-heading); font-weight: 600; letter-spacing: var(--tracking-heading); }
+  .page-heading h1 { font-size: var(--text-title); line-height: var(--leading-heading); font-weight: 750; letter-spacing: var(--tracking-heading); }
   .page-heading p { max-width: 65ch; margin-top: 0.75rem; color: var(--muted-foreground); font-size: var(--text-label); }
-  .section-heading { font-size: var(--text-section); font-weight: 600; letter-spacing: -0.02em; }
+  .section-heading { font-size: var(--text-section); font-weight: 700; letter-spacing: -0.02em; }
   .form-control { min-height: var(--control-height); width: 100%; border: 1px solid var(--input); border-radius: var(--radius); background: var(--background); padding: 0.625rem 0.875rem; font-size: 1rem; line-height: 1.5; }
   .form-control::placeholder { color: var(--muted-foreground); }
   .form-control:focus-visible { border-color: var(--ring); }

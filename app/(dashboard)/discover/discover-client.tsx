@@ -75,7 +75,7 @@ export function DiscoverClient({ canRequest, isMentor }: { canRequest: boolean; 
             type="button"
             size="sm"
             aria-pressed={mode === "semantic"}
-            variant={mode === "semantic" ? "secondary" : "ghost"}
+            variant={mode === "semantic" ? "default" : "ghost"}
             onClick={() => {
               if (mode === "semantic") return;
               setLoading(true);
@@ -90,7 +90,7 @@ export function DiscoverClient({ canRequest, isMentor }: { canRequest: boolean; 
             type="button"
             size="sm"
             aria-pressed={mode === "keyword"}
-            variant={mode === "keyword" ? "secondary" : "ghost"}
+            variant={mode === "keyword" ? "default" : "ghost"}
             onClick={() => {
               setLoading(false);
               setNeedsProfile(false);

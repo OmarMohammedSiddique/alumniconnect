@@ -19,14 +19,14 @@ Professional, confident, human, trustworthy, and welcoming. Premium through rest
 ## Visual system
 
 - Reuse Tailwind and shadcn semantic variables in `app/globals.css`.
-- Reference red `#ED1C24` for large accents and brand marks; deeper red `#C1171E` for small white-text actions. Ink `#0D0D0D`, supporting gray `#545352`, white `#FFFFFF`, light gray `#EBEBEB`, and soft surface `#F8F7F7`.
+- Reference red `#ED1C24` for large accents and brand marks; deeper red `#C1171E` for small white-text actions. Ink `#010101`, supporting gray `#545352`, white `#FFFFFF`, light gray `#EBEBEB`, and soft surface `#F7F7F7`.
 - Red marks priority and selection; most controls and surfaces stay neutral. Supporting Kenyan green `#006B3F` is reserved for success, accepted connections, and small meaningful status markers. This is an AlumniConnect supporting token, not a claim about an official airline specification. Blue is reserved for semantic information only.
 - Centralize font scale, line heights, spacing, control height, radii, shadows, focus, and motion tokens. Product headings use a fixed rem scale; landing display type can be fluid.
 - Square corners throughout, with a shared radius of zero. Solid white and soft-gray content surfaces contrast with dark navigation and neutral secondary actions. Use clear full borders instead of floating shadows. Keep the existing light-first presentation and coherent dark tokens.
 
 ## Interface patterns and surfaces
 
-- Marketing: original AlumniConnect identity, mentor/matching utility panel, concise journey explanation, Mentor and Mentee invitations, and visible independence notice.
+- Marketing: original AlumniConnect identity, photo-led community hero, structured guidance/mentoring utility panel, concise journey explanation, Mentor and Mentee invitations, and visible independence notice. Licensed workplace stock photography illustrates collaboration without identifying the subjects as real members or airline staff. Keep source and license links beside local assets.
 - Authentication: home link, readable single-column forms, clear pending/error states, and quiet academic identity. Explain the current audience without implying affiliation verification. Native radio choices distinguish seeking guidance as a Mentee from offering it as a Mentor; each account keeps its existing single role.
 - Product: responsive sidebar/mobile menu, Discover Mentors, Complete Profile, View Requests, and Manage Connections using existing destinations. `/discover` currently serves as the authenticated entry screen; no separate dashboard route exists.
 - Discovery: labeled search, clear selection modes, mentor cards with shared skills and contextual request actions.

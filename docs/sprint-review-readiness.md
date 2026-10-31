@@ -1,6 +1,6 @@
 # AlumniConnect · Sprint review board
 
-**Review: 15 October 2026 · Evidence updated: 29 October 2026**
+**Review: 15 October 2026 · Evidence updated: 31 October 2026**
 
 > **Current position:** controlled local core HTTP/API/database and browser
 > journeys verified; preliminary ML evidence, hosted acceptance and research/report gaps remain.
@@ -224,3 +224,18 @@ Companion: [detailed Colab workflow](colab-training-workflow.md).
 - `npm run lint` passed for the audit milestone. No app, database or dependency
   changed; no training/Colab run or new evaluation score is claimed. The working
   frozen MiniLM pipeline and historical negative comparison remain intact.
+
+## 10 · Visual identity implementation · 31 October 2026
+
+- Applied the requested crimson, near-black, white and neutral-gray direction
+  through shared tokens, bold headings, discovery selection states, branding
+  and authentication accents. The landing page adds locally optimized stock
+  photography, a structured guidance/mentoring panel and a crimson invitation.
+- Inspected the rendered desktop hero and the header/hero at 320 × 844 in
+  Chrome. Primary white-on-red button contrast is 6.16:1. Full mobile-page and
+  authenticated browser acceptance were not rerun for this visual milestone.
+- Lint, TypeScript, all 31 existing unit tests and the production Webpack build
+  passed. Turbopack failed to bind its worker port in this environment, including
+  on elevated retry; `npm run build -- --webpack` supplied the passing build.
+- Photography source/license links are in `public/images/README.md`.
+  AlumniConnect's independent academic identity remains visible.

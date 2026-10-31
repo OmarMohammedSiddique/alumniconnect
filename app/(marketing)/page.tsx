@@ -1,4 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
+import communityPhoto from "@/public/images/community-collaboration.webp";
 import { Brand, PrototypeNotice } from "@/components/brand";
 import {
   ArrowDown,
@@ -6,7 +8,7 @@ import {
   Check,
   GraduationCap,
   MoveUpRight,
-  Sparkles,
+  Compass,
   Users,
 } from "lucide-react";
 import styles from "./landing.module.css";
@@ -36,6 +38,7 @@ export default function LandingPage() {
   return (
     <div className={styles.page}>
       <a className={styles.skipLink} href="#main">Skip to content</a>
+      <div className={styles.identityBar}><div className={styles.container}><span>Mentorship. Connections. New horizons.</span><span>An independent academic prototype</span></div></div>
       <header className={`solid-surface ${styles.header}`}>
         <div className={styles.navbar}>
           <Link href="/" aria-label="AlumniConnect home"><Brand className={styles.brand} /></Link>
@@ -48,30 +51,22 @@ export default function LandingPage() {
       <main id="main">
         <section className={`${styles.container} ${styles.hero}`} aria-labelledby="hero-heading">
           <div className={styles.heroCopy}>
-            <p className={styles.eyebrow}><span /> A professional community. A shared way forward.</p>
-            <h1 id="hero-heading">Your next chapter.<br /><span>Someone’s been there.</span></h1>
+            <p className={styles.heroLabel}>The AlumniConnect community</p>
+            <h1 id="hero-heading">Shared experience.<br /><span>New horizons.</span></h1>
             <p className={styles.heroDescription}>Mentorship and professional connections for Kenya Airways alumni and eligible participants. Find guidance from people who understand your experience and ambitions.</p>
             <div className={styles.heroActions}><Link href="/signup" className={styles.primaryButton}>Find your Mentor <ArrowRight size={19} aria-hidden="true" /></Link><a href="#how-it-works" className={styles.textLink}>See how it works <ArrowDown size={17} aria-hidden="true" /></a></div>
             <p className={styles.heroNote}><Users size={17} aria-hidden="true" /> For Mentees moving forward. For Mentors giving back.</p>
             <PrototypeNotice className={styles.heroDisclosure} />
           </div>
-          <figure className={styles.preview} aria-label="Illustrative mentor recommendation">
-            <div className={styles.previewTop}><span className={styles.previewLogo}><Sparkles size={17} aria-hidden="true" /> Your next connection</span><span className={styles.exampleLabel}>Example preview</span></div>
-            <div className={styles.previewContent}>
-              <div className={styles.previewHeading}><span>Discover Mentors</span><span className={styles.liveDot}>Based on your profile</span></div>
-              <div className={styles.interestLine}>Your interests <span>Technology</span><span>Career growth</span></div>
-              <div className={styles.mentorIdentity}><div className={styles.avatar} aria-hidden="true">AN<span><Check size={12} /></span></div><div><h2>Alex N.</h2><p>Software engineer &amp; alumni Mentor</p><span className={styles.alumniLabel}><GraduationCap size={14} aria-hidden="true" /> Class of 2019</span></div></div>
-              <p className={styles.mentorBio}>“I help early-career developers navigate their first role, grow their skills, and find their own path in tech.”</p>
-              <div className={styles.skillTags}><span>Software engineering</span><span>Career development</span><span>Leadership</span></div>
-              <div className={styles.matchReason}><Sparkles size={17} aria-hidden="true" /><div><strong>A connection with something in common</strong><p>Shared interests in technology and career development.</p></div></div>
-              <Link href="/signup" className={styles.previewButton}>Discover your own matches <ArrowRight size={17} aria-hidden="true" /></Link>
-            </div>
-            <figcaption>Good guidance starts with common ground.</figcaption>
+          <figure className={styles.heroVisual}>
+            <Image src={communityPhoto} alt="Colleagues sharing ideas around a table with laptops in a bright workspace" sizes="(max-width: 760px) calc(100vw - 40px), (max-width: 1050px) 45vw, 560px" preload placeholder="blur" className={styles.heroImage} />
+            <figcaption><span>Good guidance starts<br />with common ground.</span><Users size={28} aria-hidden="true" /></figcaption>
           </figure>
         </section>
         <nav className={`solid-surface ${styles.container} ${styles.utilityPanel}`} aria-label="Start exploring AlumniConnect">
-          <div><h2>Put your experience in good company.</h2><p>Explore your next connection or learn what goes into a recommendation.</p></div>
-          <div className={styles.utilityActions}><Link href="/discover" className={styles.primaryButton}>Discover Mentors <ArrowRight size={18} aria-hidden="true" /></Link><a href="#matching" className={styles.textLink}>How matching works <ArrowRight size={17} aria-hidden="true" /></a></div>
+          <div className={styles.utilityIntro}><h2>Where would you like to start?</h2><p>Your next step starts with the right people.</p></div>
+          <Link href="/discover" className={styles.utilityChoice}><Compass size={24} aria-hidden="true" /><span><strong>Find guidance</strong><span>Discover Mentors in your field</span></span><ArrowRight size={18} aria-hidden="true" /></Link>
+          <Link href="/signup" className={styles.utilityChoice}><GraduationCap size={24} aria-hidden="true" /><span><strong>Share your experience</strong><span>Join the network as a Mentor</span></span><ArrowRight size={18} aria-hidden="true" /></Link>
         </nav>
         <div className={styles.contextStrip}><div className={styles.container}><p><GraduationCap size={21} aria-hidden="true" /> Rooted in shared professional experience.</p><span>Built to turn shared experience into a way forward.</span></div></div>
         <section id="how-it-works" className={`${styles.container} ${styles.section}`} aria-labelledby="steps-heading">
