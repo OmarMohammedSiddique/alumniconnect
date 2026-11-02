@@ -2,6 +2,11 @@
 
 **2 November 2026 · From-scratch training is the user's selected requirement.**
 
+**Update:** The user deferred human review and authorized an engineering-only
+pilot. Preparation and actual local training are now verified in
+`ml-pilot-training.md`. The review-first sequence below remains the path to
+research-ready evidence, not a blocker on the explicitly unreviewed pilot.
+
 ## Where you are
 
 You have a structurally consistent small synthetic dataset with separate pools.
