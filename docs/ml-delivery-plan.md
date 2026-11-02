@@ -1,17 +1,20 @@
 # AlumniConnect · ML delivery plan
 
-**Created: 15 October 2026 · Updated: 29 October 2026 · Current gate: M1 protocol decisions**
+**Created: 15 October 2026 · Updated: 2 November 2026 · Current gate: reviewed pilot labels and dataset freeze**
 
 > One milestone at a time. Tick an item only when its evidence exists.
 > Training completion, model quality and application acceptance are separate achievements.
+
+Current audit: [2 November findings](ml-bundle-audit-2026-11-02.md).
+Next actions: [beginner guide](ml-next-steps.md).
 
 ## Progress board
 
 | Milestone | Deliverable | Status | Completion gate |
 | --- | --- | --- | --- |
 | M0 · Intake | Preserved Gemini export + source inventory | 🟡 Source hash and fenced records verified | Full privacy/provenance review remains; see `ml-source-intake.md` |
-| M1 · Experiment design | Agreed task, rubric, model route and protocol | 🟡 Draft v0.1 recorded | Confirm initialization and approve `ml-experiment-protocol.md`; no training approval yet |
-| M2 · Dataset audit and freeze | Validated dataset v1 + leakage report | 🟡 Reproducible structural audit passed | Held-out pools, human/template review and freeze remain; see `ml-data-audit.md` |
+| M1 · Experiment design | Agreed task, rubric, model route and protocol | 🟡 Draft v0.1 recorded | From-scratch direction confirmed by user; finalize architecture/rubric/metric contract |
+| M2 · Dataset audit and freeze | Validated dataset v1 + leakage report | 🟡 Reproducible structural audit passed | New bundle independently checked: 90 profiles/160 pairs, complete held-out grids; human/template review and freeze remain. See `ml-bundle-audit-2026-11-02.md` |
 | M3 · Reproducible baseline | Working versioned notebook + saved baseline | ⬜ Pending | Fresh-runtime baseline reproduces on validation data |
 | M4 · Train and improve | Trained artefact + logs + controlled experiments | ⬜ Pending | Saved model reloads; selection uses validation only |
 | M5 · Held-out evaluation | Locked comparison + raw test predictions | ⬜ Pending | Metrics independently checked; limitations preserved |
