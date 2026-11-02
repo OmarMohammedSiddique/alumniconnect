@@ -2,7 +2,8 @@
 
 **Actual training performed locally on CPU. Machine labels remain unreviewed.**
 This milestone proves pipeline execution, parameter updates and checkpoint reload,
-not model quality, human approval, Colab account execution or final app integration.
+not model quality, human approval or final app integration. The follow-up below
+records the subsequently verified Colab/Drive execution.
 
 ## Completed
 
@@ -15,7 +16,7 @@ not model quality, human approval, Colab account execution or final app integrat
 - [x] Selected checkpoint loaded with `weights_only=True`; finite output checked.
 - [x] Six training/metric/leakage-focused tests pass, plus 24 audit/preparation tests.
 - [ ] Human label review and research-approved data freeze (deferred by user).
-- [ ] Google Colab upload/Drive-mount branch exercised in user's account.
+- [x] Google Colab upload, Drive mount, training and saved-evidence read verified in user's account.
 - [ ] Final held-out test performance accessed (deliberately not done).
 - [ ] Model exported/integrated in the application (not done).
 
@@ -83,3 +84,31 @@ Local execution does not establish that the Colab upload/install/Drive branch pa
 Review `docs/ml-next-steps.md` for the later human-review path. The app still runs
 MiniLM with 384-value vectors; this pilot outputs 64 values and cannot replace it
 without a separately designed and tested integration/re-embedding milestone.
+
+## Colab execution and Drive verification · 2 November follow-up
+
+The user uploaded the bundle and mounted Drive in their Colab account. Browser
+inspection confirmed `Mounted at /content/drive`. Importing the runner in the
+notebook kernel then failed with NumPy AttributeError `_blas_supports_fpe` after
+installing dependencies; this is consistent with mixed old loaded native modules
+and newly installed package files, rather than a Drive failure.
+
+The live setup cell was corrected to retain the mounted Drive/output path without
+importing the ML stack. Training runs the same hash-verified Python module in a
+fresh subprocess and reads its saved run.json afterward. The source notebook now
+uses that process boundary too; it does not require deleting data or remounting Drive.
+
+Browser-observed outcomes:
+
+- Colab displayed `Actual parameter updates and checkpoint reload verified`.
+- Four epochs completed; selected checkpoint `checkpoint-1.pt`.
+- Validation metrics exactly matched the recorded local TF-IDF/neural results.
+- The evidence cell read `history.json` from Drive and displayed four epochs and
+  the selected checkpoint, verifying more than a mount message alone.
+- Output folder: `My Drive/AlumniConnect-ML/runs/notebook-20261102T034308433827Z`.
+- Colab displayed `All changes saved` for the modified cloud notebook.
+- Test performance remains untouched. Human review and final quality remain pending.
+
+The Colab upload/Drive/training path is now exercised in this account, not merely
+a locally tested branch. Future package/runtime versions may still require checks.
+No permissions were broadened, model replaced, credentials requested or code pushed.

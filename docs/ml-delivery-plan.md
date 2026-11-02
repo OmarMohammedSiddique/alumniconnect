@@ -15,7 +15,7 @@ Next actions: [beginner guide](ml-next-steps.md).
 | M0 · Intake | Preserved Gemini export + source inventory | 🟡 Source hash and fenced records verified | Full privacy/provenance review remains; see `ml-source-intake.md` |
 | M1 · Experiment design | Agreed task, rubric, model route and protocol | 🟡 Draft v0.1 recorded | From-scratch direction confirmed by user; finalize architecture/rubric/metric contract |
 | M2 · Dataset audit and freeze | Validated dataset v1 + leakage report | 🟡 Reproducible structural audit passed | New bundle independently checked: 90 profiles/160 pairs, complete held-out grids; human/template review and freeze remain. See `ml-bundle-audit-2026-11-02.md` |
-| M3 · Reproducible baseline | Working versioned notebook + saved baseline | 🟡 Local engineering baseline executed | Colab/account path and research-reviewed data remain; see `ml-pilot-training.md` |
+| M3 · Reproducible baseline | Working versioned notebook + saved baseline | 🟡 Local and Colab engineering baseline executed | Account/Drive path verified; research-reviewed data remains. See `ml-pilot-training.md` |
 | M4 · Train and improve | Trained artefact + logs + controlled experiments | 🟡 From-scratch pilot trained and reloaded | Machine labels; neural validation worse than lexical baseline; final quality unestablished |
 | M5 · Held-out evaluation | Locked comparison + raw test predictions | ⬜ Pending | Metrics independently checked; limitations preserved |
 | M6 · Application integration | Trained model used in a verified core workflow | ⬜ Pending | Versioned model/preprocessing and browser/API/DB path pass |
