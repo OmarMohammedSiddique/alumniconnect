@@ -5,6 +5,10 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-pgvector-3FCF8E?logo=supabase&logoColor=white)](https://supabase.com/)
 
+![AlumniConnect landing page preview](public/images/landing-preview.jpg)
+
+[▶ Watch the short landing-page walkthrough](public/images/alumniconnect-demo.gif)
+
 An intelligent alumni mentorship platform that connects mentees with relevant
 mentors through semantic matching, explainable recommendations, and secure
 institutional oversight.
