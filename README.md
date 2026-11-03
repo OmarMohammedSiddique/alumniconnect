@@ -5,6 +5,8 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-pgvector-3FCF8E?logo=supabase&logoColor=white)](https://supabase.com/)
 
+[🌐 Open the live demo](https://alumniconnect-kq.vercel.app)
+
 ![AlumniConnect landing page preview](public/images/landing-preview.jpg)
 
 [▶ Watch the short landing-page walkthrough](public/images/alumniconnect-demo.gif)
