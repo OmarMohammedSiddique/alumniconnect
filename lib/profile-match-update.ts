@@ -1,4 +1,4 @@
-export type MatchUpdateStatus = "idle" | "running" | "retrying" | "done" | "failed";
+export type MatchUpdateStatus = "idle" | "running" | "retrying" | "done" | "failed" | "throttled";
 
 export function createProfileMatchUpdater(
   onStatus: (status: MatchUpdateStatus) => void,
@@ -17,7 +17,13 @@ export function createProfileMatchUpdater(
       let status: MatchUpdateStatus;
       try {
         const response = await request("/api/embed", { method: "POST" });
-        status = response.ok ? "done" : "failed";
+        if (response.ok) {
+          status = "done";
+        } else if (response.status === 429) {
+          status = "throttled";
+        } else {
+          status = "failed";
+        }
       } catch {
         status = "failed";
       }

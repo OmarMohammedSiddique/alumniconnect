@@ -98,7 +98,7 @@ export function ProfileForm({ profile, hasMatchProfile }: ProfileFormProps) {
   );
   const [embedStatus, setEmbedStatus] = useState<MatchUpdateStatus>("idle");
   const updateMatchProfile = useMemo(() => createProfileMatchUpdater(setEmbedStatus), []);
-  const matchUpdateNeedsAttention = embedStatus === "failed" || embedStatus === "retrying";
+  const matchUpdateNeedsAttention = embedStatus === "failed" || embedStatus === "retrying" || embedStatus === "throttled";
   const lastRun = useRef<ProfileState | null>(null);
 
   // On successful save, regenerate the profile embedding via the server-side
@@ -273,7 +273,9 @@ export function ProfileForm({ profile, hasMatchProfile }: ProfileFormProps) {
             <StatusMessage id="match-update" tabIndex={-1} aria-busy={embedStatus === "retrying"}>
               <p>
                 {state.saved && !hasUnsavedChanges && "Profile saved. "}
-                {embedStatus === "failed"
+                {embedStatus === "throttled"
+                  ? "Match profile update is temporarily throttled. Please wait a moment before retrying."
+                  : embedStatus === "failed"
                   ? "Match profile update failed."
                   : "Retrying the match profile update…"}
               </p>
