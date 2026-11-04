@@ -28,6 +28,7 @@ GitHub tracking:
 - [ ] Confirm the Mentor/Mentee terminology with the supervisor in writing.
 - [x] Confirm whether jobs, cohorts, and events must be completed before final
   assessment or may be formally re-scoped (formally resolved in [scope decision](scope-decision-jobs-cohorts-events.md) #7).
+- [x] Record confirmed scratch-training and live-model acceptance requirements (formally resolved in [scratch model requirements](scratch-model-requirements.md) #1).
 - [ ] Confirm the final semantic-versus-keyword evaluation protocol before
   rerunning the experiment.
 
