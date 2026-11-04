@@ -4,7 +4,9 @@ Assessment question: "Show me where machine learning is implemented in AlumniCon
 
 ## What the system does
 
-AlumniConnect uses a pretrained sentence embedding model at inference time. Profile fields become text, the model converts that text to a 384-value vector, and PostgreSQL with pgvector ranks visible mentors by cosine distance from the signed-in user's vector. Exact shared skills are returned as a separate explanation. The default Discover view displays those matches. No AlumniConnect code updates the model's weights.
+The current application uses a pretrained sentence embedding model at inference time. Profile fields become text, the model converts that text to a 384-value vector, and PostgreSQL with pgvector ranks visible mentors by cosine distance from the signed-in user's vector. Exact shared skills are returned as a separate explanation. The default Discover view displays those matches. The application does not update this model's weights.
+
+**Scope checked 4 November 2026:** this guide and issue #2 explain the existing frozen application pipeline. A separate [from-scratch engineering pilot](ml-pilot-training.md) has genuinely trained random-initialized weights locally and in Colab. It outputs directional 64-value vectors and is not integrated into the application. Its labels remain machine-generated/unreviewed, and its five-query validation result was worse than TF-IDF. A completed guide or passing walkthrough does not establish a research-ready model. Reviewed evaluation, final training/selection and live-model integration remain in issues #3, #25 and #26.
 
 The live route requires authentication and a working Supabase project. The local `npm run ml:walkthrough` command demonstrates the same text builder and embedding function plus cosine ranking without Supabase. Its scores are illustrative and are not evidence of mentor suitability.
 
@@ -35,8 +37,8 @@ The card's `% match` badge is cosine similarity multiplied by 100 and rounded. I
 
 1. **Original creators' training:** the model card says its creators started from a pretrained MiniLM model and further trained the sentence embedding model with a contrastive objective over sentence pairs. AlumniConnect did not perform either stage. [Original model card](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2).
 2. **Current AlumniConnect inference:** `lib/embedding/embed.ts` loads the ONNX-compatible `Xenova/all-MiniLM-L6-v2` weights at `q8` precision and runs feature extraction. The weights stay frozen. [ONNX model card](https://huggingface.co/Xenova/all-MiniLM-L6-v2).
-3. **Possible future fine-tuning:** starting from pretrained weights, a training run would update them using suitable, human-reviewed mentor matching examples and a chosen loss. There is no such run in this repository. [Sentence Transformers training overview](https://sbert.net/docs/sentence_transformer/training_overview.html).
-4. **Training from random initialization:** learning the model parameters from scratch would be a separate, much larger project. AlumniConnect does not do it.
+3. **Fine-tuning, for comparison:** this would update pretrained weights using reviewed examples and a chosen loss. It is not the selected project route: the user confirmed a from-scratch requirement. [Sentence Transformers training overview](https://sbert.net/docs/sentence_transformer/training_overview.html).
+4. **Training from random initialization:** `ml/train_scratch_pilot.py` and `ml/notebooks/scratch_pilot.ipynb` implement and document a separate character-CNN engineering pilot with random weights and directional 64-value outputs. Actual training and checkpoint reload were verified; research-ready data, final model selection and app integration remain incomplete.
 5. **Adding a profile:** saving fields and calculating a new vector adds data to PostgreSQL. It does not update model weights or teach the model from the new person's profile.
 
 An embedding is a dense numeric representation of input text. The **384 values** are the output width of this model, not 384 profile features learned by AlumniConnect; the database column is declared `vector(384)` to match. The user's `full_name` is stored in the row but is not included in `buildProfileEmbeddingText`. Mean pooling averages the model's token representations while respecting the attention mask, producing one fixed-length representation; L2 normalization divides by vector length so its norm is near 1. The original model card shows the pooling and normalization procedure and warns that inputs longer than its default 256 word pieces are truncated. Long bios may therefore lose information toward the end. [Original model card](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2), [Transformers.js feature extraction example](https://huggingface.co/docs/transformers.js/api/pipelines).
@@ -69,7 +71,7 @@ The evaluation is small, synthetic, English-oriented, and based on same-domain g
 - **What the existing set tests:** whether the current model and the keyword baselines retrieve same-domain synthetic mentors under controlled profile wording, including a small vocabulary-mismatch subset. It also illustrates a sparse-text condition.
 - **Why labels are limited:** two people can share a domain but differ in goals, availability, experience, communication, location, or preferences. Same-domain labels do not establish mentor suitability, and synthetic profiles are not real-user evidence.
 - **More synthetic data now:** no. More examples generated from the same templates and labels would increase count without fixing ground-truth validity. Preserve the current set for a reproducible illustration while resolving the evaluation protocol.
-- **If fine-tuning is approved later:** collect consented or carefully curated real mentor/mentee profiles or de-identified text, pairwise or graded relevance judgments from a clear rubric, realistic hard negatives from the same domain, and enough independent people for train, validation, and held-out test groups. Decide the intended outcome and privacy handling with the supervisor before collection. Fine-tuning would update pretrained weights toward project-specific relevance; it would require a fresh, independent comparison with the current frozen model and both baselines.
+- **For the required scratch-trained model:** obtain permitted profiles, blinded human-reviewed relevance judgments, realistic hard negatives and independent train/validation/test groups under the protocol in issue #3. The existing unreviewed pilot demonstrates engineering execution only. Do not treat its unknown training combinations as negative examples or its machine labels as human approval.
 - **Proposed record schema, not a dataset generated here:**
 
   | Field | Meaning |
@@ -83,7 +85,7 @@ The evaluation is small, synthetic, English-oriented, and based on same-domain g
   | `split` | `train`, `validation`, or `test` group assignment |
 
 - **Split and review:** keep each person's profile and all pairs involving that person in only one split; otherwise near-identical text leaks across training and evaluation and inflates results. Have trained human reviewers confirm final relevance labels, especially disagreements and hard negatives, before reporting performance. Follow the approved privacy and ethics process.
-- **Decision gate:** do not start new training or synthetic generation until Issue #1, the final ML training requirement, is resolved with the supervisor.
+- **Current decision gate:** the from-scratch requirement is settled. Complete the reviewed-data freeze and final experiment decisions under #1/#3/#25 before final model selection; keep final-test results locked until selection. There is no need to repeat the engineering pilot merely to demonstrate activity.
 
 ## Oral-defense questions
 
@@ -96,6 +98,7 @@ The evaluation is small, synthetic, English-oriented, and based on same-domain g
 | Why normalize the vector? | It makes the L2 norm near 1, so cosine comparison depends on direction instead of length. |
 | How is cosine similarity used? | pgvector orders by cosine distance `<=>`; the RPC reports `1 - distance` as similarity. |
 | Does adding a profile train the model? | No. It creates or refreshes a stored vector using frozen weights. |
+| Has this project trained anything from scratch? | Yes, a separate random-initialized character-CNN engineering pilot; it is not the current app model and is not research-ready. |
 | What exactly was evaluated? | Same-domain retrieval for 24 synthetic mentees against 40 synthetic mentors under four matching conditions, with P@1/3/5, MRR, and coverage. |
 | What is the strongest current result? | Overall P@1 is 0.917 for keyword+category versus 0.833 for semantic-full on the recorded synthetic set. |
 | What are the limitations? | Domain labels are not suitability judgments; the set is small and synthetic, and real-user performance and cold-start success remain unmeasured. |
