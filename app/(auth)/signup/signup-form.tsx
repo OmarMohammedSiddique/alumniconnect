@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import Link from "next/link";
+import { ShieldCheck, BadgeCheck } from "lucide-react";
 import { ProfilePhotoPicker } from "@/components/profile-photo-picker";
 import { PASSWORD_RULES, getPasswordError } from "@/lib/signup-validation";
 import { signUp, type AuthState } from "../actions";
@@ -10,24 +11,18 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { StatusMessage } from "@/components/ui/status-message";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+
 const initialState: AuthState = { error: null };
 const ROLES = [
-  { value: "mentee", label: "Mentee", description: "Find guidance for your career and professional growth." },
-  { value: "mentor", label: "Mentor", description: "Share your experience and guide other participants." },
+  { value: "mentee", label: "Mentee", description: "Find career guidance." },
+  { value: "mentor", label: "Mentor", description: "Share your experience." },
 ] as const;
 
 export function SignupForm() {
   const [state, formAction, pending] = useActionState(signUp, initialState);
   const [role, setRole] = useState<"mentee" | "mentor">("mentee");
-
+  const [details, setDetails] = useState({ first_name: "", last_name: "", email: "" });
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
   const [clientError, setClientError] = useState<string | null>(null);
@@ -35,122 +30,120 @@ export function SignupForm() {
   const mismatch = confirmationTouched && password !== confirmation;
 
   if (state.confirmationRequired) return (
-    <Card>
+    <Card className="mx-auto max-w-xl">
       <CardHeader>
         <CardTitle><h1 className="text-2xl font-semibold">Check your email</h1></CardTitle>
         <CardDescription>Follow the confirmation link in your email, then sign in to continue.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
-        <p>Your picture has not been uploaded yet. After verifying your email, sign in and choose your picture again.</p>
+        <p>If you selected a picture, choose it again after verifying your email and signing in.</p>
         <Link href="/login?next=/profile/photo" className="inline-flex min-h-11 items-center font-medium text-primary underline">Continue to sign in</Link>
       </CardContent>
     </Card>
   );
 
   return (
-    <Card>
+    <Card className="gap-4 [--card-spacing:--spacing(4)] lg:[--card-spacing:--spacing(5)]">
       <CardHeader>
         <CardTitle><h1 className="text-2xl font-semibold tracking-tight">Create your account</h1></CardTitle>
-        <CardDescription>
-          For Kenya Airways alumni and eligible participants seeking or sharing professional guidance.
-        </CardDescription>
-        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-          Registration does not verify employment or airline affiliation.
-        </p>
+        <CardDescription>Connect with Kenya Airways alumni and eligible participants. Registration does not verify affiliation.</CardDescription>
       </CardHeader>
       <form action={formAction} aria-busy={pending} onSubmit={(event) => {
         const error = getPasswordError(password, confirmation);
         if (error) {
           event.preventDefault();
           setConfirmationTouched(true);
-          const input = event.currentTarget.elements.namedItem(password === confirmation ? "password" : "confirm_password") as HTMLInputElement;
           setClientError(error);
-          input.focus();
+          const field = PASSWORD_RULES.some((rule) => !rule.test(password)) ? "password" : "confirm_password";
+          (event.currentTarget.elements.namedItem(field) as HTMLInputElement).focus();
         }
       }}>
-        <CardContent className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] md:gap-8">
-          <fieldset disabled={pending} className="grid min-w-0 content-start gap-5">
-          <legend className="mb-4 text-base font-semibold">Account details</legend>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid min-w-0 gap-2">
-              <Label htmlFor="first_name">First name</Label>
-              <Input id="first_name" name="first_name" required maxLength={100} autoComplete="given-name" />
+        <CardContent className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)_minmax(0,0.9fr)] lg:gap-6 xl:gap-8">
+          <fieldset disabled={pending} className="grid min-w-0 content-start gap-3">
+            <legend className="mb-3 text-base font-semibold">Account details</legend>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid min-w-0 gap-1.5">
+                <Label htmlFor="first_name">First name</Label>
+                <Input id="first_name" name="first_name" required maxLength={100} autoComplete="given-name" value={details.first_name} onChange={(event) => setDetails({ ...details, first_name: event.target.value })} />
+              </div>
+              <div className="grid min-w-0 gap-1.5">
+                <Label htmlFor="last_name">Last name</Label>
+                <Input id="last_name" name="last_name" required maxLength={100} autoComplete="family-name" value={details.last_name} onChange={(event) => setDetails({ ...details, last_name: event.target.value })} />
+              </div>
             </div>
-            <div className="grid min-w-0 gap-2">
-              <Label htmlFor="last_name">Last name</Label>
-              <Input id="last_name" name="last_name" required maxLength={100} autoComplete="family-name" />
+            <div className="grid gap-1.5">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" name="email" type="email" required autoComplete="email" value={details.email} onChange={(event) => setDetails({ ...details, email: event.target.value })} />
             </div>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" required autoComplete="email" aria-describedby="email-help" />
-            <p id="email-help" className="text-sm text-muted-foreground">Use an email you can access. You will use it to sign in.</p>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="password">Password</Label>
-            <PasswordInput
-              id="password"
-              name="password"
-              required
-              minLength={8}
-              autoComplete="new-password"
-              aria-describedby="password-help"
-              value={password}
-              onChange={(event) => { setPassword(event.target.value); setClientError(null); }}
-            />
-            <ul id="password-help" className="grid gap-1 text-sm text-muted-foreground">
-              {PASSWORD_RULES.map((rule) => <li key={rule.label}>{password && rule.test(password) ? "✓" : "•"} {rule.label}</li>)}
-            </ul>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="confirm_password">Verify password</Label>
-            <PasswordInput id="confirm_password" name="confirm_password" required autoComplete="new-password"
-              value={confirmation} aria-invalid={mismatch} aria-describedby="confirmation-help"
-              onBlur={() => setConfirmationTouched(true)}
-              onChange={(event) => { setConfirmation(event.target.value); setClientError(null); }} />
-            <p id="confirmation-help" role="status" className={`text-sm ${mismatch ? "text-destructive" : "text-muted-foreground"}`}>
-              {mismatch ? "Passwords do not match." : confirmation && password === confirmation ? "Passwords match." : "Enter your password again to confirm it."}
-            </p>
-          </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="password">Password</Label>
+              <PasswordInput id="password" name="password" required minLength={8} autoComplete="new-password" aria-describedby="password-help" value={password} onChange={(event) => { setPassword(event.target.value); setClientError(null); }} />
+              <ul id="password-help" className="grid gap-x-3 gap-y-1 text-xs text-muted-foreground sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                {PASSWORD_RULES.map((rule) => <li key={rule.label}>{password && rule.test(password) ? "✓" : "•"} {rule.label}</li>)}
+              </ul>
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="confirm_password">Verify password</Label>
+              <PasswordInput id="confirm_password" name="confirm_password" required autoComplete="new-password" value={confirmation} aria-invalid={mismatch} aria-describedby="confirmation-help" onBlur={() => setConfirmationTouched(true)} onChange={(event) => { setConfirmation(event.target.value); setClientError(null); }} />
+              <p id="confirmation-help" role="status" className={`min-h-4 text-xs ${mismatch ? "text-destructive" : "text-muted-foreground"}`}>
+                {mismatch ? "Passwords do not match." : confirmation && password === confirmation ? "Passwords match." : "Enter the same password again."}
+              </p>
+            </div>
           </fieldset>
-          <div className="grid min-w-0 content-start gap-6 border-t pt-6 md:border-t-0 md:border-l md:pt-0 md:pl-8">
-          <ProfilePhotoPicker disabled={pending} />
-          <fieldset className="min-w-0" aria-describedby="role-help role-next" disabled={pending}>
-            <legend className="mb-3 text-sm font-medium">How would you like to take part?</legend>
-            <div className="grid gap-2">
-              {ROLES.map((option) => (
-                <label key={option.value} className={`flex min-h-11 cursor-pointer items-start gap-3 border p-3 ${role === option.value ? "border-primary bg-surface" : "border-border bg-card"}`}>
-                  <input type="radio" name="role" value={option.value} checked={role === option.value}
-                    onChange={() => setRole(option.value)} className="mt-1 size-4 shrink-0 accent-primary" />
-                  <span className="min-w-0">
-                    <span className="block text-sm font-semibold">{option.label}</span>
-                    <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">{option.description}</span>
-                  </span>
-                </label>
-              ))}
+
+          <section aria-labelledby="identity-title" className="grid min-w-0 gap-3 border-t pt-5 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-6 xl:pl-8">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 id="identity-title" className="inline-flex items-center gap-2 text-base font-semibold"><BadgeCheck className="size-4" aria-hidden="true" />Membership details</h2>
+              <span className="border px-2 py-1 text-xs font-medium text-muted-foreground">Preview</span>
             </div>
-            <p id="role-help" className="mt-3 text-xs text-muted-foreground">Your account has one mentorship role.</p>
-            <p id="role-next" role="status" className="mt-2 text-sm leading-relaxed">
-              {role === "mentor"
-                ? "Next: build your Mentor profile, then review introductions from Mentees."
-                : "Next: add your career goals, then explore Mentors and send an introduction."}
-            </p>
-          </fieldset>
+            <p id="identity-help" className="text-xs leading-relaxed text-muted-foreground">Real ID collection is not enabled. These fields preview membership verification; please do not enter real identifiers.</p>
+            <fieldset disabled aria-describedby="identity-help" className="grid min-w-0 gap-3">
+              <legend className="sr-only">Identity details preview</legend>
+              <div className="grid gap-1.5">
+                <Label htmlFor="staff_id">Current or former staff ID</Label>
+                <Input id="staff_id" name="staff_id" placeholder="Your staff or payroll number" autoComplete="off" />
+              </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="identity_type">Identity document</Label>
+                <select id="identity_type" name="identity_type" defaultValue="national_id" className="h-11 w-full min-w-0 border border-input bg-input/30 px-3 text-sm disabled:opacity-60">
+                  <option value="national_id">National ID</option>
+                  <option value="passport">Passport</option>
+                </select>
+              </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="identity_number">National ID / passport number</Label>
+                <Input id="identity_number" name="identity_number" placeholder="Document number" autoComplete="off" />
+              </div>
+            </fieldset>
+            <p className="text-xs leading-relaxed text-muted-foreground">Self-declared details do not establish employment or identity.</p>
+          </section>
+
+          <div className="grid min-w-0 content-start gap-4 border-t pt-5 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-6 xl:pl-8">
+            <ProfilePhotoPicker disabled={pending} />
+            <fieldset className="min-w-0" aria-describedby="role-help" disabled={pending}>
+              <legend className="mb-2 text-sm font-semibold">How would you like to take part?</legend>
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
+                {ROLES.map((option) => (
+                  <label key={option.value} className={`flex min-h-11 cursor-pointer items-center gap-3 border px-3 py-2 ${role === option.value ? "border-primary bg-surface" : "border-border bg-card"}`}>
+                    <input type="radio" name="role" value={option.value} checked={role === option.value} onChange={() => setRole(option.value)} className="size-4 shrink-0 accent-primary" />
+                    <span className="min-w-0"><span className="block text-sm font-semibold">{option.label}</span><span className="block text-xs text-muted-foreground">{option.description}</span></span>
+                  </label>
+                ))}
+              </div>
+              <p id="role-help" className="mt-2 text-xs text-muted-foreground">Choose one mentorship role for your account.</p>
+            </fieldset>
           </div>
-          {(clientError || state.error) && (
-            <div className="md:col-span-2"><StatusMessage tone="error">{clientError || state.error}</StatusMessage></div>
-          )}
+          {(clientError || state.error) && <div className="lg:col-span-3"><StatusMessage tone="error">{clientError || state.error}</StatusMessage></div>}
         </CardContent>
-        <CardFooter className="mt-6 flex flex-col gap-3">
-          <Button type="submit" className="w-full" disabled={pending}>
-            {pending ? "Creating account…" : "Sign up"}
-          </Button>
-          <p className="text-sm text-muted-foreground">
-            Already registered?{" "}
-            <Link href="/login" className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4">
-              Sign in
-            </Link>
-          </p>
+        <CardFooter className="mt-4 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex max-w-3xl items-start gap-2">
+            <ShieldCheck className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+            <p className="text-xs leading-relaxed text-muted-foreground"><span className="font-semibold text-foreground">Proposed association privacy notice: </span>“Your information is protected under the Data Protection Act and will only be used for alumni association purposes.” <Link href="/privacy" className="font-medium text-primary underline underline-offset-4">Read the current prototype privacy position</Link>.</p>
+          </div>
+          <div className="grid shrink-0 gap-1 sm:min-w-48">
+            <Button type="submit" disabled={pending}>{pending ? "Creating account…" : "Create account"}</Button>
+            <p className="text-center text-xs text-muted-foreground">Already registered? <Link href="/login" className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4">Sign in</Link></p>
+          </div>
         </CardFooter>
       </form>
     </Card>

@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatFullName } from "@/lib/profile-name";
+import { getIdentityCollectionError } from "@/lib/registration-privacy";
 import { getPasswordError } from "@/lib/signup-validation";
 import { saveProfilePhoto, validateProfilePhoto } from "@/lib/profile-photo";
 import { getSafeSignInRedirect } from "@/lib/auth-redirect";
@@ -16,6 +17,9 @@ export async function signUp(
   _prev: AuthState,
   formData: FormData,
 ): Promise<AuthState> {
+  const identityError = getIdentityCollectionError(formData);
+  if (identityError) return { error: identityError };
+
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const firstName = formatFullName(String(formData.get("first_name") ?? ""));

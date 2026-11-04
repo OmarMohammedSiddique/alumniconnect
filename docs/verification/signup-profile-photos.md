@@ -33,3 +33,7 @@ The 512 KiB file limit fits within the current default 1 MB Server Action reques
 - Hosted, CI, mailbox delivery and participant testing: not established by these local checks.
 
 After Docker is available, apply the migration and verify signup with/without a picture, confirmation-enabled/disabled behavior, reload persistence, replacing an avatar, failed-upload retry, anonymous denial and another user's write denial. Visually check 320/375/768/1440px layouts, password mismatch feedback, visibility toggles, keyboard focus, and image selection/rejection before release.
+
+## Follow-up: 4 November 2026
+
+The compact three-column layout, graphical picker and prototype identity/privacy position are recorded in `registration-privacy-assessment.md`. Native Safari subsequently verified a 1366 × 768 desktop fit and a 320 × 844 stacked layout, and opening/cancelling the image picker. This supersedes the earlier browser-unavailable result for these specific checks; live storage persistence and broader accessibility coverage remain pending.
