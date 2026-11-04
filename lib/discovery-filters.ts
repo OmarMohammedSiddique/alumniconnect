@@ -1,5 +1,6 @@
 export interface DiscoveryFilterOptions {
   industry?: string;
+  graduationYear?: string | number;
   skills?: string[];
   matchMode?: "any" | "all";
 }
@@ -19,14 +20,16 @@ export interface FilterableMentor {
 export type MentorRequestState = "pending" | "accepted" | "declined" | "cancelled";
 
 /**
- * Extracts unique, sorted industries and skills from an array of mentors.
+ * Extracts unique, sorted industries, skills, and graduation cohort years from an array of mentors.
  */
 export function extractAvailableFilters(mentors: FilterableMentor[] = []): {
   industries: string[];
   skills: string[];
+  graduationYears: number[];
 } {
   const industrySet = new Set<string>();
   const skillSet = new Set<string>();
+  const yearSet = new Set<number>();
 
   for (const mentor of mentors) {
     if (mentor.industry && typeof mentor.industry === "string") {
@@ -46,28 +49,41 @@ export function extractAvailableFilters(mentors: FilterableMentor[] = []): {
         }
       }
     }
+
+    if (
+      typeof mentor.graduation_year === "number" &&
+      Number.isInteger(mentor.graduation_year) &&
+      mentor.graduation_year >= 1950
+    ) {
+      yearSet.add(mentor.graduation_year);
+    }
   }
 
   return {
     industries: Array.from(industrySet).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" })),
     skills: Array.from(skillSet).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" })),
+    graduationYears: Array.from(yearSet).sort((a, b) => b - a),
   };
 }
 
 /**
- * Filters a list of mentors by industry and selected skills.
+ * Filters a list of mentors by industry, graduation cohort year, and selected skills.
  */
 export function filterMentors<T extends FilterableMentor>(
   mentors: T[] = [],
   filter: DiscoveryFilterOptions = {},
 ): T[] {
   const selectedIndustry = filter.industry?.trim().toLowerCase();
+  const rawYear = filter.graduationYear !== undefined && filter.graduationYear !== null
+    ? String(filter.graduationYear).trim().toLowerCase()
+    : "";
+  const selectedYear = rawYear && rawYear !== "all" ? Number(rawYear) : null;
   const selectedSkills = (filter.skills ?? [])
     .map((s) => s.trim().toLowerCase())
     .filter((s) => s.length > 0);
   const matchMode = filter.matchMode ?? "any";
 
-  if (!selectedIndustry && selectedSkills.length === 0) {
+  if ((!selectedIndustry || selectedIndustry === "all") && selectedYear === null && selectedSkills.length === 0) {
     return mentors;
   }
 
@@ -80,7 +96,14 @@ export function filterMentors<T extends FilterableMentor>(
       }
     }
 
-    // 2. Skills filter
+    // 2. Cohort (graduation_year) filter (#7, #16)
+    if (selectedYear !== null) {
+      if (mentor.graduation_year !== selectedYear) {
+        return false;
+      }
+    }
+
+    // 3. Skills filter
     if (selectedSkills.length > 0) {
       const mentorSkills = (mentor.skills ?? []).map((s) => s.trim().toLowerCase());
       if (matchMode === "all") {
@@ -94,6 +117,43 @@ export function filterMentors<T extends FilterableMentor>(
 
     return true;
   });
+}
+
+const REQUEST_STATE_PRIORITY: Record<MentorRequestState, number> = {
+  accepted: 4,
+  pending: 3,
+  declined: 2,
+  cancelled: 1,
+};
+
+/**
+ * Builds a prioritized map of mentor relationship states so historical
+ * cancelled/declined requests cannot overwrite active pending or accepted connections.
+ */
+export function buildRequestStateMap(
+  requests: Array<{ mentor_id?: string | null; status?: string | null }> = [],
+  connectedMentorIds: string[] = [],
+): Record<string, MentorRequestState> {
+  const map: Record<string, MentorRequestState> = {};
+
+  for (const req of requests) {
+    const mentorId = req.mentor_id?.trim();
+    const status = req.status as MentorRequestState | undefined;
+    if (!mentorId || !status || !(status in REQUEST_STATE_PRIORITY)) continue;
+    const existing = map[mentorId];
+    if (!existing || REQUEST_STATE_PRIORITY[status] > REQUEST_STATE_PRIORITY[existing]) {
+      map[mentorId] = status;
+    }
+  }
+
+  for (const mentorId of connectedMentorIds) {
+    const trimmed = mentorId?.trim();
+    if (trimmed) {
+      map[trimmed] = "accepted";
+    }
+  }
+
+  return map;
 }
 
 /**
