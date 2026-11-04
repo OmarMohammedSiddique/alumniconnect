@@ -26,8 +26,8 @@ GitHub tracking:
 - [x] Use Mentor and Mentee as mentorship roles; document both as alumni
   participants in the report and diagrams.
 - [ ] Confirm the Mentor/Mentee terminology with the supervisor in writing.
-- [ ] Confirm whether jobs, cohorts, and events must be completed before final
-  assessment or may be formally re-scoped.
+- [x] Confirm whether jobs, cohorts, and events must be completed before final
+  assessment or may be formally re-scoped (formally resolved in [scope decision](scope-decision-jobs-cohorts-events.md) #7).
 - [ ] Confirm the final semantic-versus-keyword evaluation protocol before
   rerunning the experiment.
 
@@ -103,9 +103,9 @@ without relying on generated text.
   [`environment-verification.md`](environment-verification.md).
 - [ ] Add independent free-text semantic search if retained in the approved
   interpretation.
-- [ ] Complete or formally re-scope the job referral board.
-- [ ] Complete or formally re-scope cohort grouping.
-- [ ] Complete or formally re-scope event management.
+- [x] Complete or formally re-scope the job referral board (formally deferred in [scope decision record](scope-decision-jobs-cohorts-events.md) #7).
+- [x] Complete or formally re-scope cohort grouping (retained and narrowed to `graduation_year` and discovery filtering in [scope decision record](scope-decision-jobs-cohorts-events.md) #7).
+- [x] Complete or formally re-scope event management (formally deferred in [scope decision record](scope-decision-jobs-cohorts-events.md) #7).
 
 ## Testing and research evidence
 
