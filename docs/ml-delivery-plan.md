@@ -1,19 +1,22 @@
 # AlumniConnect · ML delivery plan
 
-**Created: 15 October 2026 · Updated: 29 October 2026 · Current gate: M1 protocol decisions**
+**Created: 15 October 2026 · Updated: 2 November 2026 · Current gate: engineering pilot executed; human review deferred**
 
 > One milestone at a time. Tick an item only when its evidence exists.
 > Training completion, model quality and application acceptance are separate achievements.
+
+Current audit: [2 November findings](ml-bundle-audit-2026-11-02.md).
+Next actions: [beginner guide](ml-next-steps.md).
 
 ## Progress board
 
 | Milestone | Deliverable | Status | Completion gate |
 | --- | --- | --- | --- |
 | M0 · Intake | Preserved Gemini export + source inventory | 🟡 Source hash and fenced records verified | Full privacy/provenance review remains; see `ml-source-intake.md` |
-| M1 · Experiment design | Agreed task, rubric, model route and protocol | 🟡 Draft v0.1 recorded | Confirm initialization and approve `ml-experiment-protocol.md`; no training approval yet |
-| M2 · Dataset audit and freeze | Validated dataset v1 + leakage report | 🟡 Reproducible structural audit passed | Held-out pools, human/template review and freeze remain; see `ml-data-audit.md` |
-| M3 · Reproducible baseline | Working versioned notebook + saved baseline | ⬜ Pending | Fresh-runtime baseline reproduces on validation data |
-| M4 · Train and improve | Trained artefact + logs + controlled experiments | ⬜ Pending | Saved model reloads; selection uses validation only |
+| M1 · Experiment design | Agreed task, rubric, model route and protocol | 🟡 Draft v0.1 recorded | From-scratch direction confirmed by user; finalize architecture/rubric/metric contract |
+| M2 · Dataset audit and freeze | Validated dataset v1 + leakage report | 🟡 Reproducible structural audit passed | New bundle independently checked: 90 profiles/160 pairs, complete held-out grids; human/template review and freeze remain. See `ml-bundle-audit-2026-11-02.md` |
+| M3 · Reproducible baseline | Working versioned notebook + saved baseline | 🟡 Local and Colab engineering baseline executed | Account/Drive path verified; research-reviewed data remains. See `ml-pilot-training.md` |
+| M4 · Train and improve | Trained artefact + logs + controlled experiments | 🟡 From-scratch pilot trained and reloaded | Machine labels; neural validation worse than lexical baseline; final quality unestablished |
 | M5 · Held-out evaluation | Locked comparison + raw test predictions | ⬜ Pending | Metrics independently checked; limitations preserved |
 | M6 · Application integration | Trained model used in a verified core workflow | ⬜ Pending | Versioned model/preprocessing and browser/API/DB path pass |
 | M7 · Research and delivery | Report evidence + demo + retained-scope release plan | ⬜ Pending | Claims trace to evidence; remaining scope is explicit |
@@ -25,7 +28,7 @@
 - [x] User reports Gemini prompting is complete and a Markdown conversation export exists.
 - [x] Export received and structurally inspected: 60 profiles and 60 labelled training pairs.
 - [ ] New synthetic dataset quality or leakage status established.
-- [ ] Project-specific training performed and verified.
+- [x] Engineering-only from-scratch pilot trained locally and checkpoint reloaded (2 November); human/final quality gates remain.
 
 These ticks describe source/user-report evidence, not approval of the generated labels.
 Current environment and whole-project status remain in `sprint-review-readiness.md`.

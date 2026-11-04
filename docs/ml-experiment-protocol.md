@@ -87,10 +87,11 @@ judgments. Save complete raw rankings with stable IDs and scores for each method
 | Frozen MiniLM | Embedding baseline before project-specific fitting | App ONNX q8 inference exists; pilot baseline not measured |
 | Project-specific learned encoder | Controlled comparison against the above | Initialization and training objective not selected |
 
-**Decision needed:** does the course permit pretrained initialization? If yes,
-MiniLM fine-tuning is the recommended embedding route to investigate, with a
-specified loss suited to the reviewed labels. If no, define the randomly
-initialized encoder/tokenizer, output width, objective and compute budget first.
+**Decision recorded, 2 November:** the user requires training from scratch.
+The engineering pilot uses random character embeddings, a compact character CNN,
+and directional 64-value projection heads with cosine regression. It is locally
+executed on machine labels; the rubric/data freeze and final architecture remain
+research decisions. No pretrained encoder or tokenizer is used in this pilot.
 Do not call a classifier an integrated semantic embedding engine. Do not select
 architecture, loss, score mapping or hyperparameters from held-out performance.
 
@@ -151,7 +152,8 @@ automatically update the application or establish research superiority.
 
 ## Open gates before this becomes protocol v1
 
-- [ ] Confirm permitted initialization and select one implementable model route.
+- [x] From-scratch requirement confirmed; random-initialized engineering encoder executed.
+- [ ] Select/justify the final architecture using reviewed validation evidence.
 - [ ] Approve the rubric, sparse/generalist policy, baselines and metric definitions.
 - [ ] Agree review budget, independent pools and sample-size limitations.
 - [ ] Complete privacy, label and conceptual-template review.
