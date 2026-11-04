@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { RequestActions } from "./request-actions";
+import { ConnectionCard } from "./connection-card";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,11 +26,18 @@ interface RequestRow {
   mentor: { full_name: string } | null;
 }
 
+interface ConnectionProfile {
+  full_name: string;
+  role: string;
+  headline: string;
+  industry: string;
+}
+
 interface ConnectionRow {
   id: string;
   created_at: string;
-  mentee: { full_name: string } | null;
-  mentor: { full_name: string } | null;
+  mentee: ConnectionProfile | null;
+  mentor: ConnectionProfile | null;
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -68,8 +76,8 @@ export default async function RequestsPage() {
     .from("connections")
     .select(
       `id, created_at,
-       mentee:profiles!connections_mentee_id_fkey(full_name),
-       mentor:profiles!connections_mentor_id_fkey(full_name)`,
+       mentee:profiles!connections_mentee_id_fkey(full_name, role, headline, industry),
+       mentor:profiles!connections_mentor_id_fkey(full_name, role, headline, industry)`,
     )
     .order("created_at", { ascending: false })
     .returns<ConnectionRow[]>();
@@ -124,26 +132,24 @@ export default async function RequestsPage() {
             Accepted mentorship requests become connections. You can follow their progress in the request list above.
           </EmptyState>
         )}
-        <div className="grid gap-3">
-          {connections?.map((c) => (
-            <Card key={c.id}>
-              <CardHeader>
-                <CardTitle className="break-words text-base"><h3>
-                  {isMentor
-                    ? (c.mentee?.full_name ?? "Unknown")
-                    : (c.mentor?.full_name ?? "Unknown")}
-                </h3></CardTitle>
-                <CardDescription>
-                  Connected since{" "}
-                  {new Date(c.created_at).toLocaleDateString("en-GB", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          ))}
+        <div className="grid gap-4">
+          {connections?.map((c) => {
+            const partner = isMentor ? c.mentee : c.mentor;
+            return (
+              <ConnectionCard
+                key={c.id}
+                connectionId={c.id}
+                connectedSince={c.created_at}
+                isMentor={isMentor}
+                partner={{
+                  fullName: partner?.full_name ?? "Unnamed member",
+                  role: partner?.role ?? (isMentor ? "mentee" : "mentor"),
+                  headline: partner?.headline ?? "",
+                  industry: partner?.industry ?? "",
+                }}
+              />
+            );
+          })}
         </div>
       </section>
     </div>
