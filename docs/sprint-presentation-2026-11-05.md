@@ -4,8 +4,8 @@
 **Assessment Weight:** 5% of Capstone Assessment  
 **Allocated Duration:** 10–12 minutes total (8–9 min presentation/demo + 3 min Q&A)  
 **Presenter:** Omar Siddique  
-**Repository State:** GitHub `main` branch (verified commit `6394ee8`)  
-**Target Environment:** Local Docker Supabase + Local Next.js dev server (`http://localhost:3000`)
+**Repository State:** GitHub `main` branch (verified through PR #55 / commit `a640102`)  
+**Target Environment:** Local Docker Supabase + Local Next.js dev server (`http://127.0.0.1:3000`)
 
 ---
 
@@ -42,10 +42,11 @@ This runbook provides the minute-by-minute rehearsal script, visual demonstratio
   - Storage & Vector Engine: PostgreSQL 15 with `pgvector` extension and Row-Level Security (RLS).
   - Machine Learning: Pretrained 384-d semantic embedding in production pipeline; custom from-scratch PyTorch character-CNN pilot in Colab/local training pipeline.
 - **Sprint 3/4 Milestones Achieved:**
-  - Reconciled capstone scope (#7, #35).
-  - Implemented client draft resiliency (#18) and API rate limiting (#21).
-  - Enhanced connection kickstarters (#14) and admin moderation reliability (#22).
-  - Integrated unit, database SQL permission, and ML regression checks into CI (#20).
+  - Recorded confirmed scratch-training requirements (#1), membership verification policy (#23), secondary module scope decisions (#7), and Cloudflare DNS/hosting evaluation (#35).
+  - Implemented client profile draft resiliency (#18) and embedding API rate-limiting/concurrency guards (#21).
+  - Enhanced discovery with industry/cohort/skill filters, persistent request states (#16), transparent recommendation explanations (#17), connection starter actions (#14), and reliable admin moderation feedback (#22).
+  - Implemented and verified existing-account Google OAuth sign-in (#37) and responsive signup with profile photo uploads (#36).
+  - Integrated unit, database SQL permission, and ML regression checks into CI (#20) and resolved all Dependabot alerts (#13).
 
 ---
 
@@ -60,13 +61,14 @@ This runbook provides the minute-by-minute rehearsal script, visual demonstratio
 2. **Step 2: Profile Save & Semantic Embedding Guard (#21)**
    - Click "Save Profile". Explain the two-phase commit: profile data persists first to PostgreSQL, then triggers `/api/embed`.
    - Point out the server-side mutex and rate-limiting guard (`lib/embedding/embed-guard.ts`): rapid edits return cached hashes or HTTP 429 backoff rather than thrashing the embedding model.
-3. **Step 3: Intelligent Discover & Score Transparency (#17)**
-   - Navigate to `/discover`. Show ranked mentor recommendations.
-   - **Key Explanatory Point:** Emphasize that the card score represents cosine similarity, not an absolute guarantee of mentorship success. Highlight exact shared skills as interpretable contextual rationale.
-4. **Step 4: Request Workflow & Connection Kickstarters (#14)**
-   - Send mentorship request from Mentee to Mentor.
+3. **Step 3: Intelligent Discovery, Filters & Score Transparency (#16, #17, #7)**
+   - Navigate to `/discover`. Show ranked mentor recommendations and switch between Recommended and Keyword search modes.
+   - Filter results by **Industry**, **Cohort (Graduation Year)**, and **Skills**, and expand a mentor's full background.
+   - **Key Explanatory Point:** Emphasize that recommendations use profile text cosine similarity (`Xenova/all-MiniLM-L6-v2`, 384-d) and exact shared skills rather than a misleading match-probability percentage.
+4. **Step 4: Request Workflow & Connection Next Steps (#14, #16)**
+   - Send a mentorship request from Mentee to Mentor and show the persistent `Pending request` badge surviving page reload.
    - Log into Mentor dashboard at `/requests`. Accept the request.
-   - Show the newly unlocked **Connection Kickstarter**: an automated, role-aware intro message generator with one-click copy, direct contact card, and privacy notices.
+   - Show the accepted **Connection Card**: role-aware first-conversation instructions, customizable contact-sharing note, one-click template copy / email launch, and explicit privacy notice that account emails are never auto-exposed to the directory.
 5. **Step 5: Admin Moderation with Reliable Feedback (#22)**
    - Navigate to `/admin`.
    - Toggle member profile visibility and role permissions.
@@ -81,14 +83,16 @@ This runbook provides the minute-by-minute rehearsal script, visual demonstratio
 1. **Distinction Between Environments:**
    - **Live App Pipeline:** Uses `@huggingface/transformers` running `Xenova/all-MiniLM-L6-v2` locally inside Next.js server processes to output 384-dimensional dense vectors stored in `public.profiles.embedding`.
    - **From-Scratch Research Pilot (`ml/train_scratch_pilot.py`):** An independent PyTorch neural network built to satisfy academic requirements (#1).
-2. **From-Scratch Engineering Implementation:**
-   - **Initialization:** Strictly random weight initialization using Xavier/Glorot uniform distributions (`torch.nn.init.xavier_uniform_`). Zero pretrained weights.
-   - **Architecture:** Character-level Convolutional Neural Network (CNN) mapping token sequences into 64-dimensional directional embedding space.
-   - **Optimization:** Trained with Adam optimizer and contrastive ranking loss (CosineEmbeddingLoss) over synthetic alumni pair batches.
-   - **Verification:** Live inspectable learning curves demonstrating loss convergence; verified checkpoint serialization and reload (`scratch_model_pilot.pt`).
+2. **From-Scratch Engineering Implementation (`ml/train_scratch_pilot.py`, `docs/ml-pilot-training.md`):**
+   - **Initialization:** Standard PyTorch random parameter initialization (`seed=42`, deterministic CPU algorithms enabled, `11,200` trainable parameters across a `57`-character vocabulary fitted on training profiles only). Zero pretrained weights, tokenizers, or backbones loaded; verified L1 weight movement after optimization.
+   - **Architecture:** Character-level `Embedding(57, 32, padding_idx=0)` -> `Conv1d(32, 32, kernel_size=5, padding=2)` -> ReLU + global max pooling -> two directional linear projection heads (`query_head` and `mentor_head`, `Linear(32, 64)`) -> L2 normalization (`512`-character input truncation).
+   - **Optimization:** Trained with Adam optimizer (`lr=0.001`, batch size `16`, ceiling `10` epochs, early-stopping patience `3`), minimizing **Mean Squared Error (`F.mse_loss`)** between the dot product of L2-normalized query/mentor vectors and scaled relevance grade (`relevance_score / 3`).
+   - **Verification:** Stopped after 4 epochs with best validation loss at `checkpoint-1.pt` (top-3 checkpoints retained as `checkpoint-{epoch}.pt`); verified safe reload via `torch.load(..., weights_only=True)` and reproduced identically in both local CPU and Google Colab (`My Drive/AlumniConnect-ML/runs/notebook-20261102T034308433827Z`).
 3. **Evaluation Honesty & Limitations:**
-   - Evaluated on test queries using multi-metric retrieval scoring: NDCG@5, MRR@5, and Precision@5.
-   - **Transparent Academic Result:** Acknowledge that the small scratch pilot on a 5-query validation set performed lower than TF-IDF n-gram baselines due to synthetic vocabulary sparsity. Frame this as a documented empirical finding guiding Sprint 4 dataset scaling (#25).
+   - Evaluated on the 5-query validation split (60 training pairs, 90 synthetic profiles, machine-labelled) using complete-pool ranking metrics:
+     - **Char 3–5-gram TF-IDF baseline:** `nDCG@5 = 0.853932`, `P@1 = 0.800000`, `MRR@5 = 0.840000`, `Hit@5 = 1.000000`.
+     - **From-scratch neural pilot:** `nDCG@5 = 0.502278`, `P@1 = 0.200000`, `MRR@5 = 0.433333`, `Hit@5 = 0.800000`.
+   - **Transparent Academic Result:** Acknowledge that the compact character-CNN pilot on 60 unreviewed machine-labelled training pairs and 5 validation queries underperforms character n-gram TF-IDF. Present this honestly as the verified engineering baseline prior to human-reviewed dataset freeze (#3) and research-ready training/selection (#25).
 
 ---
 
@@ -140,10 +144,10 @@ This runbook provides the minute-by-minute rehearsal script, visual demonstratio
 
 | Failure Mode | Immediate Recovery Action |
 |---|---|
-| Port 54321 / Docker crash | Switch to hosted preview deployment at `https://alumniconnect-kq.vercel.app` |
-| Local Supabase Auth token expiration | Run `scripts/smoke-local.mjs` to refresh session cookies |
-| Webpack / Turbopack compilation lag | Use pre-warmed browser tabs with already loaded `/profile`, `/discover`, and `/requests` pages |
-| Complete internet / local service failure | Present the recorded video backup (`docs/recordings/sprint-demo-backup.mp4`) and annotated screenshot deck |
+| Port 54321 / Docker crash | Switch to hosted deployment at `https://alumniconnect-kq.vercel.app` or run deterministic offline walkthrough `npm run ml:walkthrough` |
+| Local Supabase Auth session expiry | Sign in again at `http://127.0.0.1:3000/login` or run `npm run auth:check` to verify local Auth health |
+| Dev server compilation lag | Use pre-warmed browser tabs with already loaded `/profile`, `/discover`, `/requests`, and `/admin` pages |
+| Complete browser / network failure | Run deterministic terminal verification (`npm run ml:walkthrough`, `npm test`, `python3 -B -m unittest discover -s ml/training_tests -v`) and walk through `docs/ml-pilot-training.md` and `docs/verification/` |
 
 ---
 

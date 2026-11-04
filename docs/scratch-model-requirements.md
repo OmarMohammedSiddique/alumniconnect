@@ -1,7 +1,7 @@
 # Confirmed Scratch-Training and Live-Model Acceptance Requirements
 
 **Date Recorded:** 4 November 2026  
-**Status:** Approved Requirements Specification  
+**Status:** Student-Confirmed Academic Requirement Record (Awaiting Supervisor Review at 5 Nov 2026 Sprint Review)  
 **Associated Issues:** #1 (Requirements & Decision), #25 (Training Protocol), #26 (Live-Model Integration Contract), #27 (Knowledge Graph Scope), #3 (Evaluation Framework), #30 (Sprint Review)
 
 ---
