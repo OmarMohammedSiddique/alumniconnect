@@ -1,0 +1,75 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+type Auth = SupabaseClient["auth"];
+export const GOOGLE_NEXT_COOKIE = "alumniconnect-google-next";
+export type GoogleAuthError = "cancelled" | "exchange_failed" | "unavailable" | "not_configured";
+
+export function getGoogleAuthMessage(reason: string | null): string | null {
+  switch (reason) {
+    case "cancelled": return "Google sign-in was cancelled. Try again or use your email and password.";
+    case "exchange_failed": return "Google sign-in could not be completed. The link may have expired. Please start again.";
+    case "unavailable": return "Google sign-in is temporarily unavailable. Try again or use your email and password.";
+    case "not_configured": return "Google sign-in is not configured for this environment yet. You can still use email and password.";
+    default: return null;
+  }
+}
+
+// Deployment callbacks use an explicit origin, never forwarded-host headers.
+// Development only may infer a loopback origin from the initiating request.
+export function getGoogleAuthOrigin(requestOrigin: string, siteUrl: string | undefined, production: boolean): string {
+  const source = siteUrl || (production ? "" : requestOrigin);
+  const url = new URL(source);
+  const local = url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname === "[::1]";
+  if (url.username || url.password || url.pathname !== "/" || url.search || url.hash ||
+      (url.protocol !== "https:" && !(local && url.protocol === "http:")) ||
+      (!siteUrl && !local)) {
+    throw new Error("Configure SITE_URL with the trusted application origin.");
+  }
+  return url.origin;
+}
+
+export function getGoogleCallbackOrigin(request: Request, siteUrl: string | undefined, production: boolean): string {
+  const url = new URL(request.url);
+  // Next dev can reconstruct request.url with localhost even when the browser
+  // used 127.0.0.1. Preserve its host-bound cookies; inference is loopback-only.
+  const incoming = !production && !siteUrl && request.headers.get("host")
+    ? `${url.protocol}//${request.headers.get("host")}`
+    : url.origin;
+  return getGoogleAuthOrigin(incoming, siteUrl, production);
+}
+
+export async function checkGoogleProvider(supabaseUrl: string, anonKey: string, fetcher: typeof fetch = fetch): Promise<GoogleAuthError | null> {
+  try {
+    const response = await fetcher(`${supabaseUrl.replace(/\/$/, "")}/auth/v1/settings`, {
+      headers: { apikey: anonKey }, cache: "no-store", signal: AbortSignal.timeout(5000),
+    });
+    if (!response.ok) return "unavailable";
+    const settings = await response.json();
+    return settings.external?.google === true ? null : "not_configured";
+  } catch { return "unavailable"; }
+}
+
+export async function beginGoogleSignIn(auth: Pick<Auth, "signInWithOAuth">, callbackUrl: string, supabaseUrl: string): Promise<{ url: string | null; error: GoogleAuthError | null }> {
+  try {
+    const { data, error } = await auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: callbackUrl, scopes: "openid email profile", queryParams: { prompt: "select_account" }, skipBrowserRedirect: true },
+    });
+    if (error || !data.url) return { url: null, error: "unavailable" };
+    const target = new URL(data.url);
+    if (target.origin !== new URL(supabaseUrl).origin || target.pathname !== "/auth/v1/authorize" || target.searchParams.get("provider") !== "google") {
+      return { url: null, error: "unavailable" };
+    }
+    return { url: target.href, error: null };
+  } catch { return { url: null, error: "unavailable" }; }
+}
+
+export async function finishGoogleSignIn(params: URLSearchParams, auth: Pick<Auth, "exchangeCodeForSession">): Promise<GoogleAuthError | null> {
+  if (params.has("error")) return params.get("error") === "access_denied" ? "cancelled" : "exchange_failed";
+  const code = params.get("code");
+  if (!code || code.length > 2048) return "exchange_failed";
+  try {
+    const { data, error } = await auth.exchangeCodeForSession(code);
+    return error || !data.session || !data.user ? "exchange_failed" : null;
+  } catch { return "exchange_failed"; }
+}

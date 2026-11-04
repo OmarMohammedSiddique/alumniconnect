@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // OAuth codes must not appear in development request logs.
+  logging: { incomingRequests: { ignore: [/^\/auth\/callback(?:[/?]|$)/] } },
 };
 
 export default nextConfig;

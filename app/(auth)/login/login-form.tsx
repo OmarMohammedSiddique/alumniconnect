@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { GoogleSignIn } from "./google-sign-in";
 import { signIn, type AuthState } from "../actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,7 @@ export function LoginForm() {
         <CardTitle><h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1></CardTitle>
         <CardDescription>Sign in to your mentorship workspace.</CardDescription>
       </CardHeader>
+      <CardContent><GoogleSignIn next={next} /></CardContent>
       <form action={formAction} aria-busy={pending}>
         <CardContent className="grid gap-5 sm:grid-cols-2">
           <input type="hidden" name="next" value={next} />

@@ -1,5 +1,7 @@
 "use server";
 
+import { cookies, headers } from "next/headers";
+import { beginGoogleSignIn, checkGoogleProvider, getGoogleAuthMessage, getGoogleAuthOrigin, GOOGLE_NEXT_COOKIE } from "@/lib/google-auth";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatFullName } from "@/lib/profile-name";
@@ -93,4 +95,29 @@ export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/login");
+}
+
+export async function signInWithGoogle(_previous: AuthState, formData: FormData): Promise<AuthState> {
+  let destination: string;
+  try {
+    const requestHeaders = await headers();
+    const origin = getGoogleAuthOrigin(requestHeaders.get("origin") ?? "", process.env.SITE_URL, process.env.NODE_ENV === "production");
+    // A verifier cookie is host-bound: begin the flow on the configured origin.
+    if (requestHeaders.get("origin") !== origin) return { error: "Open the app at its configured address before signing in with Google." };
+    const providerError = await checkGoogleProvider(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+    if (providerError) return { error: getGoogleAuthMessage(providerError) };
+    const callback = new URL("/auth/callback", origin);
+    const supabase = await createClient();
+    const result = await beginGoogleSignIn(supabase.auth, callback.href, process.env.NEXT_PUBLIC_SUPABASE_URL!);
+    if (result.error || !result.url) return { error: getGoogleAuthMessage(result.error ?? "unavailable") };
+    const cookieStore = await cookies();
+    cookieStore.set(GOOGLE_NEXT_COOKIE, getSafeSignInRedirect(String(formData.get("next") ?? "")), {
+      httpOnly: true, sameSite: "lax", secure: origin.startsWith("https:"), path: "/auth", maxAge: 600,
+    });
+    destination = result.url;
+  } catch {
+    return { error: getGoogleAuthMessage("not_configured") };
+  }
+  // Keep redirect outside the catch; Next.js implements it by throwing.
+  redirect(destination);
 }
