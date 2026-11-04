@@ -78,7 +78,8 @@ for the methodology and recorded results.
 
 ### Prerequisites
 
-- Node.js 20.9 or newer
+- Node.js 20.9 or newer to run the app; Node.js 22.6 or newer for `npm test`
+  (it uses `--experimental-strip-types`). CI uses Node.js 22.
 - npm
 - Docker Desktop
 
@@ -138,7 +139,8 @@ Git and must never be committed.
 | `npm run lint` | Run ESLint |
 | `npm run typecheck` | Validate TypeScript without emitting files |
 | `npm run build` | Create an optimized production build |
-| `npm run check` | Run lint, type checking, and the production build |
+| `npm test` | Run the application unit/regression tests (`lib/*.test.mjs`); exits nonzero on failure |
+| `npm run check` | Run lint, type checking, unit tests, and the production build |
 | `npm run smoke:local` | Verify the local HTTP/API/database mentorship workflow using disposable accounts |
 | `node scripts/seed-dev.mjs` | Add local mentor profiles and embeddings |
 | `node scripts/eval/run-eval.mjs` | Reproduce the matching evaluation |
@@ -155,7 +157,29 @@ With local Supabase running, execute the database access-control tests:
 
 ```bash
 docker exec -i supabase_db_alumniconnect psql -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/rls_tests.sql
+docker exec -i supabase_db_alumniconnect psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 < supabase/tests/google_signup_policy.sql
 ```
+
+Both suites run inside a transaction that is rolled back, and any failed
+assertion makes `psql` exit nonzero. The Google sign-up suite runs as the local
+stack administrator because it switches to the Auth role.
+
+### Continuous integration
+
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on every pull
+request and push to `main`, with read-only repository permissions and no
+secrets:
+
+| Job | What it runs |
+| --- | --- |
+| Quality checks | `npm ci`, lint, typecheck, `npm test`, production build (Node.js 22) |
+| Database permission tests | Starts a disposable local Supabase stack on the runner with the CLI version pinned in `package-lock.json`, applies all committed migrations, runs both SQL suites above, then always stops the stack. It never contacts a hosted project. |
+| ML regression tests | Python 3.12: the standard-library audit/preparation suites in `ml/`, then the training/metric suite in `ml/training_tests/` with pinned CPU PyTorch, NumPy, and scikit-learn. All fixtures are synthetic; no private data or held-out results are used. |
+
+To reproduce the database job from a clean checkout: `npm ci`, then
+`npx supabase start`, run the two `psql` commands above, and
+`npx supabase stop --no-backup`. Marking these jobs as required checks is a
+repository setting (Settings → Branches) that an administrator configures.
 
 To verify the mentorship workflow, apply pending local migrations with
 `npx supabase migration up --local`, run `npm run check`, and start that production

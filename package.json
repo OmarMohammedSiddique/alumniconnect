@@ -16,8 +16,9 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
+    "test": "node --experimental-strip-types --test lib/*.test.mjs",
     "ml:walkthrough": "node --conditions=react-server --experimental-strip-types scripts/ml-walkthrough.mjs",
-    "check": "npm run lint && npm run typecheck && npm run build",
+    "check": "npm run lint && npm run typecheck && npm test && npm run build",
     "smoke:local": "node --env-file=.env.local scripts/smoke-local.mjs",
     "auth:check": "node --env-file=.env.local scripts/check-google-auth.mjs"
   },
