@@ -29,6 +29,7 @@ GitHub tracking:
 - [x] Confirm whether jobs, cohorts, and events must be completed before final
   assessment or may be formally re-scoped (formally resolved in [scope decision](scope-decision-jobs-cohorts-events.md) #7).
 - [x] Record confirmed scratch-training and live-model acceptance requirements (formally resolved in [scratch model requirements](scratch-model-requirements.md) #1).
+- [x] Prepare runbook and rehearsal script for 5 November 2026 assessed sprint presentation (documented in [sprint presentation runbook](sprint-presentation-2026-11-05.md) #30).
 - [ ] Confirm the final semantic-versus-keyword evaluation protocol before
   rerunning the experiment.
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { createRequest, type RequestState } from "../requests/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,13 +11,25 @@ import { MAX_INTRODUCTION_LENGTH } from "@/lib/form-limits";
 
 const initialState: RequestState = { error: null, ok: false };
 
-export function RequestButton({ mentorId }: { mentorId: string }) {
+export function RequestButton({
+  mentorId,
+  onRequestSent,
+}: {
+  mentorId: string;
+  onRequestSent?: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [state, formAction, pending] = useActionState(
     createRequest,
     initialState,
   );
+
+  useEffect(() => {
+    if (state.ok) {
+      onRequestSent?.();
+    }
+  }, [state.ok, onRequestSent]);
 
   if (state.ok) {
     return (
