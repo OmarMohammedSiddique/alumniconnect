@@ -152,7 +152,7 @@ export function DiscoverClient({ canRequest, isMentor }: { canRequest: boolean; 
       {!loading && mentors && mentors.length > 0 && (
         <StaggerReveal className="grid gap-4 lg:grid-cols-2">
           {mentors.map((m) => (
-            <MentorCard key={m.id} mentor={m} canRequest={canRequest} />
+            <MentorCard key={m.id} mentor={m} mode={mode} canRequest={canRequest} />
           ))}
         </StaggerReveal>
       )}
