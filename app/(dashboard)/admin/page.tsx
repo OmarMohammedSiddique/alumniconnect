@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { setUserRole, setUserVisibility } from "./actions";
-import { Button } from "@/components/ui/button";
+import { RoleForm, VisibilityForm } from "./admin-controls";
 
 export const metadata = { title: "Admin - AlumniConnect" };
 
@@ -20,8 +19,6 @@ interface AuditRow {
   detail: Record<string, unknown>;
   created_at: string;
 }
-
-const ROLES = ["mentee", "mentor", "moderator", "admin"] as const;
 
 export default async function AdminPage() {
   const supabase = await createClient();
@@ -84,39 +81,13 @@ export default async function AdminPage() {
                   </td>
                   <td className="px-3 py-2">
                     {isAdmin && p.id !== user.id ? (
-                      <form action={setUserRole} className="flex items-center gap-1.5">
-                        <input type="hidden" name="user_id" value={p.id} />
-                        <select
-                          name="role"
-                          defaultValue={p.role}
-                          className="h-7 rounded-md border bg-transparent px-1.5 text-sm"
-                        >
-                          {ROLES.map((r) => (
-                            <option key={r} value={r}>
-                              {r}
-                            </option>
-                          ))}
-                        </select>
-                        <Button type="submit" size="xs" variant="outline">
-                          Set
-                        </Button>
-                      </form>
+                      <RoleForm userId={p.id} name={p.full_name || "this user"} role={p.role} />
                     ) : (
                       <span className="capitalize">{p.role}</span>
                     )}
                   </td>
                   <td className="px-3 py-2">
-                    <form action={setUserVisibility}>
-                      <input type="hidden" name="user_id" value={p.id} />
-                      <input
-                        type="hidden"
-                        name="visible"
-                        value={p.is_visible ? "false" : "true"}
-                      />
-                      <Button type="submit" size="xs" variant="outline">
-                        {p.is_visible ? "Visible - hide" : "Hidden - show"}
-                      </Button>
-                    </form>
+                    <VisibilityForm userId={p.id} name={p.full_name || "this user"} visible={p.is_visible} />
                   </td>
                   <td className="px-3 py-2 text-muted-foreground">
                     {new Date(p.created_at).toLocaleDateString("en-GB")}

@@ -156,6 +156,62 @@ end $$;
 -- put Eve back to mentee for later tests
 update public.profiles set role = 'mentee' where id = '00000000-0000-0000-0000-000000000006';
 
+-- TEST 8c: outcomes the admin page relies on (#22). The app maps these exact
+-- trigger messages to a permission denial and treats zero affected rows as a
+-- stale or inaccessible target rather than success.
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000004');
+do $$ begin
+  begin
+    update public.profiles set role = 'admin' where id = '00000000-0000-0000-0000-000000000006';
+    raise exception 'FAIL 8c: moderator changed a role';
+  exception when others then
+    if sqlerrm like 'FAIL%' then raise; end if;
+    if sqlerrm <> 'only admins can change roles' then
+      raise exception 'FAIL 8c: unexpected moderator role error: %', sqlerrm;
+    end if;
+  end;
+end $$;
+select pg_temp.reset_role();
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000006');
+do $$
+declare affected integer;
+begin
+  update public.profiles set is_visible = false where id = '00000000-0000-0000-0000-000000000002';
+  get diagnostics affected = row_count;
+  if affected <> 0 then
+    raise exception 'FAIL 8c: member changed another profile''s visibility';
+  end if;
+end $$;
+select pg_temp.reset_role();
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000005');
+do $$
+declare affected integer;
+begin
+  update public.profiles set role = 'mentor' where id = '00000000-0000-0000-0000-0000000000ff';
+  get diagnostics affected = row_count;
+  if affected <> 0 then
+    raise exception 'FAIL 8c: update of a missing profile reported affected rows';
+  end if;
+end $$;
+select pg_temp.reset_role();
+do $$ begin
+  if (select is_visible from public.profiles where id = '00000000-0000-0000-0000-000000000002') is not true then
+    raise exception 'FAIL 8c: rejected visibility change mutated data';
+  end if;
+  if (select role from public.profiles where id = '00000000-0000-0000-0000-000000000006') <> 'mentee' then
+    raise exception 'FAIL 8c: rejected role change mutated data';
+  end if;
+  if not exists (
+    select 1 from public.audit_logs
+    where action = 'role_changed'
+      and actor_id = '00000000-0000-0000-0000-000000000005'
+      and target_id = '00000000-0000-0000-0000-000000000006'
+      and detail ->> 'to' = 'mentor'
+  ) then
+    raise exception 'FAIL 8c: admin role change was not audited';
+  end if;
+end $$;
+
 -- TEST 9: mentee creates a request to a mentor; cannot forge mentee_id;
 -- cannot request a non-mentor.
 select pg_temp.impersonate('00000000-0000-0000-0000-000000000001');
