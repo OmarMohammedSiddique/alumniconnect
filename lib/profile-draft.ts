@@ -89,3 +89,47 @@ export function clearProfileDraft(
     // Ignore storage errors on cleanup
   }
 }
+
+export function clearAllProfileDrafts(
+  storage: Pick<Storage, "length" | "key" | "removeItem"> | null | undefined,
+): void {
+  if (!storage) return;
+  try {
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < storage.length; i++) {
+      const key = storage.key(i);
+      if (key && key.startsWith(DRAFT_STORAGE_PREFIX)) {
+        keysToRemove.push(key);
+      }
+    }
+    for (const key of keysToRemove) {
+      storage.removeItem(key);
+    }
+  } catch {
+    // Ignore storage errors on sign-out cleanup
+  }
+}
+
+export function reconcileDraftAfterSave(
+  currentDraft: ProfileDraftFields,
+  submittedDraft: ProfileDraftFields,
+  savedFullName: string,
+): {
+  nextDraft: ProfileDraftFields;
+  nextSavedDraft: ProfileDraftFields;
+  hasRemainingUnsavedChanges: boolean;
+} {
+  const nextSavedDraft: ProfileDraftFields = {
+    ...submittedDraft,
+    full_name: savedFullName,
+  };
+  const nextDraft: ProfileDraftFields =
+    currentDraft.full_name === submittedDraft.full_name
+      ? { ...currentDraft, full_name: savedFullName }
+      : { ...currentDraft };
+  return {
+    nextDraft,
+    nextSavedDraft,
+    hasRemainingUnsavedChanges: hasDraftDifferences(nextDraft, nextSavedDraft),
+  };
+}

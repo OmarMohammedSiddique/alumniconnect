@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { DiscoverClient } from "./discover-client";
 import { QuickActions } from "@/components/quick-actions";
 import { PageHeading } from "@/components/ui/page-heading";
-import type { MentorRequestState } from "@/lib/discovery-filters";
+import { buildRequestStateMap } from "@/lib/discovery-filters";
 
 export const metadata = { title: "Discover - AlumniConnect" };
 
@@ -20,20 +20,22 @@ export default async function DiscoverPage() {
     .eq("id", user.id)
     .single();
 
-  // Load existing requests involving this user to reflect persistent relationship states
-  const { data: userRequests } = await supabase
-    .from("mentorship_requests")
-    .select("mentor_id, status")
-    .eq("mentee_id", user.id);
+  // Load existing requests and connections involving this user to reflect persistent relationship states
+  const [{ data: userRequests }, { data: userConnections }] = await Promise.all([
+    supabase
+      .from("mentorship_requests")
+      .select("mentor_id, status")
+      .eq("mentee_id", user.id),
+    supabase
+      .from("connections")
+      .select("mentor_id")
+      .eq("mentee_id", user.id),
+  ]);
 
-  const initialRequestMap: Record<string, MentorRequestState> = {};
-  if (userRequests) {
-    for (const req of userRequests) {
-      if (req.mentor_id && req.status) {
-        initialRequestMap[req.mentor_id] = req.status as MentorRequestState;
-      }
-    }
-  }
+  const initialRequestMap = buildRequestStateMap(
+    userRequests ?? [],
+    (userConnections ?? []).map((c) => c.mentor_id),
+  );
 
   return (
     <div>

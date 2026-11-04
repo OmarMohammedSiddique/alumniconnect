@@ -142,10 +142,11 @@ export default async function RequestsPage() {
                 connectedSince={c.created_at}
                 isMentor={isMentor}
                 partner={{
-                  fullName: partner?.full_name ?? "Unnamed member",
+                  fullName: partner?.full_name ?? "Unavailable member",
                   role: partner?.role ?? (isMentor ? "mentee" : "mentor"),
                   headline: partner?.headline ?? "",
                   industry: partner?.industry ?? "",
+                  available: Boolean(partner),
                 }}
               />
             );

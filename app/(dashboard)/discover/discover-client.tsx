@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { MentorCard, type Mentor } from "./mentor-card";
@@ -43,7 +43,11 @@ export function DiscoverClient({
 
   // Filter state
   const [selectedIndustry, setSelectedIndustry] = useState<string>("all");
+  const [selectedGraduationYear, setSelectedGraduationYear] = useState<string>("all");
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [semanticRetryTick, setSemanticRetryTick] = useState(0);
+  const [searchError, setSearchError] = useState(false);
+  const searchSeqRef = useRef(0);
 
   // Semantic mode: ranked matches from /api/match (pgvector cosine).
   useEffect(() => {
@@ -56,42 +60,60 @@ export function DiscoverClient({
         if (!res.ok) {
           setMentors([]);
           setNeedsProfile(res.status === 422);
+          setSearchError(res.status !== 422);
           setNotice(res.status === 422 ? null : body.error ?? "Could not load matches.");
         } else {
           setNeedsProfile(false);
+          setSearchError(false);
           setMentors(body.matches);
         }
       })
-      .catch(() => !cancelled && setNotice("Could not load matches."))
+      .catch(() => {
+        if (!cancelled) {
+          setSearchError(true);
+          setNotice("Could not load matches.");
+        }
+      })
       .finally(() => !cancelled && setLoading(false));
     return () => {
       cancelled = true;
     };
-  }, [mode]);
+  }, [mode, semanticRetryTick]);
 
   // Keyword mode: Postgres full-text search over profiles (under RLS).
-  async function runKeywordSearch(e: React.FormEvent) {
-    e.preventDefault();
-    if (!query.trim()) return;
+  async function executeKeywordSearch(term: string) {
+    const trimmed = term.trim();
+    if (!trimmed) return;
+    const reqId = ++searchSeqRef.current;
     setLoading(true);
+    setSearchError(false);
     setNotice(null);
     const supabase = createClient();
     const { data, error } = await supabase.rpc("search_mentors", {
-      search_query: query,
+      search_query: trimmed,
       match_count: 20,
     });
+    // Guard against superseded searches or mode switches
+    if (reqId !== searchSeqRef.current) return;
     if (error) {
-      setNotice("Search failed. Try different terms.");
+      setSearchError(true);
+      setNotice("Search failed. Try different terms or retry.");
       setMentors([]);
     } else {
+      setSearchError(false);
       setMentors(data);
       if (data.length === 0) setNotice("No mentors matched that search.");
     }
     setLoading(false);
   }
 
-  // Derive unique industries and skills from loaded mentors
-  const { industries, skills: availableSkills } = useMemo(() => {
+  async function runKeywordSearch(e: React.FormEvent) {
+    e.preventDefault();
+    await executeKeywordSearch(query);
+  }
+
+  // Derive unique industries, graduation cohort years, and skills from loaded mentors
+  const { industries, graduationYears, skills: availableSkills } = useMemo(() => {
     return extractAvailableFilters(mentors ?? []);
   }, [mentors]);
 
@@ -99,15 +121,20 @@ export function DiscoverClient({
   const filteredMentors = useMemo(() => {
     return filterMentors(mentors ?? [], {
       industry: selectedIndustry,
+      graduationYear: selectedGraduationYear,
       skills: selectedSkills,
       matchMode: "any",
     });
-  }, [mentors, selectedIndustry, selectedSkills]);
+  }, [mentors, selectedIndustry, selectedGraduationYear, selectedSkills]);
 
-  const hasActiveFilters = selectedIndustry !== "all" || selectedSkills.length > 0;
+  const hasActiveFilters =
+    selectedIndustry !== "all" ||
+    selectedGraduationYear !== "all" ||
+    selectedSkills.length > 0;
 
   function resetFilters() {
     setSelectedIndustry("all");
+    setSelectedGraduationYear("all");
     setSelectedSkills([]);
   }
 
@@ -139,7 +166,9 @@ export function DiscoverClient({
             variant={mode === "semantic" ? "default" : "ghost"}
             onClick={() => {
               if (mode === "semantic") return;
+              searchSeqRef.current++;
               setLoading(true);
+              setSearchError(false);
               setNotice(null);
               setNeedsProfile(false);
               setMode("semantic");
@@ -153,7 +182,9 @@ export function DiscoverClient({
             aria-pressed={mode === "keyword"}
             variant={mode === "keyword" ? "default" : "ghost"}
             onClick={() => {
+              searchSeqRef.current++;
               setLoading(false);
+              setSearchError(false);
               setNeedsProfile(false);
               setMode("keyword");
               setMentors([]);
@@ -223,6 +254,28 @@ export function DiscoverClient({
                 </div>
               )}
 
+              {/* Cohort (Graduation Year) Dropdown (#7, #16) */}
+              {graduationYears.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <label htmlFor="filter-cohort" className="text-xs text-muted-foreground">
+                    Cohort:
+                  </label>
+                  <select
+                    id="filter-cohort"
+                    value={selectedGraduationYear}
+                    onChange={(e) => setSelectedGraduationYear(e.target.value)}
+                    className="h-8 rounded-md border border-input bg-background px-2.5 py-1 text-xs shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                  >
+                    <option value="all">All Cohorts ({graduationYears.length})</option>
+                    {graduationYears.map((yr) => (
+                      <option key={yr} value={String(yr)}>
+                        Class of {yr}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               {/* Active Filter Counter */}
               {hasActiveFilters && (
                 <span className="text-xs text-muted-foreground">
@@ -285,13 +338,36 @@ export function DiscoverClient({
       )}
 
       {!loading && notice && (
-        <StatusMessage tone={notice.includes("failed") || notice.includes("Could not") ? "error" : "info"}>
-          {notice}{" "}
-          {notice.includes("profile") && (
-            <Link href="/profile" className="underline underline-offset-4">
-              Edit profile
-            </Link>
-          )}
+        <StatusMessage tone={searchError || notice.includes("failed") || notice.includes("Could not") ? "error" : "info"}>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span>
+              {notice}{" "}
+              {notice.includes("profile") && (
+                <Link href="/profile" className="underline underline-offset-4">
+                  Edit profile
+                </Link>
+              )}
+            </span>
+            {searchError && (
+              <Button
+                type="button"
+                size="xs"
+                variant="outline"
+                onClick={() => {
+                  if (mode === "semantic") {
+                    setLoading(true);
+                    setSearchError(false);
+                    setNotice(null);
+                    setSemanticRetryTick((t) => t + 1);
+                  } else {
+                    void executeKeywordSearch(query);
+                  }
+                }}
+              >
+                Retry
+              </Button>
+            )}
+          </div>
         </StatusMessage>
       )}
 

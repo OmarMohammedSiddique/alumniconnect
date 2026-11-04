@@ -26,6 +26,7 @@ import {
   loadProfileDraft,
   clearProfileDraft,
   hasDraftDifferences,
+  reconcileDraftAfterSave,
   type StoredProfileDraft,
 } from "@/lib/profile-draft";
 
@@ -96,8 +97,48 @@ export function ProfileForm({ userId, profile, hasMatchProfile }: ProfileFormPro
       event.preventDefault();
       event.returnValue = "";
     };
+    const onDocumentClick = (event: MouseEvent) => {
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      ) {
+        return;
+      }
+      const anchor =
+        event.target instanceof Element ? event.target.closest("a[href]") : null;
+      if (!anchor) return;
+      const href = anchor.getAttribute("href");
+      if (!href || href.startsWith("#")) return;
+      try {
+        const url = new URL(href, window.location.href);
+        if (
+          url.origin === window.location.origin &&
+          url.pathname === window.location.pathname &&
+          url.search === window.location.search
+        ) {
+          return;
+        }
+      } catch {
+        return;
+      }
+      const confirmed = window.confirm(
+        "You have unsaved profile changes. Leave this page without saving? Your draft is kept for this session, or press Cancel to stay and save.",
+      );
+      if (!confirmed) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    };
     window.addEventListener("beforeunload", onBeforeUnload);
-    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+    document.addEventListener("click", onDocumentClick, true);
+    return () => {
+      window.removeEventListener("beforeunload", onBeforeUnload);
+      document.removeEventListener("click", onDocumentClick, true);
+    };
   }, [hasUnsavedChanges]);
   const skills = normalizeSkills(draft.skills);
   const skillsError = getSkillsLimitError(skills.length);
@@ -127,14 +168,20 @@ export function ProfileForm({ userId, profile, hasMatchProfile }: ProfileFormPro
       const result = await updateProfile(previous, formData);
       if (result.saved) {
         setSavedDraft({ ...submitted, full_name: result.fullName });
-        if (userId && typeof window !== "undefined") {
-          clearProfileDraft(window.sessionStorage, userId);
-        }
         setRestorableDraft(null);
         // Only replace the submitted name, preserving newer edits in this form.
-        setDraft((current) => current.full_name === submitted.full_name
-          ? { ...current, full_name: result.fullName }
-          : current);
+        setDraft((current) => {
+          const { nextDraft, hasRemainingUnsavedChanges } =
+            reconcileDraftAfterSave(current, submitted, result.fullName);
+          if (userId && typeof window !== "undefined") {
+            if (hasRemainingUnsavedChanges) {
+              saveProfileDraft(window.sessionStorage, userId, nextDraft);
+            } else {
+              clearProfileDraft(window.sessionStorage, userId);
+            }
+          }
+          return nextDraft;
+        });
       }
       return result;
     },

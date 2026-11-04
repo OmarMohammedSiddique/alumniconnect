@@ -1,7 +1,7 @@
 # Membership Eligibility and Affiliation Verification Policy
 
 **Policy Record Date:** 4 November 2026  
-**Document Status:** Approved Project Policy  
+**Document Status:** Recorded Policy & Design Specification (Subject to Supervisor/Stakeholder Review; Prototype Deferral Active)  
 **Associated Issues:** #23 (Policy & Lifecycle Specification), #36 (Registration Layout), #19 (Privacy & Reporting Controls), #15 (Email Verification), #6 (Chapter 5 Evidence)
 
 ---
@@ -134,8 +134,7 @@ In compliance with Sections 25–31 of the **Kenya Data Protection Act, 2019** (
 ## 7. Honest Prototype Disclosure
 
 As an academic capstone prototype:
-- The platform interface and registration screen must explicitly state:
-  > *"AlumniConnect is an independent academic research platform developed for evaluation purposes. Registration does not constitute official corporate accreditation or employment certification by Kenya Airways PLC."*
+- The platform interface (`/signup`, `/login`, `/privacy`, and the workspace `PrototypeNotice`) explicitly discloses that AlumniConnect is an academic prototype, that registration and Google/email sign-in do not verify employment or Kenya Airways affiliation, and that the proposed Data Protection Act wording on `/signup` links to `/privacy` explaining the unverified prototype boundaries.
 - No representations of official airline sponsorship or commercial endorsement may be made in public release documentation.
 
 ---
