@@ -54,6 +54,11 @@
     "tailwindcss": "^4",
     "typescript": "^5"
   },
+  "overrides": {
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "^11.0.4"
+    }
+  },
   "allowScripts": {
     "onnxruntime-node@1.30.0": true,
     "protobufjs@7.6.6": true,
