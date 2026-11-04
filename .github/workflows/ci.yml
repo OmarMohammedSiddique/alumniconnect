@@ -28,7 +28,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
@@ -40,5 +40,83 @@ jobs:
       - name: Type check
         run: npm run typecheck
 
+      - name: Unit tests
+        run: npm test
+
       - name: Build
         run: npm run build
+
+  database:
+    name: Database permission tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # Installs the Supabase CLI version pinned in package-lock.json.
+      - name: Install dependencies
+        run: npm ci
+
+      # Starts a disposable local stack on the runner and applies every
+      # committed migration. Services the SQL suites do not need are skipped.
+      # `supabase start` waits for container health checks before returning.
+      - name: Start isolated local Supabase
+        timeout-minutes: 10
+        run: >-
+          npx supabase start
+          -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,realtime,postgres-meta
+
+      - name: Run permission suites
+        timeout-minutes: 5
+        # The Google sign-up policy suite switches to supabase_auth_admin,
+        # which only the local stack administrator may do.
+        run: |
+          set -euo pipefail
+          run_suite() {
+            echo "::group::$2 (as $1)"
+            docker exec -i supabase_db_alumniconnect \
+              psql -U "$1" -d postgres -v ON_ERROR_STOP=1 -q < "$2"
+            echo "::endgroup::"
+          }
+          run_suite postgres supabase/tests/rls_tests.sql
+          run_suite supabase_admin supabase/tests/google_signup_policy.sql
+
+      - name: Stop local Supabase
+        if: always()
+        run: npx supabase stop --no-backup
+
+  ml:
+    name: ML regression tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Audit and preparation suites use only the standard library and
+      # synthetic in-test fixtures; no private data or held-out results.
+      - name: Audit and preparation tests
+        run: python -B -m unittest discover -s ml -p 'test_*.py' -v
+
+      # Training/metric tests need the pinned CPU build of PyTorch only.
+      - name: Install pinned training dependencies
+        run: >-
+          python -m pip install --no-cache-dir
+          --index-url https://download.pytorch.org/whl/cpu
+          --extra-index-url https://pypi.org/simple
+          torch==2.15.0 numpy==2.5.4
+
+      - name: Training and metric tests
+        run: python -B -m unittest discover -s ml/training_tests -p 'test_*.py' -v
