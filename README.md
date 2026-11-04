@@ -174,7 +174,7 @@ secrets:
 | --- | --- |
 | Quality checks | `npm ci`, lint, typecheck, `npm test`, production build (Node.js 22) |
 | Database permission tests | Starts a disposable local Supabase stack on the runner with the CLI version pinned in `package-lock.json`, applies all committed migrations, runs both SQL suites above, then always stops the stack. It never contacts a hosted project. |
-| ML regression tests | Python 3.12: the standard-library audit/preparation suites in `ml/`, then the training/metric suite in `ml/training_tests/` with pinned CPU PyTorch. All fixtures are synthetic; no private data or held-out results are used. |
+| ML regression tests | Python 3.12: the standard-library audit/preparation suites in `ml/`, then the training/metric suite in `ml/training_tests/` with pinned CPU PyTorch, NumPy, and scikit-learn. All fixtures are synthetic; no private data or held-out results are used. |
 
 To reproduce the database job from a clean checkout: `npm ci`, then
 `npx supabase start`, run the two `psql` commands above, and
