@@ -78,8 +78,8 @@ export interface DotGridProps {
 export default function DotGrid({
   dotSize = 16,
   gap = 32,
-  baseColor = "#ed1c24",
-  activeColor = "#ed1c24",
+  baseColor = "#ED1C24",
+  activeColor = "#ED1C24",
   proximity = 150,
   speedTrigger = 100,
   shockRadius = 250,

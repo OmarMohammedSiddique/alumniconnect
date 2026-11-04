@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import "./ui-state-variants.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -63,26 +63,27 @@
 }
 
 :root {
-  /* Kenya Airways website palette; darker red keeps small white button text readable. */
-  --brand-red: oklch(0.60301 0.23470 26.987); /* #ed1c24 */
-  --brand-red-deep: oklch(0.51814 0.19990 26.644); /* #c1171e */
-  --brand-ink: #010101;
-  --brand-surface: #f7f7f7;
-  --brand-gray: oklch(0.44285 0.00208 67.77); /* #545352 */
-  --brand-gray-light: oklch(0.94 0 0); /* #ebebeb reference */
-  --brand-green: oklch(0.46442 0.11076 156.908); /* #006b3f */ /* Supporting Kenyan green, reserved for success states. */
+  /* Approved palette. All supporting shades derive from these three colours. */
+  --brand-red: #ED1C24;
+  --brand-ink: #0D0D0D;
+  --brand-white: #FFFFFF;
+  /* Pure Crimson/White is 4.38:1; this derived shade supports small text. */
+  --brand-red-deep: color-mix(in srgb, var(--brand-red), var(--brand-ink) 12%);
+  --brand-surface: color-mix(in srgb, var(--brand-white), var(--brand-ink) 3%);
+  --brand-gray: color-mix(in srgb, var(--brand-ink), var(--brand-white) 28%);
+  --brand-gray-light: color-mix(in srgb, var(--brand-white), var(--brand-ink) 8%);
   --surface: var(--brand-surface);
   --success: var(--card);
-  --success-foreground: var(--brand-green);
-  --warning: oklch(0.97 0.035 85);
-  --warning-foreground: oklch(0.38 0.08 65);
-  --info: oklch(0.96 0.018 245);
-  --info-foreground: oklch(0.36 0.08 245);
+  --success-foreground: var(--foreground);
+  --warning: var(--surface);
+  --warning-foreground: var(--foreground);
+  --info: var(--surface);
+  --info-foreground: var(--foreground);
   --inverse: var(--brand-ink);
-  --inverse-foreground: oklch(1 0 0);
-  --inverse-muted: oklch(0.82 0 0);
-  --inverse-border: oklch(0.44 0 0);
-  --inverse-accent: oklch(0.83 0.09 27);
+  --inverse-foreground: var(--brand-white);
+  --inverse-muted: color-mix(in srgb, var(--brand-white), var(--brand-ink) 20%);
+  --inverse-border: color-mix(in srgb, var(--brand-ink), var(--brand-white) 42%);
+  --inverse-accent: var(--brand-white);
   --shadow-subtle: none;
   --shadow-panel: none;
   --space-unit: 0.25rem;
@@ -107,79 +108,79 @@
   --z-navigation: 10;
   --z-popover: 30;
   --z-skip: 40;
-  --background: oklch(1 0 0);
+  --background: var(--brand-white);
   --foreground: var(--brand-ink);
-  --card: oklch(1 0 0);
+  --card: var(--brand-white);
   --card-foreground: var(--brand-ink);
-  --popover: oklch(1 0 0);
+  --popover: var(--brand-white);
   --popover-foreground: var(--brand-ink);
   --primary: var(--brand-red-deep);
-  --primary-foreground: oklch(1 0 0);
+  --primary-foreground: var(--brand-white);
   --secondary: var(--brand-ink);
-  --secondary-foreground: oklch(1 0 0);
-  --muted: oklch(0.97 0 0);
+  --secondary-foreground: var(--brand-white);
+  --muted: color-mix(in srgb, var(--brand-white) 91%, var(--brand-ink));
   --muted-foreground: var(--brand-gray);
   --accent: var(--brand-ink);
-  --accent-foreground: oklch(1 0 0);
-  --destructive: oklch(0.43 0.17 27);
-  --border: oklch(0.84 0 0);
-  --input: oklch(0.58 0 0);
+  --accent-foreground: var(--brand-white);
+  --destructive: var(--brand-red-deep);
+  --border: color-mix(in srgb, var(--brand-white) 59%, var(--brand-ink));
+  --input: color-mix(in srgb, var(--brand-white) 20%, var(--brand-ink));
   --ring: var(--brand-red-deep);
   --chart-1: var(--brand-red-deep);
   --chart-2: var(--brand-ink);
-  --chart-3: oklch(0.66 0.17 27);
-  --chart-4: oklch(0.48 0 0);
-  --chart-5: oklch(0.78 0.1 27);
+  --chart-3: var(--brand-red);
+  --chart-4: color-mix(in srgb, var(--brand-white) 11%, var(--brand-ink));
+  --chart-5: var(--brand-red);
   --radius: 0rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar: color-mix(in srgb, var(--brand-white) 96%, var(--brand-ink));
+  --sidebar-foreground: color-mix(in srgb, var(--brand-white) 0%, var(--brand-ink));
   --sidebar-primary: var(--brand-red-deep);
-  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-primary-foreground: var(--brand-white);
   --sidebar-accent: var(--brand-surface);
   --sidebar-accent-foreground: var(--brand-red-deep);
-  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-border: color-mix(in srgb, var(--brand-white) 78%, var(--brand-ink));
   --sidebar-ring: var(--brand-red-deep);
 }
 
 .dark {
-  --surface: oklch(0.18 0 0);
+  --surface: color-mix(in srgb, var(--brand-white) 1%, var(--brand-ink));
   --success: var(--card);
-  --success-foreground: oklch(0.86 0.08 155);
-  --warning: oklch(0.27 0.035 65);
-  --warning-foreground: oklch(0.9 0.08 85);
-  --info: oklch(0.26 0.03 245);
-  --info-foreground: oklch(0.86 0.06 245);
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.78 0.12 27);
+  --success-foreground: var(--foreground);
+  --warning: var(--surface);
+  --warning-foreground: var(--foreground);
+  --info: var(--surface);
+  --info-foreground: var(--foreground);
+  --background: var(--brand-ink);
+  --foreground: color-mix(in srgb, var(--brand-white) 96%, var(--brand-ink));
+  --card: color-mix(in srgb, var(--brand-white) 1%, var(--brand-ink));
+  --card-foreground: color-mix(in srgb, var(--brand-white) 96%, var(--brand-ink));
+  --popover: color-mix(in srgb, var(--brand-white) 1%, var(--brand-ink));
+  --popover-foreground: color-mix(in srgb, var(--brand-white) 96%, var(--brand-ink));
+  --primary: var(--brand-white);
   --primary-foreground: var(--brand-ink);
-  --secondary: oklch(0.94 0 0);
+  --secondary: color-mix(in srgb, var(--brand-white) 83%, var(--brand-ink));
   --secondary-foreground: var(--brand-ink);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.94 0 0);
+  --muted: color-mix(in srgb, var(--brand-white) 2%, var(--brand-ink));
+  --muted-foreground: color-mix(in srgb, var(--brand-white) 65%, var(--brand-ink));
+  --accent: color-mix(in srgb, var(--brand-white) 83%, var(--brand-ink));
   --accent-foreground: var(--brand-ink);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(0.42 0 0);
-  --input: oklch(0.58 0 0);
-  --ring: oklch(0.78 0.12 27);
-  --chart-1: oklch(0.78 0.12 27);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.66 0.17 27);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.88 0.06 27);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.78 0.12 27);
-  --sidebar-primary-foreground: var(--brand-ink);
-  --sidebar-accent: oklch(0.26 0.025 27);
-  --sidebar-accent-foreground: oklch(0.91 0.045 27);
-  --sidebar-border: oklch(0.42 0 0);
-  --sidebar-ring: oklch(0.78 0.12 27);
+  --destructive: var(--brand-white);
+  --border: color-mix(in srgb, var(--brand-white) 7%, var(--brand-ink));
+  --input: color-mix(in srgb, var(--brand-white) 48%, var(--brand-ink));
+  --ring: var(--brand-red);
+  --chart-1: var(--brand-red);
+  --chart-2: color-mix(in srgb, var(--brand-white) 17%, var(--brand-ink));
+  --chart-3: var(--brand-red);
+  --chart-4: color-mix(in srgb, var(--brand-white) 5%, var(--brand-ink));
+  --chart-5: var(--brand-red);
+  --sidebar: color-mix(in srgb, var(--brand-white) 1%, var(--brand-ink));
+  --sidebar-foreground: color-mix(in srgb, var(--brand-white) 96%, var(--brand-ink));
+  --sidebar-primary: var(--brand-red-deep);
+  --sidebar-primary-foreground: var(--brand-white);
+  --sidebar-accent: var(--brand-red-deep);
+  --sidebar-accent-foreground: var(--brand-white);
+  --sidebar-border: color-mix(in srgb, var(--brand-white) 7%, var(--brand-ink));
+  --sidebar-ring: var(--brand-red);
 }
 
 @layer base {
@@ -237,7 +238,7 @@
   --background: var(--brand-ink);
   --foreground: var(--inverse-foreground);
   --card: var(--brand-ink);
-  --muted: oklch(0.28 0 0);
+  --muted: color-mix(in srgb, var(--brand-white) 2%, var(--brand-ink));
   --muted-foreground: var(--inverse-muted);
   --border: var(--inverse-border);
   --accent: var(--brand-red-deep);

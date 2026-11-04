@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { ChevronDown } from "lucide-react";
 import { updateProfile, type ProfileState } from "./actions";
+import Link from "next/link";
 import { ProfileSetup } from "./profile-setup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -110,6 +111,7 @@ export function ProfileForm({ profile, hasMatchProfile }: ProfileFormProps) {
 
   return (
     <div className="grid max-w-2xl gap-6">
+      <Link href="/profile/photo" className="inline-flex min-h-11 items-center justify-self-start font-medium text-primary underline underline-offset-4">View or change your profile picture</Link>
       {showSetup && <ProfileSetup isMentor={isMentor} status={embedStatus} saving={pending} unsaved={hasUnsavedChanges} />}
     <Card>
       <CardHeader>
