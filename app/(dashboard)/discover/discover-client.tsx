@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { MentorCard, type Mentor } from "./mentor-card";
@@ -11,16 +11,39 @@ import { Label } from "@/components/ui/label";
 import { LoadingState } from "@/components/ui/loading-state";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusMessage } from "@/components/ui/status-message";
+import {
+  extractAvailableFilters,
+  filterMentors,
+  getActiveRelationshipStatus,
+  type MentorRequestState,
+} from "@/lib/discovery-filters";
 
 type Mode = "semantic" | "keyword";
 
-export function DiscoverClient({ canRequest, isMentor }: { canRequest: boolean; isMentor: boolean }) {
+export function DiscoverClient({
+  canRequest,
+  isMentor,
+  initialRequestMap = {},
+}: {
+  canRequest: boolean;
+  isMentor: boolean;
+  initialRequestMap?: Record<string, MentorRequestState>;
+}) {
   const [mode, setMode] = useState<Mode>("semantic");
   const [query, setQuery] = useState("");
   const [mentors, setMentors] = useState<Mentor[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState<string | null>(null);
   const [needsProfile, setNeedsProfile] = useState(false);
+
+  // Persistent relationship states
+  const [requestMap, setRequestMap] = useState<Record<string, MentorRequestState>>(
+    initialRequestMap,
+  );
+
+  // Filter state
+  const [selectedIndustry, setSelectedIndustry] = useState<string>("all");
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
 
   // Semantic mode: ranked matches from /api/match (pgvector cosine).
   useEffect(() => {
@@ -67,10 +90,48 @@ export function DiscoverClient({ canRequest, isMentor }: { canRequest: boolean; 
     setLoading(false);
   }
 
+  // Derive unique industries and skills from loaded mentors
+  const { industries, skills: availableSkills } = useMemo(() => {
+    return extractAvailableFilters(mentors ?? []);
+  }, [mentors]);
+
+  // Apply filters
+  const filteredMentors = useMemo(() => {
+    return filterMentors(mentors ?? [], {
+      industry: selectedIndustry,
+      skills: selectedSkills,
+      matchMode: "any",
+    });
+  }, [mentors, selectedIndustry, selectedSkills]);
+
+  const hasActiveFilters = selectedIndustry !== "all" || selectedSkills.length > 0;
+
+  function resetFilters() {
+    setSelectedIndustry("all");
+    setSelectedSkills([]);
+  }
+
+  function toggleSkillFilter(skill: string) {
+    setSelectedSkills((prev) =>
+      prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill],
+    );
+  }
+
+  function handleRequestSent(mentorId: string) {
+    setRequestMap((prev) => ({
+      ...prev,
+      [mentorId]: "pending",
+    }));
+  }
+
   return (
     <div className="grid gap-6" aria-busy={loading}>
       <div className="grid gap-5 rounded-lg border bg-card p-4 sm:p-5">
-        <div role="group" aria-label="Mentor discovery mode" className="flex w-fit max-w-full flex-wrap gap-1 rounded-lg border bg-surface p-1">
+        <div
+          role="group"
+          aria-label="Mentor discovery mode"
+          className="flex w-fit max-w-full flex-wrap gap-1 rounded-lg border bg-surface p-1"
+        >
           <Button
             type="button"
             size="sm"
@@ -102,33 +163,124 @@ export function DiscoverClient({ canRequest, isMentor }: { canRequest: boolean; 
             Keyword search
           </Button>
         </div>
+
         {mode === "keyword" && (
           <form onSubmit={runKeywordSearch} role="search" className="grid gap-2">
             <Label htmlFor="mentor-search">Search by name, skill, or field</Label>
             <div className="flex flex-col gap-2 sm:flex-row">
-            <Input
-              id="mentor-search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Try finance, engineering, or leadership"
-              className="max-w-xl"
-            />
-            <Button type="submit" disabled={loading}>
-              {loading ? "Searching…" : "Search"}
-            </Button>
+              <Input
+                id="mentor-search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Try finance, engineering, or leadership"
+                className="max-w-xl"
+              />
+              <Button type="submit" disabled={loading}>
+                {loading ? "Searching…" : "Search"}
+              </Button>
             </div>
           </form>
+        )}
+
+        {/* Discovery Filter Controls */}
+        {!loading && (mentors?.length ?? 0) > 0 && (
+          <div className="grid gap-3 border-t pt-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Filter Discovery Results
+              </span>
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={resetFilters}
+                  className="text-xs font-medium text-primary underline underline-offset-2 hover:opacity-80"
+                >
+                  Reset all filters
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Industry Dropdown */}
+              {industries.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <label htmlFor="filter-industry" className="text-xs text-muted-foreground">
+                    Industry:
+                  </label>
+                  <select
+                    id="filter-industry"
+                    value={selectedIndustry}
+                    onChange={(e) => setSelectedIndustry(e.target.value)}
+                    className="h-8 rounded-md border border-input bg-background px-2.5 py-1 text-xs shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                  >
+                    <option value="all">All Industries ({industries.length})</option>
+                    {industries.map((ind) => (
+                      <option key={ind} value={ind}>
+                        {ind}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Active Filter Counter */}
+              {hasActiveFilters && (
+                <span className="text-xs text-muted-foreground">
+                  Showing {filteredMentors.length} of {mentors?.length ?? 0} mentors
+                </span>
+              )}
+            </div>
+
+            {/* Skill Filter Chips */}
+            {availableSkills.length > 0 && (
+              <div className="grid gap-1.5">
+                <span className="text-xs text-muted-foreground">Filter by skills:</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {availableSkills.slice(0, 15).map((skill) => {
+                    const isSelected = selectedSkills.includes(skill);
+                    return (
+                      <button
+                        key={skill}
+                        type="button"
+                        onClick={() => toggleSkillFilter(skill)}
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs transition-colors ${
+                          isSelected
+                            ? "bg-primary text-primary-foreground font-medium"
+                            : "bg-surface border text-muted-foreground hover:bg-surface-hover"
+                        }`}
+                        aria-pressed={isSelected}
+                      >
+                        {skill}
+                        {isSelected && <span aria-hidden="true">✕</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
         )}
       </div>
 
       {loading && <LoadingState label="Finding relevant Mentors" />}
 
       {!loading && needsProfile && (
-        <EmptyState title={isMentor ? "Help Mentees understand your experience" : "Start with your career direction"}
-          action={<Link href="/profile" className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4">Set up your profile</Link>}>
+        <EmptyState
+          title={isMentor ? "Help Mentees understand your experience" : "Start with your career direction"}
+          action={
+            <Link
+              href="/profile"
+              className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4"
+            >
+              Set up your profile
+            </Link>
+          }
+        >
           Add a headline and relevant skills, save your profile, and wait for the match-profile update to finish.
-          {isMentor ? " You can then review incoming introductions on your requests page." : " Then return here for recommendations."}
-          {" "}You can use keyword search while you get set up.
+          {isMentor
+            ? " You can then review incoming introductions on your requests page."
+            : " Then return here for recommendations."}{" "}
+          You can use keyword search while you get set up.
         </EmptyState>
       )}
 
@@ -144,15 +296,48 @@ export function DiscoverClient({ canRequest, isMentor }: { canRequest: boolean; 
       )}
 
       {!loading && mentors && mentors.length === 0 && !notice && !needsProfile && (
-        <EmptyState title="No Mentors to recommend yet" action={<Link href="/profile" className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4">Review your profile</Link>}>
-          Try keyword search or check back as Mentors join. You can also review your saved interests to keep recommendations relevant.
+        <EmptyState
+          title="No Mentors to recommend yet"
+          action={
+            <Link
+              href="/profile"
+              className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4"
+            >
+              Review your profile
+            </Link>
+          }
+        >
+          Try keyword search or check back as Mentors join. You can also review your saved interests to keep
+          recommendations relevant.
         </EmptyState>
       )}
 
-      {!loading && mentors && mentors.length > 0 && (
+      {/* When mentors exist but none match the applied filter */}
+      {!loading && (mentors?.length ?? 0) > 0 && filteredMentors.length === 0 && (
+        <EmptyState
+          title="No mentors match your active filters"
+          action={
+            <Button type="button" size="sm" onClick={resetFilters}>
+              Reset all filters
+            </Button>
+          }
+        >
+          Try adjusting or clearing your industry and skill filters to see more mentor recommendations.
+        </EmptyState>
+      )}
+
+      {/* Render Mentor Cards */}
+      {!loading && filteredMentors.length > 0 && (
         <StaggerReveal className="grid gap-4 lg:grid-cols-2">
-          {mentors.map((m) => (
-            <MentorCard key={m.id} mentor={m} mode={mode} canRequest={canRequest} />
+          {filteredMentors.map((m) => (
+            <MentorCard
+              key={m.id}
+              mentor={m}
+              mode={mode}
+              canRequest={canRequest}
+              requestStatus={getActiveRelationshipStatus(m.id, requestMap)}
+              onRequestSent={handleRequestSent}
+            />
           ))}
         </StaggerReveal>
       )}
