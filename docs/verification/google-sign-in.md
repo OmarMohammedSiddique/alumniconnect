@@ -4,15 +4,15 @@ Issue: #37. Implementation: 4 November 2026.
 
 ## Current result
 
-The sign-in button, provider readiness check, SSR PKCE initiation, callback code exchange, session-cookie handling and safe redirects are implemented. Local browser testing reached the server action and displayed the email fallback because the local Auth service is unreachable. The readiness check now distinguishes connection failures, rejected public API keys, disabled Google providers and other service failures.
+The sign-in button, provider readiness check, SSR PKCE initiation, callback code exchange, session-cookie handling and safe redirects are implemented. Initial local browser testing reached the server action and displayed the email fallback while the local Auth service was unreachable. The readiness check distinguishes connection failures, rejected public API keys, disabled Google providers and other service failures.
 
-**A real Google sign-in has not succeeded in this environment.** The checkout currently uses `http://127.0.0.1:54321`; its Auth settings endpoint could not be reached. Neither Google client credential variable is configured locally. The Google provider remains disabled in `supabase/config.toml` until valid credentials are supplied. No Google Cloud client, hosted provider settings, deployment, production data or user account was changed.
+**A completed Google sign-in has not yet been verified in this environment.** After the user privately saved the Google client credentials, Google was enabled in `supabase/config.toml` and the local stack was stopped/started with `.env.local` loaded, preserving database volumes. All `npm run auth:check` checks now pass, including the running Auth service's Google flag. Clicking the local Google button in Safari reaches Google's account chooser for the configured application. Account selection/consent, callback completion, authenticated session and persistence remain pending. No credentials were committed, and no hosted provider settings, deployment or production data were changed.
 
 ## Diagnose the current setup
 
 Run `npm run auth:check` from the repository root. It reads the ignored `.env.local`, prints the two distinct callback URLs, checks local provider configuration when using a loopback Supabase URL, and queries the running Auth service using only the public API key. It does not print credentials, response bodies or OAuth codes and exits with status 1 when checks fail. A passing setup check does not prove a completed Google login or a correctly configured Google Cloud client.
 
-On 4 November 2026, a direct connection check outside the sandbox returned `ECONNREFUSED` for local Auth. The setup check also found both Google credential variables missing and the local provider disabled. These are separate setup blockers, not a failed Google consent/code exchange.
+At the initial check on 4 November 2026, a direct connection check outside the sandbox returned `ECONNREFUSED` for local Auth. The setup check also found both Google credential variables missing and the local provider disabled. These initial setup blockers were resolved in the local enablement follow-up above; they were not evidence of a failed Google consent/code exchange.
 
 The live GitHub `main` login source checked on the same date does not include the Google button; the implementation is on `security/remaining-dependency-alerts` at `11af9c9`. This explains the source difference from the local checkout. A hosted release needs the implementation merged/deployed as well as the hosted provider settings below. No deployment identity or successful hosted login is claimed by that source check.
 
@@ -79,6 +79,7 @@ Supabase's local redirect allow list includes the exact Next.js URLs `http://127
 - Follow-up setup diagnosis: full ESLint, `npm run typecheck` and all 45 Node tests passed. Four isolated CLI fixtures checked enabled/disabled hosted providers, rejected keys and connection failures, including failure exit codes and credential redaction. These fixtures mock HTTP; the direct local Auth request returned `ECONNREFUSED`.
 - The earlier profile-page typo was resolved before this follow-up; it no longer blocks type checking. The original implementation was subsequently pushed as recorded in issue #37. This follow-up does not claim a new push, merge, deployment or CI result.
 - Real Google consent, callback/session success, profile creation/linking, database reads, persistence/re-login and hosted acceptance remain **pending**.
+- Local enablement follow-up: Docker reports a running server; the Supabase CLI's default `stop` and credential-loaded `start` both exited 0 without deleting database volumes. All setup checks pass. Safari's real Google account chooser appears after clicking the local sign-in button; this verifies initiation/provider routing, not a completed account sign-in. The account chooser displays the Google app branding `AlumniKonneQt`.
 
 ## Official guidance consulted
 
