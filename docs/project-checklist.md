@@ -202,6 +202,9 @@ or conclusion chapter should follow the actual institutional template.
 - [ ] Run role-specific smoke tests on the hosted application.
 - [ ] Add the deployment URL to the repository documentation.
 - [ ] Configure a custom domain only after the hosted application is stable.
+  Hosting stays on Vercel; connect the domain through Vercel DNS or
+  Cloudflare DNS-only, with no Cloudflare proxy or Workers migration. See
+  [hosting and DNS decision](hosting-dns-decision.md) (#35).
 - [ ] Add monitoring, error reporting, backup, and recovery notes.
 
 ## Final release gate
