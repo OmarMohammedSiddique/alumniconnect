@@ -17,12 +17,14 @@ import {
   buildKickstarterMailto,
   buildKickstarterMessage,
 } from "@/lib/connection-kickstarter";
+import { SafetyActionsMenu } from "@/components/safety/safety-actions-menu";
 
 interface ConnectionCardProps {
   connectionId: string;
   isMentor: boolean;
   connectedSince: string;
   partner: {
+    id?: string;
     fullName: string;
     role: string;
     headline: string;
@@ -38,9 +40,12 @@ export function ConnectionCard({
 }: ConnectionCardProps) {
   const [copied, setCopied] = useState(false);
   const [open, setOpen] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
   const [preferredContact, setPreferredContact] = useState("");
   const contactInputId = useId();
   const isAvailable = partner.available !== false;
+
+  if (isBlocked) return null;
 
   const starterMessage = buildKickstarterMessage({
     isMentor,
@@ -97,6 +102,13 @@ export function ConnectionCard({
             <Badge tone={isAvailable ? "success" : "neutral"}>
               {isAvailable ? "Connected" : "Profile unavailable"}
             </Badge>
+            {partner.id && (
+              <SafetyActionsMenu
+                targetId={partner.id}
+                targetName={partner.fullName}
+                onBlocked={() => setIsBlocked(true)}
+              />
+            )}
           </div>
         </div>
       </CardHeader>

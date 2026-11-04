@@ -113,14 +113,56 @@ do $$ begin
   end;
 end $$;
 
--- TEST 7: mentee cannot toggle own visibility.
+-- TEST 7: member self-service visibility vs staff moderation priority.
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000006');
+-- Mentee can hide own profile:
+update public.profiles set member_visible = false where id = auth.uid();
+do $$ begin
+  if (select is_visible from public.profiles where id = auth.uid()) is not false then
+    raise exception 'FAIL 7: setting member_visible=false did not make is_visible false';
+  end if;
+end $$;
+-- Mentee can restore own profile visibility:
+update public.profiles set member_visible = true where id = auth.uid();
+do $$ begin
+  if (select is_visible from public.profiles where id = auth.uid()) is not true then
+    raise exception 'FAIL 7: setting member_visible=true did not make is_visible true';
+  end if;
+end $$;
+-- Mentee cannot tamper with staff_hidden moderation flag:
 do $$ begin
   begin
-    update public.profiles set is_visible = false where id = auth.uid();
-    raise exception 'FAIL 7: mentee changed visibility';
+    update public.profiles set staff_hidden = true where id = auth.uid();
+    raise exception 'FAIL 7: mentee altered staff_hidden';
   exception when others then
     if sqlerrm like 'FAIL%' then raise; end if;
   end;
+end $$;
+select pg_temp.reset_role();
+-- Staff moderates mentee profile:
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000004');
+update public.profiles set is_visible = false where id = '00000000-0000-0000-0000-000000000006';
+select pg_temp.reset_role();
+-- Mentee attempts to toggle member_visible = true while staff-hidden:
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000006');
+update public.profiles set member_visible = true where id = auth.uid();
+do $$ begin
+  if (select is_visible from public.profiles where id = auth.uid()) is not false then
+    raise exception 'FAIL 7: member visibility preference overrode staff moderation';
+  end if;
+  if (select staff_hidden from public.profiles where id = auth.uid()) is not true then
+    raise exception 'FAIL 7: staff_hidden was unexpectedly cleared';
+  end if;
+end $$;
+select pg_temp.reset_role();
+-- Staff un-moderates mentee:
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000004');
+update public.profiles set is_visible = true where id = '00000000-0000-0000-0000-000000000006';
+select pg_temp.reset_role();
+do $$ begin
+  if (select is_visible from public.profiles where id = '00000000-0000-0000-0000-000000000006') is not true then
+    raise exception 'FAIL 7: unhiding by staff did not restore profile visibility';
+  end if;
 end $$;
 select pg_temp.reset_role();
 
@@ -391,6 +433,188 @@ do $$ begin
   end if;
 end $$;
 select pg_temp.reset_role();
+
+-- ---------------------------------------------------------------------------
+-- TEST 16: blocking controls, private block list, and self-block prevention.
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000001');
+-- Mentee 1 blocks Mentor Nina (00000000-0000-0000-0000-000000000003)
+insert into public.blocks (blocker_id, blocked_id)
+values ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000003');
+
+-- Blocker can see own block and retrieve blocked details via get_my_blocks():
+do $$ begin
+  if not exists (select 1 from public.blocks
+                 where blocker_id = auth.uid() and blocked_id = '00000000-0000-0000-0000-000000000003') then
+    raise exception 'FAIL 16: blocker cannot see their own block';
+  end if;
+  if not exists (select 1 from public.get_my_blocks()
+                 where blocked_id = '00000000-0000-0000-0000-000000000003' and full_name = 'Nina Mentor') then
+    raise exception 'FAIL 16: get_my_blocks did not return blocked profile info';
+  end if;
+end $$;
+
+-- Cannot self-block:
+do $$ begin
+  begin
+    insert into public.blocks (blocker_id, blocked_id)
+    values (auth.uid(), auth.uid());
+    raise exception 'FAIL 16: self-block was permitted';
+  exception when others then
+    if sqlerrm like 'FAIL%' then raise; end if;
+  end;
+end $$;
+
+-- Blocked member NEVER sees who blocked them:
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000003');
+do $$ begin
+  if exists (select 1 from public.blocks) then
+    raise exception 'FAIL 16: blocked member sees block records';
+  end if;
+end $$;
+select pg_temp.reset_role();
+
+-- ---------------------------------------------------------------------------
+-- TEST 17: blocking impact across discovery, profiles, requests, and connections.
+-- Ensure Nina's profile is visible in database so only blocking hides it from Mentee 1
+update public.profiles set is_visible = true, member_visible = true, staff_hidden = false
+where id = '00000000-0000-0000-0000-000000000003';
+
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000001');
+-- Mentee 1 cannot see blocked Mentor Nina in profile queries:
+do $$ begin
+  if exists (select 1 from public.profiles where id = '00000000-0000-0000-0000-000000000003') then
+    raise exception 'FAIL 17: blocked user profile is visible in direct queries';
+  end if;
+end $$;
+
+-- Mentee 1 does not see blocked Mentor Nina in match_mentors:
+do $$ begin
+  if exists (
+    select 1 from public.match_mentors(
+      (select array_agg(case when i = 2 then 1.0 else 0.0 end)::extensions.vector(384)
+       from generate_series(1, 384) i), 10
+    ) where id = '00000000-0000-0000-0000-000000000003'
+  ) then
+    raise exception 'FAIL 17: blocked user appears in match_mentors';
+  end if;
+end $$;
+
+-- Mentee 1 does not see blocked Mentor Nina in search_mentors:
+do $$ begin
+  if exists (
+    select 1 from public.search_mentors('Nina', 10)
+    where id = '00000000-0000-0000-0000-000000000003'
+  ) then
+    raise exception 'FAIL 17: blocked user appears in search_mentors';
+  end if;
+end $$;
+
+-- Mentee 1 cannot create a mentorship request to blocked Nina:
+do $$ begin
+  begin
+    insert into public.mentorship_requests (mentee_id, mentor_id, message)
+    values (auth.uid(), '00000000-0000-0000-0000-000000000003', 'Should fail due to block');
+    raise exception 'FAIL 17: request was created to blocked mentor';
+  exception when others then
+    if sqlerrm like 'FAIL%' then raise; end if;
+  end;
+end $$;
+
+-- Unblocking restores visibility:
+delete from public.blocks where blocker_id = auth.uid() and blocked_id = '00000000-0000-0000-0000-000000000003';
+do $$ begin
+  if not exists (select 1 from public.profiles where id = '00000000-0000-0000-0000-000000000003') then
+    raise exception 'FAIL 17: unblocking did not restore profile visibility';
+  end if;
+end $$;
+select pg_temp.reset_role();
+
+-- ---------------------------------------------------------------------------
+-- TEST 18: reporting system (public.reports) & staff review workflow.
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000001');
+-- Submit report:
+insert into public.reports (reporter_id, reported_id, reason, details)
+values ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 'spam', 'Sending spam');
+
+select set_config('test.report_id', (
+  select id::text from public.reports
+  where reporter_id = auth.uid() and reported_id = '00000000-0000-0000-0000-000000000002' and status = 'pending'
+), true);
+
+-- Reporter can see their own report:
+do $$ begin
+  if not exists (select 1 from public.reports where id = current_setting('test.report_id')::uuid) then
+    raise exception 'FAIL 18: reporter cannot see their submitted report';
+  end if;
+end $$;
+
+-- Cannot submit duplicate pending report:
+do $$ begin
+  begin
+    insert into public.reports (reporter_id, reported_id, reason, details)
+    values (auth.uid(), '00000000-0000-0000-0000-000000000002', 'harassment', 'Duplicate report');
+    raise exception 'FAIL 18: duplicate pending report was permitted';
+  exception when others then
+    if sqlerrm like 'FAIL%' then raise; end if;
+  end;
+end $$;
+
+-- Cannot self-report:
+do $$ begin
+  begin
+    insert into public.reports (reporter_id, reported_id, reason, details)
+    values (auth.uid(), auth.uid(), 'other', 'Self report');
+    raise exception 'FAIL 18: self-report was permitted';
+  exception when others then
+    if sqlerrm like 'FAIL%' then raise; end if;
+  end;
+end $$;
+
+-- Reported target CANNOT see report against them:
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000002');
+do $$ begin
+  if exists (select 1 from public.reports where reported_id = auth.uid()) then
+    raise exception 'FAIL 18: reported target can see reports against them';
+  end if;
+end $$;
+
+-- Normal user cannot call review_report:
+do $$ begin
+  begin
+    perform public.review_report(current_setting('test.report_id')::uuid, 'dismiss', 'Not allowed');
+    raise exception 'FAIL 18: non-staff reviewed report';
+  exception when others then
+    if sqlerrm like 'FAIL%' then raise; end if;
+  end;
+end $$;
+select pg_temp.reset_role();
+
+-- Staff reviews report with hide_profile:
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000004'); -- Moderator
+do $$
+declare res jsonb;
+begin
+  res := public.review_report(current_setting('test.report_id')::uuid, 'hide_profile', 'Spam confirmed');
+  if res ->> 'status' <> 'actioned' then
+    raise exception 'FAIL 18: review_report hide_profile did not return actioned status';
+  end if;
+end $$;
+select pg_temp.reset_role();
+
+-- Check that target profile is now staff_hidden and is_visible = false:
+do $$ begin
+  if (select is_visible from public.profiles where id = '00000000-0000-0000-0000-000000000002') is not false
+     or (select staff_hidden from public.profiles where id = '00000000-0000-0000-0000-000000000002') is not true then
+    raise exception 'FAIL 18: review_report did not set staff_hidden and hide profile';
+  end if;
+  if not exists (
+    select 1 from public.audit_logs
+    where action = 'report_actioned_hide_profile'
+      and target_id = current_setting('test.report_id')::uuid
+  ) then
+    raise exception 'FAIL 18: staff review action was not recorded in audit log';
+  end if;
+end $$;
 
 select 'ALL RLS TESTS PASSED' as result;
 

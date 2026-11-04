@@ -8,7 +8,7 @@ import {
   PROFILE_ROLES,
   type AdminActionState,
 } from "@/lib/admin-profile-action";
-import { setUserRole, setUserVisibility } from "./actions";
+import { setUserRole, setUserVisibility, reviewReportAction } from "./actions";
 
 // Disabled buttons drop keyboard focus in some browsers. When an action
 // settles and focus has fallen back to the page, return it to the control the
@@ -81,6 +81,51 @@ export function RoleForm({ userId, name, role }: { userId: string; name: string;
         </Button>
       </div>
       <span role="status" className="sr-only">{pending ? `Saving role for ${name}. Please wait.` : ""}</span>
+      <Feedback id={feedbackId} state={state} pending={pending} />
+    </form>
+  );
+}
+
+export function ReportReviewForm({
+  reportId,
+  reportedName,
+}: {
+  reportId: string;
+  reportedName: string;
+}) {
+  const [state, action, pending] = useActionState(
+    reviewReportAction,
+    INITIAL_ADMIN_ACTION_STATE,
+  );
+  const feedbackId = useId();
+
+  return (
+    <form action={action} aria-busy={pending} className="grid gap-2">
+      <input type="hidden" name="report_id" value={reportId} />
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
+          type="submit"
+          name="action"
+          value="hide_profile"
+          size="xs"
+          variant="destructive"
+          disabled={pending}
+          aria-label={`Hide profile for ${reportedName}`}
+        >
+          {pending ? "Reviewing..." : "Hide profile & action"}
+        </Button>
+        <Button
+          type="submit"
+          name="action"
+          value="dismiss"
+          size="xs"
+          variant="outline"
+          disabled={pending}
+          aria-label={`Dismiss report for ${reportedName}`}
+        >
+          {pending ? "Reviewing..." : "Dismiss"}
+        </Button>
+      </div>
       <Feedback id={feedbackId} state={state} pending={pending} />
     </form>
   );

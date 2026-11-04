@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { RequestButton } from "./request-button";
 import { Badge } from "@/components/ui/badge";
+import { SafetyActionsMenu } from "@/components/safety/safety-actions-menu";
 
 export interface Mentor {
   id: string;
@@ -31,19 +32,24 @@ export function MentorCard({
   canRequest = false,
   requestStatus = null,
   onRequestSent,
+  onBlocked,
 }: {
   mentor: Mentor;
   mode: "semantic" | "keyword";
   canRequest?: boolean;
   requestStatus?: "pending" | "connected" | null;
   onRequestSent?: (mentorId: string) => void;
+  onBlocked?: (mentorId: string) => void;
 }) {
   const [showFullBio, setShowFullBio] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
   const shared = new Set(
     (mentor.shared_skills ?? []).map((s) => s.toLowerCase()),
   );
 
   const isLongBio = (mentor.bio ?? "").length > 180;
+
+  if (isBlocked) return null;
 
   return (
     <Card className="h-full min-w-0">
@@ -70,6 +76,14 @@ export function MentorCard({
             {requestStatus === "connected" && (
               <Badge tone="success">Connected</Badge>
             )}
+            <SafetyActionsMenu
+              targetId={mentor.id}
+              targetName={mentor.full_name}
+              onBlocked={() => {
+                setIsBlocked(true);
+                onBlocked?.(mentor.id);
+              }}
+            />
           </div>
         </div>
       </CardHeader>

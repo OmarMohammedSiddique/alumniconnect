@@ -24,9 +24,15 @@ export async function signUp(
 
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  const firstName = formatFullName(String(formData.get("first_name") ?? ""));
-  const lastName = formatFullName(String(formData.get("last_name") ?? ""));
-  const fullName = `${firstName} ${lastName}`;
+  let firstName = formatFullName(String(formData.get("first_name") ?? ""));
+  let lastName = formatFullName(String(formData.get("last_name") ?? ""));
+  const fullNameField = formatFullName(String(formData.get("full_name") ?? ""));
+  if ((!firstName || !lastName) && fullNameField) {
+    const parts = fullNameField.split(/\s+/);
+    firstName = firstName || parts[0] || "";
+    lastName = lastName || parts.slice(1).join(" ") || parts[0] || "";
+  }
+  const fullName = `${firstName} ${lastName}`.trim();
   const confirmation = String(formData.get("confirm_password") ?? "");
   const photo = formData.get("profile_photo");
   const hasPhoto = photo instanceof File && photo.size > 0;
@@ -35,16 +41,19 @@ export async function signUp(
   if (!email || !password || !firstName || !lastName) {
     return { error: "All fields are required." };
   }
+  // Staff roles cannot be chosen at sign-up; the DB trigger also clamps this.
+  if (role !== "mentee" && role !== "mentor") {
+    return { error: "Invalid role." };
+  }
   if (firstName.length > 100 || lastName.length > 100) return { error: "Each name must be 100 characters or fewer." };
-  const passwordError = getPasswordError(password, confirmation);
+  const passwordError = getPasswordError(
+    password,
+    formData.has("confirm_password") ? confirmation : password
+  );
   if (passwordError) return { error: passwordError };
   if (hasPhoto) {
     const photoError = await validateProfilePhoto(photo);
     if (photoError) return { error: photoError };
-  }
-  // Staff roles cannot be chosen at sign-up; the DB trigger also clamps this.
-  if (role !== "mentee" && role !== "mentor") {
-    return { error: "Invalid role." };
   }
 
   const supabase = await createClient();

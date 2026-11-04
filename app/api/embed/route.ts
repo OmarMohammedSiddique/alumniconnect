@@ -135,7 +135,7 @@ export async function POST() {
     return NextResponse.json({
       ok: true,
       dimensions: result.dimensions,
-      reused: result.reused,
+      ...(result.reused ? { reused: true } : {}),
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Inference failed";
