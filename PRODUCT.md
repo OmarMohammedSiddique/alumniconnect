@@ -19,8 +19,8 @@ Professional, confident, human, trustworthy, and welcoming. Premium through rest
 ## Visual system
 
 - Reuse Tailwind and shadcn semantic variables in `app/globals.css`.
-- Reference red `#ED1C24` for large accents and brand marks; deeper red `#C1171E` for small white-text actions. Ink `#010101`, supporting gray `#545352`, white `#FFFFFF`, light gray `#EBEBEB`, and soft surface `#F7F7F7`.
-- Red marks priority and selection; most controls and surfaces stay neutral. Supporting Kenyan green `#006B3F` is reserved for success, accepted connections, and small meaningful status markers. This is an AlumniConnect supporting token, not a claim about an official airline specification. Blue is reserved for semantic information only.
+- Approved base palette: Crimson `#ED1C24`, Cod Gray `#0D0D0D`, and White `#FFFFFF`. All interface neutrals and interaction shades derive from these bases using `color-mix`; do not introduce independent green, blue, amber, or alternate brand colours.
+- Crimson marks brand identity, priority, and selection. Small text and white-text actions use Crimson mixed with 12% Cod Gray for accessible contrast (pure Crimson against White is 4.38:1). Success, information, and warning states use neutral surfaces with explicit text and icons. Dark-mode controls use readable neutral foregrounds.
 - Centralize font scale, line heights, spacing, control height, radii, shadows, focus, and motion tokens. Product headings use a fixed rem scale; landing display type can be fluid.
 - Square corners throughout, with a shared radius of zero. Solid white and soft-gray content surfaces contrast with dark navigation and neutral secondary actions. Use clear full borders instead of floating shadows. Keep the existing light-first presentation and coherent dark tokens.
 

@@ -86,7 +86,7 @@
 .faqs details > p { font-size: 13px; line-height: 1.85; color: var(--muted); padding-bottom: 21px; max-width: 65ch; }
 .finalCta { background: var(--brand-red-deep); color: var(--inverse-foreground); border: 1px solid var(--brand-red-deep); border-radius: var(--radius-lg); padding: 45px 54px; display: flex; align-items: center; justify-content: space-between; gap: 30px; margin-bottom: 74px; }
 .finalCta p { margin-top: 13px; color: var(--inverse-foreground); font-size: 14px; }
-.finalCta .primaryButton { background: var(--card); color: var(--brand-red-deep); }
+.finalCta .primaryButton { background: var(--brand-white); color: var(--brand-red-deep); }
 .finalCta .primaryButton:hover { background: var(--brand-gray-light); }
 .finalCta a:focus-visible { outline-color: var(--inverse-foreground); }
 .footer { border-top: 1px solid var(--line); }
