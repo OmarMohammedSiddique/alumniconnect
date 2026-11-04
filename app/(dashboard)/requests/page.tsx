@@ -36,6 +36,8 @@ interface ConnectionProfile {
 interface ConnectionRow {
   id: string;
   created_at: string;
+  mentee_id: string;
+  mentor_id: string;
   mentee: ConnectionProfile | null;
   mentor: ConnectionProfile | null;
 }
@@ -75,7 +77,7 @@ export default async function RequestsPage() {
   const { data: connections } = await supabase
     .from("connections")
     .select(
-      `id, created_at,
+      `id, created_at, mentee_id, mentor_id,
        mentee:profiles!connections_mentee_id_fkey(full_name, role, headline, industry),
        mentor:profiles!connections_mentor_id_fkey(full_name, role, headline, industry)`,
     )
@@ -135,6 +137,7 @@ export default async function RequestsPage() {
         <div className="grid gap-4">
           {connections?.map((c) => {
             const partner = isMentor ? c.mentee : c.mentor;
+            const partnerId = isMentor ? c.mentee_id : c.mentor_id;
             return (
               <ConnectionCard
                 key={c.id}
@@ -142,6 +145,7 @@ export default async function RequestsPage() {
                 connectedSince={c.created_at}
                 isMentor={isMentor}
                 partner={{
+                  id: partnerId,
                   fullName: partner?.full_name ?? "Unavailable member",
                   role: partner?.role ?? (isMentor ? "mentee" : "mentor"),
                   headline: partner?.headline ?? "",

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { RoleForm, VisibilityForm } from "./admin-controls";
+import { RoleForm, VisibilityForm, ReportReviewForm } from "./admin-controls";
+import { REPORT_REASON_LABELS } from "@/lib/profile-privacy";
 
 export const metadata = { title: "Admin - AlumniKonneQt" };
 
@@ -18,6 +19,23 @@ interface AuditRow {
   target_table: string;
   detail: Record<string, unknown>;
   created_at: string;
+}
+
+interface ReportRow {
+  id: string;
+  reason: string;
+  details: string;
+  status: string;
+  created_at: string;
+  reporter_id: string;
+  reported_id: string;
+  reporter: { full_name: string } | null;
+  reported: {
+    full_name: string;
+    role: string;
+    is_visible: boolean;
+    staff_hidden: boolean;
+  } | null;
 }
 
 export default async function AdminPage() {
@@ -41,6 +59,17 @@ export default async function AdminPage() {
     .select("id, full_name, role, is_visible, created_at")
     .order("created_at", { ascending: false })
     .returns<ProfileRow[]>();
+
+  const { data: reports } = await supabase
+    .from("reports")
+    .select(
+      `id, reason, details, status, created_at, reporter_id, reported_id,
+       reporter:profiles!reports_reporter_id_fkey(full_name),
+       reported:profiles!reports_reported_id_fkey(full_name, role, is_visible, staff_hidden)`
+    )
+    .eq("status", "pending")
+    .order("created_at", { ascending: false })
+    .returns<ReportRow[]>();
 
   const { data: audit } = await supabase
     .from("audit_logs")
@@ -94,6 +123,72 @@ export default async function AdminPage() {
                   </td>
                 </tr>
               ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2 className="mb-1 text-xl font-semibold">Safety & Member Reports</h2>
+        <p className="mb-4 text-sm text-muted-foreground">
+          Pending member reports requiring moderation review.
+        </p>
+        <div className="overflow-x-auto rounded-lg border">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b bg-muted text-left">
+                <th className="px-3 py-2 font-medium">When</th>
+                <th className="px-3 py-2 font-medium">Reported Member</th>
+                <th className="px-3 py-2 font-medium">Reporter</th>
+                <th className="px-3 py-2 font-medium">Reason</th>
+                <th className="px-3 py-2 font-medium">Context</th>
+                <th className="px-3 py-2 font-medium">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reports?.map((r) => (
+                <tr key={r.id} className="border-b last:border-0">
+                  <td className="whitespace-nowrap px-3 py-2 text-muted-foreground text-xs">
+                    {new Date(r.created_at).toLocaleString("en-GB")}
+                  </td>
+                  <td className="px-3 py-2">
+                    <span className="font-medium">
+                      {r.reported?.full_name || "Unknown"}
+                    </span>
+                    {r.reported?.role && (
+                      <span className="ml-1.5 text-xs text-muted-foreground capitalize">
+                        ({r.reported.role})
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-3 py-2 text-muted-foreground">
+                    {r.reporter?.full_name || "Confidential Member"}
+                  </td>
+                  <td className="px-3 py-2">
+                    <span className="inline-flex items-center rounded-md bg-red-500/10 px-2 py-0.5 text-xs font-medium text-red-700 dark:text-red-400">
+                      {REPORT_REASON_LABELS[
+                        r.reason as keyof typeof REPORT_REASON_LABELS
+                      ] || r.reason}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2 text-xs text-muted-foreground max-w-xs break-words">
+                    {r.details || "(No additional notes provided)"}
+                  </td>
+                  <td className="px-3 py-2">
+                    <ReportReviewForm
+                      reportId={r.id}
+                      reportedName={r.reported?.full_name || "this member"}
+                    />
+                  </td>
+                </tr>
+              ))}
+              {!reports?.length && (
+                <tr>
+                  <td colSpan={6} className="px-3 py-4 text-muted-foreground">
+                    No pending safety reports. Community queue is clean.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

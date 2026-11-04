@@ -37,3 +37,38 @@ export async function setUserVisibility(
   if (result.ok) revalidatePath("/admin");
   return result;
 }
+
+export async function reviewReportAction(
+  _prev: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  const reportId = String(formData.get("report_id") ?? "");
+  const action = String(formData.get("action") ?? "");
+  const note = String(formData.get("note") ?? "").trim();
+
+  if (!reportId) return { ok: false, error: "Report ID required.", message: null };
+  if (action !== "hide_profile" && action !== "dismiss") {
+    return { ok: false, error: "Invalid review action.", message: null };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("review_report", {
+    p_report_id: reportId,
+    p_action: action,
+    p_note: note,
+  });
+
+  if (error) {
+    return { ok: false, error: error.message, message: null };
+  }
+
+  revalidatePath("/admin");
+  return {
+    ok: true,
+    error: null,
+    message:
+      action === "hide_profile"
+        ? "Report actioned: member profile hidden."
+        : "Report dismissed.",
+  };
+}

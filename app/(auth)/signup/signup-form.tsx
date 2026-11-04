@@ -46,7 +46,7 @@ export function SignupForm() {
     <Card className="gap-4 [--card-spacing:--spacing(4)] lg:[--card-spacing:--spacing(5)]">
       <CardHeader>
         <CardTitle><h1 className="text-2xl font-semibold tracking-tight">Create your account</h1></CardTitle>
-        <CardDescription>Connect with Kenya Airways alumni and eligible participants. Registration does not verify affiliation.</CardDescription>
+        <CardDescription>Connect with Kenya Airways alumni and eligible participants. Registration does not verify employment or airline affiliation.</CardDescription>
       </CardHeader>
       <form action={formAction} aria-busy={pending} onSubmit={(event) => {
         const error = getPasswordError(password, confirmation);
