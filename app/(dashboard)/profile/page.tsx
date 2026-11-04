@@ -25,7 +25,7 @@ export default async function ProfilePage() {
   return (
     <div>
       <PageHeading title="Your profile">Help your community understand your experience, interests, and the guidance you seek or offer.</PageHeading>
-      <ProfileForm profile={details} hasMatchProfile={Boolean(embedding)} />
+      <ProfileForm userId={user.id} profile={details} hasMatchProfile={Boolean(embedding)} />
     </div>
   );
 }

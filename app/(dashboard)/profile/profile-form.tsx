@@ -21,8 +21,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  saveProfileDraft,
+  loadProfileDraft,
+  clearProfileDraft,
+  hasDraftDifferences,
+  type StoredProfileDraft,
+} from "@/lib/profile-draft";
 
 interface ProfileFormProps {
+  userId?: string;
   hasMatchProfile: boolean;
   profile: {
     role: string;
@@ -46,7 +54,7 @@ const PROFILE_FIELDS = [
   { name: "graduation_year", label: "Graduation year" },
 ] as const;
 
-export function ProfileForm({ profile, hasMatchProfile }: ProfileFormProps) {
+export function ProfileForm({ userId, profile, hasMatchProfile }: ProfileFormProps) {
   const isMentor = profile.role === "mentor";
   const showSetup = !hasMatchProfile && (isMentor || profile.role === "mentee");
   const [draft, setDraft] = useState({
@@ -58,7 +66,39 @@ export function ProfileForm({ profile, hasMatchProfile }: ProfileFormProps) {
     graduation_year: String(profile.graduation_year ?? ""),
   });
   const [savedDraft, setSavedDraft] = useState(draft);
+  const [restorableDraft, setRestorableDraft] = useState<StoredProfileDraft | null>(null);
+
+  // Check for an unsaved recoverable session draft on initial render
+  useEffect(() => {
+    if (!userId || typeof window === "undefined") return;
+    const existing = loadProfileDraft(window.sessionStorage, userId);
+    if (existing && hasDraftDifferences(existing.fields, savedDraft)) {
+      queueMicrotask(() => {
+        setRestorableDraft(existing);
+      });
+    }
+  }, [userId, savedDraft]);
+
   const hasUnsavedChanges = PROFILE_FIELDS.some(({ name }) => draft[name] !== savedDraft[name]);
+
+  // Persist unsaved draft to session storage as user edits
+  useEffect(() => {
+    if (!userId || typeof window === "undefined") return;
+    if (hasUnsavedChanges) {
+      saveProfileDraft(window.sessionStorage, userId, draft);
+    }
+  }, [hasUnsavedChanges, draft, userId]);
+
+  // Warn before leaving or reloading when unsaved changes exist
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [hasUnsavedChanges]);
   const skills = normalizeSkills(draft.skills);
   const skillsError = getSkillsLimitError(skills.length);
   const missing = PROFILE_FIELDS.filter(({ name }) => {
@@ -87,6 +127,10 @@ export function ProfileForm({ profile, hasMatchProfile }: ProfileFormProps) {
       const result = await updateProfile(previous, formData);
       if (result.saved) {
         setSavedDraft({ ...submitted, full_name: result.fullName });
+        if (userId && typeof window !== "undefined") {
+          clearProfileDraft(window.sessionStorage, userId);
+        }
+        setRestorableDraft(null);
         // Only replace the submitted name, preserving newer edits in this form.
         setDraft((current) => current.full_name === submitted.full_name
           ? { ...current, full_name: result.fullName }
@@ -163,6 +207,44 @@ export function ProfileForm({ profile, hasMatchProfile }: ProfileFormProps) {
         }
       }}>
         <CardContent className="grid gap-6">
+          {restorableDraft && (
+            <StatusMessage tone="info" role="status">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <p>
+                  You have an unsaved profile draft from{" "}
+                  {new Date(restorableDraft.updatedAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}.
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    size="xs"
+                    onClick={() => {
+                      setDraft(restorableDraft.fields);
+                      setRestorableDraft(null);
+                    }}
+                  >
+                    Restore draft
+                  </Button>
+                  <Button
+                    type="button"
+                    size="xs"
+                    variant="outline"
+                    onClick={() => {
+                      if (userId && typeof window !== "undefined") {
+                        clearProfileDraft(window.sessionStorage, userId);
+                      }
+                      setRestorableDraft(null);
+                    }}
+                  >
+                    Discard draft
+                  </Button>
+                </div>
+              </div>
+            </StatusMessage>
+          )}
           <div className="grid gap-2">
             <Label htmlFor="full_name">Full name</Label>
             <Input
@@ -289,10 +371,26 @@ export function ProfileForm({ profile, hasMatchProfile }: ProfileFormProps) {
             <StatusMessage>Match profile updated using your last saved profile.</StatusMessage>
           )}
         </CardContent>
-        <CardFooter className="mt-6">
+        <CardFooter className="mt-6 flex flex-wrap items-center gap-3">
           <Button type="submit" variant={showSetup && embedStatus === "done" && !hasUnsavedChanges ? "outline" : "default"} disabled={pending}>
             {pending ? "Saving…" : "Save profile"}
           </Button>
+          {hasUnsavedChanges && (
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={pending}
+              onClick={() => {
+                setDraft(savedDraft);
+                if (userId && typeof window !== "undefined") {
+                  clearProfileDraft(window.sessionStorage, userId);
+                }
+                setRestorableDraft(null);
+              }}
+            >
+              Discard changes
+            </Button>
+          )}
         </CardFooter>
       </form>
     </Card>
