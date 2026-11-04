@@ -17,7 +17,7 @@ export function PasswordInput({ id, className, disabled, ...props }: PasswordInp
         id={id}
         type={visible ? "text" : "password"}
         disabled={disabled}
-        className={cn("flex-1", className)}
+        className={cn("min-w-0 flex-1", className)}
         autoCapitalize="none"
         autoCorrect="off"
         spellCheck={false}
