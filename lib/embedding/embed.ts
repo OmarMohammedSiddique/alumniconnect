@@ -2,7 +2,7 @@ import "server-only";
 import { pipeline, type FeatureExtractionPipeline } from "@huggingface/transformers";
 
 export const EMBEDDING_DIMENSIONS = 384;
-const MODEL_ID = "Xenova/all-MiniLM-L6-v2";
+export const MODEL_ID = "Xenova/all-MiniLM-L6-v2";
 
 // The ~25MB ONNX model loads once per server process and is reused across
 // requests. Never import this module from client code.
