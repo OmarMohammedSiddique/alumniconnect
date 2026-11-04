@@ -21,7 +21,7 @@ import {
 
 const initialState: AuthState = { error: null };
 
-export function LoginForm() {
+export function LoginForm({ emailOtpEnabled = false }: { emailOtpEnabled?: boolean }) {
   const [state, formAction, pending] = useActionState(signIn, initialState);
   const next = useSearchParams().get("next") ?? "";
 
@@ -56,6 +56,7 @@ export function LoginForm() {
           <Button type="submit" className="w-full" disabled={pending}>
             {pending ? "Signing in…" : "Sign in"}
           </Button>
+          {emailOtpEnabled && <Link href={next ? `/login/code?next=${encodeURIComponent(next)}` : "/login/code"} className="inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4">Sign in with an email code</Link>}
           <p className="text-sm text-muted-foreground">
             No account?{" "}
             <Link href="/signup" className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4">

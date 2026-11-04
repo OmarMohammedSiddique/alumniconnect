@@ -7,7 +7,7 @@ export const metadata = { title: "Sign in - AlumniKonneQt" };
 export default function LoginPage() {
   return (
     <Suspense fallback={<LoadingState label="Loading sign-in form" />}>
-      <LoginForm />
+      <LoginForm emailOtpEnabled={process.env.EMAIL_OTP_ENABLED === "true"} />
     </Suspense>
   );
 }
