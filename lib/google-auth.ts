@@ -2,13 +2,15 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 type Auth = SupabaseClient["auth"];
 export const GOOGLE_NEXT_COOKIE = "alumniconnect-google-next";
-export type GoogleAuthError = "cancelled" | "exchange_failed" | "unavailable" | "not_configured";
+export type GoogleAuthError = "cancelled" | "exchange_failed" | "unavailable" | "unreachable" | "invalid_key" | "not_configured";
 
 export function getGoogleAuthMessage(reason: string | null): string | null {
   switch (reason) {
     case "cancelled": return "Google sign-in was cancelled. Try again or use your email and password.";
     case "exchange_failed": return "Google sign-in could not be completed. The link may have expired. Please start again.";
     case "unavailable": return "Google sign-in is temporarily unavailable. Try again or use your email and password.";
+    case "unreachable": return "Could not reach the sign-in service. Please try again later or ask the administrator to check the authentication setup.";
+    case "invalid_key": return "The sign-in service configuration needs attention. Ask the administrator to check the Supabase URL and public API key.";
     case "not_configured": return "Google sign-in is not configured for this environment yet. You can still use email and password.";
     default: return null;
   }
@@ -43,10 +45,11 @@ export async function checkGoogleProvider(supabaseUrl: string, anonKey: string, 
     const response = await fetcher(`${supabaseUrl.replace(/\/$/, "")}/auth/v1/settings`, {
       headers: { apikey: anonKey }, cache: "no-store", signal: AbortSignal.timeout(5000),
     });
+    if (response.status === 401 || response.status === 403) return "invalid_key";
     if (!response.ok) return "unavailable";
     const settings = await response.json();
     return settings.external?.google === true ? null : "not_configured";
-  } catch { return "unavailable"; }
+  } catch { return "unreachable"; }
 }
 
 export async function beginGoogleSignIn(auth: Pick<Auth, "signInWithOAuth">, callbackUrl: string, supabaseUrl: string): Promise<{ url: string | null; error: GoogleAuthError | null }> {
