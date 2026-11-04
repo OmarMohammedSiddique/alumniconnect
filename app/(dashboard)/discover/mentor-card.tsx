@@ -35,7 +35,7 @@ export function MentorCard({
   );
 
   return (
-    <Card className="h-full">
+    <Card className="h-full min-w-0">
       <CardHeader>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex min-w-0 items-start gap-3">
@@ -50,9 +50,9 @@ export function MentorCard({
             {mentor.bio}
           </p>
         )}
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex min-w-0 flex-wrap gap-1.5">
           {mentor.skills.map((skill) => (
-            <Badge key={skill} tone={shared.has(skill.toLowerCase()) ? "accent" : "neutral"}>
+            <Badge key={skill} className="max-w-full [overflow-wrap:anywhere]" tone={shared.has(skill.toLowerCase()) ? "accent" : "neutral"}>
               {skill}
             </Badge>
           ))}
@@ -66,8 +66,8 @@ export function MentorCard({
             .join(" · ")}
         </p>
         {mode === "semantic" ? (
-          <div className="grid gap-1 text-sm">
-            <p className="break-words">
+          <div className="grid min-w-0 gap-1 text-sm">
+            <p className="[overflow-wrap:anywhere]">
               {(mentor.shared_skills?.length ?? 0) > 0 ? (
                 <>Shared skills: {mentor.shared_skills!.join(", ")}</>
               ) : (
