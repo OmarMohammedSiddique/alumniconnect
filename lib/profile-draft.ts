@@ -13,7 +13,7 @@ export interface StoredProfileDraft {
   updatedAt: number;
 }
 
-export const DRAFT_STORAGE_PREFIX = "alumniconnect_profile_draft_";
+export const DRAFT_STORAGE_PREFIX = "alumnikonneqt_profile_draft_";
 export const DRAFT_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 export function getDraftStorageKey(userId: string): string {

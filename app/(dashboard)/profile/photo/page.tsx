@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeading } from "@/components/ui/page-heading";
 import { PhotoForm } from "./photo-form";
 
-export const metadata = { title: "Profile picture - AlumniConnect" };
+export const metadata = { title: "Profile picture - AlumniKonneQt" };
 
 export default async function ProfilePhotoPage({ searchParams }: { searchParams: Promise<{ retry?: string }> }) {
   const supabase = await createClient();

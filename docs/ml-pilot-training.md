@@ -105,7 +105,7 @@ Browser-observed outcomes:
 - Validation metrics exactly matched the recorded local TF-IDF/neural results.
 - The evidence cell read `history.json` from Drive and displayed four epochs and
   the selected checkpoint, verifying more than a mount message alone.
-- Output folder: `My Drive/AlumniConnect-ML/runs/notebook-20261102T034308433827Z`.
+- Output folder: `My Drive/AlumniKonneQt-ML/runs/notebook-20261102T034308433827Z`.
 - Colab displayed `All changes saved` for the modified cloud notebook.
 - Test performance remains untouched. Human review and final quality remain pending.
 

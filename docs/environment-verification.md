@@ -1,6 +1,6 @@
 # Local environment verification · October 2026
 
-Original 14–15 October scope: isolated temporary account on the existing local AlumniConnect stack.
+Original 14–15 October scope: isolated temporary account on the existing local AlumniKonneQt stack.
 The target was checked as loopback before requests. No hosted project was used.
 
 ## Diagnosis
@@ -128,7 +128,7 @@ were not rewritten. Hosted environments have not received this fix.
   was available. No browser result is claimed for this run.
 
 Docker Desktop was started, resuming existing containers through their restart
-policies. Only the AlumniConnect database received the new migration; no stack
+policies. Only the AlumniKonneQt database received the new migration; no stack
 or database was reset. Fixture signup uses public auth, and service-role access
 is limited to test-only visibility setup, scoped assertions and cleanup. Normal
 local auth/audit events may remain. No personal account data, credentials,

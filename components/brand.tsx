@@ -1,13 +1,60 @@
-import { Users } from "lucide-react";
+import Image from "next/image";
+import logoLight from "@/public/images/logo-light.png";
+import logoDark from "@/public/images/logo-dark.png";
+import logoWhite from "@/public/images/logo-white.png";
 import { cn } from "@/lib/utils";
 
-export function Brand({ className }: { className?: string }) {
+export interface BrandProps {
+  className?: string;
+  imageClassName?: string;
+  tone?: "auto" | "light" | "dark" | "red";
+}
+
+export function Brand({ className, imageClassName, tone = "auto" }: BrandProps) {
+  const imgClasses = cn("h-11 w-auto max-w-full object-contain", imageClassName);
+
   return (
-    <span className={cn("inline-flex items-center gap-2.5 whitespace-nowrap text-lg font-bold tracking-tight", className)}>
-      <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-(--brand-red) text-white">
-        <Users className="size-5" aria-hidden="true" />
-      </span>
-      <span>AlumniConnect</span>
+    <span className={cn("inline-flex items-center whitespace-nowrap", className)}>
+      {tone === "dark" && (
+        <Image
+          src={logoDark}
+          alt=""
+          priority
+          className={imgClasses}
+        />
+      )}
+      {tone === "light" && (
+        <Image
+          src={logoLight}
+          alt=""
+          priority
+          className={imgClasses}
+        />
+      )}
+      {tone === "red" && (
+        <Image
+          src={logoWhite}
+          alt=""
+          className={imgClasses}
+        />
+      )}
+      {tone === "auto" && (
+        <>
+          <Image
+            src={logoLight}
+            alt=""
+            priority
+            className={cn(imgClasses, "dark:hidden")}
+          />
+          <Image
+            src={logoDark}
+            alt=""
+            priority
+            className={cn(imgClasses, "hidden dark:block")}
+          />
+        </>
+      )}
+      <span className="sr-only">AlumniKonneQt</span>
     </span>
   );
 }

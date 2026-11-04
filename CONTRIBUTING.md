@@ -1,6 +1,6 @@
-# Contributing to AlumniConnect
+# Contributing to AlumniKonneQt
 
-Thank you for helping improve AlumniConnect. Contributions should be focused,
+Thank you for helping improve AlumniKonneQt. Contributions should be focused,
 reviewable, and consistent with the project's security model.
 
 ## Development workflow

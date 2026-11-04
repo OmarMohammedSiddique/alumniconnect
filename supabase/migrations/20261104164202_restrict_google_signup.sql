@@ -14,7 +14,7 @@ as $$
   select case when event -> 'user' -> 'app_metadata' ->> 'provider' = 'google'
     then jsonb_build_object('error', jsonb_build_object(
       'http_code', 403,
-      'message', 'Register with AlumniConnect before signing in with Google.'
+      'message', 'Register with AlumniKonneQt before signing in with Google.'
     ))
     else '{}'::jsonb
   end;

@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ProfileForm } from "./profile-form";
 import { PageHeading } from "@/components/ui/page-heading";
 
-export const metadata = { title: "Profile - AlumniConnect" };
+export const metadata = { title: "Profile - AlumniKonneQt" };
 
 export default async function ProfilePage() {
   const supabase = await createClient();

@@ -1,4 +1,4 @@
-# AlumniConnect
+# AlumniKonneQt
 
 [![CI](https://github.com/OmarMohammedSiddique/alumniconnect/actions/workflows/ci.yml/badge.svg)](https://github.com/OmarMohammedSiddique/alumniconnect/actions/workflows/ci.yml)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
@@ -7,7 +7,7 @@
 
 [🌐 Open the live demo](https://alumniconnect-kq.vercel.app)
 
-![AlumniConnect landing page preview](public/images/landing-preview.jpg)
+![AlumniKonneQt landing page preview](public/images/landing-preview.jpg)
 
 [▶ Watch the short landing-page walkthrough](public/images/alumniconnect-demo.gif)
 
@@ -17,7 +17,7 @@ institutional oversight.
 
 ## About
 
-AlumniConnect is a Strathmore University capstone project built to make alumni
+AlumniKonneQt is a Strathmore University capstone project built to make alumni
 networks easier to navigate. Instead of relying only on exact keyword matches,
 the platform represents each profile as a 384-dimensional embedding and ranks
 mentors by semantic similarity. A mentee interested in "data pipelines" can
@@ -238,7 +238,7 @@ request checklist.
 
 ## Project status
 
-AlumniConnect is an actively developed academic capstone and portfolio project.
+AlumniKonneQt is an actively developed academic capstone and portfolio project.
 It is suitable for local evaluation and continued development; production
 deployment requires hosted Supabase configuration, operational monitoring, and
 an institution-specific privacy review.

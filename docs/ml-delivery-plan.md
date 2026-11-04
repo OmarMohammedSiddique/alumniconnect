@@ -1,4 +1,4 @@
-# AlumniConnect · ML delivery plan
+# AlumniKonneQt · ML delivery plan
 
 **Created: 15 October 2026 · Updated: 2 November 2026 · Current gate: engineering pilot executed; human review deferred**
 

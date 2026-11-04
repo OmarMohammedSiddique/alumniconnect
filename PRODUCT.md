@@ -1,4 +1,4 @@
-# AlumniConnect product direction
+# AlumniKonneQt product direction
 
 ## Register
 
@@ -10,7 +10,7 @@ A professional mentorship, networking, and communication application for Kenya A
 
 ## Brand relationship
 
-An independent Strathmore University academic prototype inspired by Kenya Airways. It is not an official Kenya Airways product and is not endorsed by the airline. Use the AlumniConnect identity, never the official airline logo, promotional imagery, flight-booking language, or invented affiliation, dataset provenance, or machine-learning requirements.
+An independent Strathmore University academic prototype inspired by Kenya Airways. It is not an official Kenya Airways product and is not endorsed by the airline. Use the AlumniKonneQt identity, never the official airline logo, promotional imagery, flight-booking language, or invented affiliation, dataset provenance, or machine-learning requirements.
 
 ## Personality and hierarchy
 
@@ -26,7 +26,7 @@ Professional, confident, human, trustworthy, and welcoming. Premium through rest
 
 ## Interface patterns and surfaces
 
-- Marketing: original AlumniConnect identity, photo-led community hero, structured guidance/mentoring utility panel, concise journey explanation, Mentor and Mentee invitations, and visible independence notice. Licensed workplace stock photography illustrates collaboration without identifying the subjects as real members or airline staff. Keep source and license links beside local assets.
+- Marketing: original AlumniKonneQt identity, photo-led community hero, structured guidance/mentoring utility panel, concise journey explanation, Mentor and Mentee invitations, and visible independence notice. Licensed workplace stock photography illustrates collaboration without identifying the subjects as real members or airline staff. Keep source and license links beside local assets.
 - Authentication: home link, readable single-column forms, clear pending/error states, and quiet academic identity. Explain the current audience without implying affiliation verification. Native radio choices distinguish seeking guidance as a Mentee from offering it as a Mentor; each account keeps its existing single role.
 - Product: responsive sidebar/mobile menu, Discover Mentors, Complete Profile, View Requests, and Manage Connections using existing destinations. `/discover` currently serves as the authenticated entry screen; no separate dashboard route exists.
 - Discovery: labeled search, clear selection modes, mentor cards with shared skills and contextual request actions.

@@ -1,4 +1,4 @@
-# AlumniConnect · local → GitHub → Colab → Drive
+# AlumniKonneQt · local → GitHub → Colab → Drive
 
 **Working guide · 14 October 2026**
 
@@ -51,7 +51,7 @@ and does not automatically inherit local files/services.
 For 10 epochs, the number is a ceiling; early stopping may stop sooner. Increasing
 it to 20 does not guarantee a better result. Example validation losses 0.60, 0.48,
 0.41, 0.42, 0.43, 0.44 give a best at epoch 3 and a possible stop at epoch 6 with
-patience 3. These numbers are illustrative, not AlumniConnect measurements.
+patience 3. These numbers are illustrative, not AlumniKonneQt measurements.
 [Early stopping reference](https://huggingface.co/docs/transformers/main_classes/callback#transformers.EarlyStoppingCallback).
 
 ## Phase A · establish the connections
@@ -81,7 +81,7 @@ app can come from runtime/precision, not just fine-tuning.
 In Drive, create this folder tree manually. Keep datasets and outputs private.
 
 ```text
-My Drive/AlumniConnect-ML/
+My Drive/AlumniKonneQt-ML/
   data/
     v1/
       train.jsonl
@@ -101,7 +101,7 @@ A folder setup is useful progress; it is not a prepared training dataset.
 
 1. Open https://colab.research.google.com/ and sign into the intended Google account.
 2. Create a new notebook; name it `alumniconnect_experiments.ipynb`.
-3. Move its Drive copy into `AlumniConnect-ML/notebooks` if desired.
+3. Move its Drive copy into `AlumniKonneQt-ML/notebooks` if desired.
 4. Initially choose a standard CPU runtime for checking paths/data.
 5. Add the cells in this guide, in order. Do not run the training cell until the
    dataset checks and baseline experiment are ready.
@@ -181,7 +181,7 @@ from google.colab import drive
 from pathlib import Path
 
 drive.mount("/content/drive")
-ROOT = Path("/content/drive/MyDrive/AlumniConnect-ML")
+ROOT = Path("/content/drive/MyDrive/AlumniKonneQt-ML")
 assert ROOT.exists(), "Create the Drive folder first"
 DATA = ROOT / "data" / "v1"
 print("Persistent experiment folder:", ROOT)
@@ -196,7 +196,7 @@ the runtime is discarded; Drive mounting is a separate step from GitHub access.
 
 1. Install Google Drive for desktop from Google's official download page if needed.
 2. Sign into the same Google account.
-3. Find `AlumniConnect-ML/runs` in Finder.
+3. Find `AlumniKonneQt-ML/runs` in Finder.
 4. Make the required run folder available offline, or download that run folder.
 5. Wait for synchronisation to finish; open `run.json` and the plots locally.
 6. Give the actual local folder path to the IDE assistant. Do not guess a macOS
@@ -563,7 +563,7 @@ files. Separate observed results from hypotheses. Inspect failure queries and
 possible leakage. Propose one controlled change and explain the evidence for it.”
 Verify that analysis yourself before changing the experiment.
 
-## Phase D · use the trained model in AlumniConnect
+## Phase D · use the trained model in AlumniKonneQt
 
 Training does not automatically update the application. Keep the working model
 until the new one is independently evaluated and integration-tested.

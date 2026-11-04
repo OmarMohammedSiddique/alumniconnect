@@ -1,4 +1,4 @@
-# AlumniConnect · Sprint review board
+# AlumniKonneQt · Sprint review board
 
 **Review: 15 October 2026 · Evidence updated: 31 October 2026**
 
@@ -122,7 +122,7 @@ inspect current Git changes and this board; avoid overlapping file edits and
 record verification outcomes here so both sessions share the same evidence.
 
 Docker follow-up (14 October): Docker server 29.6.1 responds outside the sandbox.
-AlumniConnect containers are running; database, authentication, gateway and Studio
+AlumniKonneQt containers are running; database, authentication, gateway and Studio
 report healthy. SkillSwap containers are also running and were left unchanged.
 Earlier Docker/socket and service-listener findings above are historical, not
 the latest runtime status. Full application acceptance remains outstanding.
@@ -238,4 +238,4 @@ Companion: [detailed Colab workflow](colab-training-workflow.md).
   passed. Turbopack failed to bind its worker port in this environment, including
   on elevated retry; `npm run build -- --webpack` supplied the passing build.
 - Photography source/license links are in `public/images/README.md`.
-  AlumniConnect's independent academic identity remains visible.
+  AlumniKonneQt's independent academic identity remains visible.

@@ -1,4 +1,4 @@
-# AlumniConnect Project Checklist
+# AlumniKonneQt Project Checklist
 
 Last updated: 29 October 2026
 
@@ -48,7 +48,7 @@ without relying on generated text.
 - [ ] Trace one mentor recommendation from query vector to ranked result.
 - [ ] Explain the difference between semantic matching, keyword search, and
   category filtering.
-- [ ] Explain the cold-start problem and what AlumniConnect does and does not
+- [ ] Explain the cold-start problem and what AlumniKonneQt does and does not
   solve.
 - [ ] Run a small hand-worked example showing similar meaning with different
   vocabulary.

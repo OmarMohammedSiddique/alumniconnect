@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { LoginForm } from "./login-form";
 import { LoadingState } from "@/components/ui/loading-state";
 
-export const metadata = { title: "Sign in - AlumniConnect" };
+export const metadata = { title: "Sign in - AlumniKonneQt" };
 
 export default function LoginPage() {
   return (

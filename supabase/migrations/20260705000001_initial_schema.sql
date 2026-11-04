@@ -1,4 +1,4 @@
--- AlumniConnect - Sprint 1: schema, RBAC via RLS, pgvector + full-text search.
+-- AlumniKonneQt - Sprint 1: schema, RBAC via RLS, pgvector + full-text search.
 -- Approved schema: one role per account; all authenticated users can browse
 -- visible profiles; embeddings written server-side only (service role).
 

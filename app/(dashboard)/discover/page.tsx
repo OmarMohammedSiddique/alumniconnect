@@ -5,7 +5,7 @@ import { QuickActions } from "@/components/quick-actions";
 import { PageHeading } from "@/components/ui/page-heading";
 import { buildRequestStateMap } from "@/lib/discovery-filters";
 
-export const metadata = { title: "Discover - AlumniConnect" };
+export const metadata = { title: "Discover - AlumniKonneQt" };
 
 export default async function DiscoverPage() {
   const supabase = await createClient();

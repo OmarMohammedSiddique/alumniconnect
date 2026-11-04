@@ -1,6 +1,6 @@
-# AlumniConnect ML system guide
+# AlumniKonneQt ML system guide
 
-Assessment question: "Show me where machine learning is implemented in AlumniConnect, demonstrate the complete workflow, and explain what every stage does."
+Assessment question: "Show me where machine learning is implemented in AlumniKonneQt, demonstrate the complete workflow, and explain what every stage does."
 
 ## What the system does
 
@@ -35,13 +35,13 @@ The card's `% match` badge is cosine similarity multiplied by 100 and rounded. I
 
 ## What is learned, and when
 
-1. **Original creators' training:** the model card says its creators started from a pretrained MiniLM model and further trained the sentence embedding model with a contrastive objective over sentence pairs. AlumniConnect did not perform either stage. [Original model card](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2).
-2. **Current AlumniConnect inference:** `lib/embedding/embed.ts` loads the ONNX-compatible `Xenova/all-MiniLM-L6-v2` weights at `q8` precision and runs feature extraction. The weights stay frozen. [ONNX model card](https://huggingface.co/Xenova/all-MiniLM-L6-v2).
+1. **Original creators' training:** the model card says its creators started from a pretrained MiniLM model and further trained the sentence embedding model with a contrastive objective over sentence pairs. AlumniKonneQt did not perform either stage. [Original model card](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2).
+2. **Current AlumniKonneQt inference:** `lib/embedding/embed.ts` loads the ONNX-compatible `Xenova/all-MiniLM-L6-v2` weights at `q8` precision and runs feature extraction. The weights stay frozen. [ONNX model card](https://huggingface.co/Xenova/all-MiniLM-L6-v2).
 3. **Fine-tuning, for comparison:** this would update pretrained weights using reviewed examples and a chosen loss. It is not the selected project route: the user confirmed a from-scratch requirement. [Sentence Transformers training overview](https://sbert.net/docs/sentence_transformer/training_overview.html).
 4. **Training from random initialization:** `ml/train_scratch_pilot.py` and `ml/notebooks/scratch_pilot.ipynb` implement and document a separate character-CNN engineering pilot with random weights and directional 64-value outputs. Actual training and checkpoint reload were verified; research-ready data, final model selection and app integration remain incomplete.
 5. **Adding a profile:** saving fields and calculating a new vector adds data to PostgreSQL. It does not update model weights or teach the model from the new person's profile.
 
-An embedding is a dense numeric representation of input text. The **384 values** are the output width of this model, not 384 profile features learned by AlumniConnect; the database column is declared `vector(384)` to match. The user's `full_name` is stored in the row but is not included in `buildProfileEmbeddingText`. Mean pooling averages the model's token representations while respecting the attention mask, producing one fixed-length representation; L2 normalization divides by vector length so its norm is near 1. The original model card shows the pooling and normalization procedure and warns that inputs longer than its default 256 word pieces are truncated. Long bios may therefore lose information toward the end. [Original model card](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2), [Transformers.js feature extraction example](https://huggingface.co/docs/transformers.js/api/pipelines).
+An embedding is a dense numeric representation of input text. The **384 values** are the output width of this model, not 384 profile features learned by AlumniKonneQt; the database column is declared `vector(384)` to match. The user's `full_name` is stored in the row but is not included in `buildProfileEmbeddingText`. Mean pooling averages the model's token representations while respecting the attention mask, producing one fixed-length representation; L2 normalization divides by vector length so its norm is near 1. The original model card shows the pooling and normalization procedure and warns that inputs longer than its default 256 word pieces are truncated. Long bios may therefore lose information toward the end. [Original model card](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2), [Transformers.js feature extraction example](https://huggingface.co/docs/transformers.js/api/pipelines).
 
 Cosine similarity is the normalized dot product. pgvector's `<=>` returns cosine **distance**, and the RPC reports `1 - distance` as similarity while sorting by ascending distance. A larger score means closer vector directions for these texts, not a verified good mentorship pairing. [pgvector distance operators](https://github.com/pgvector/pgvector/blob/master/README.md).
 
