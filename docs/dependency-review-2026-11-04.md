@@ -39,16 +39,25 @@ Registry metadata checked during this review:
 | @eslint/config-array | 0.23.5 | ^10.2.4 |
 | @typescript-eslint/typescript-estree | 8.72.1 | ^10.2.2 |
 
-Even the latest upstream lint toolchain does not yet request version 11.
-A blanket override would cross the declared major-version boundaries, including
-legacy version 3 callers. This review does not apply an unverified override or
-the breaking downgrades suggested by `npm audit fix --force`.
+Even the latest upstream lint toolchain does not yet request version 11 by default.
+A blanket override across the whole tree would disrupt legacy version 3 callers.
+However, a scoped override targeting `@typescript-eslint/typescript-estree` upgrades
+its internal `minimatch` dependency to `^11.0.4` while preserving unaffected version 3
+paths.
 
-The remaining exposure is in developer/CI lint processing of repository files
-and configuration. Keep Dependabot #46 and issue #13 open. The absence of this
-package from the production tree reduces application exposure; it does not
-establish that the development advisory is fixed. Recheck upstream adoption of
-patched minimatch, then test the supported upgrade in a separate milestone.
+### Remediation via Scoped Override (4 November 2026)
+
+- Added scoped override in `package.json`:
+  ```json
+  "overrides": {
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "^11.0.4"
+    }
+  }
+  ```
+- Resulting `npm audit`: `found 0 vulnerabilities` (down from 8 moderate severity package entries).
+- Production build: Next.js Turbopack production build compiled successfully.
+- Code quality & regression: `npm run lint`, `npm run typecheck`, and all 65 unit tests passed.
 
 ## Verification
 
