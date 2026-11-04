@@ -338,4 +338,8 @@ select pg_temp.reset_role();
 
 select 'ALL RLS TESTS PASSED' as result;
 
+do $$ begin
+  raise exception 'deliberate SQL failure for CI demonstration (#20)';
+end $$;
+
 rollback;
