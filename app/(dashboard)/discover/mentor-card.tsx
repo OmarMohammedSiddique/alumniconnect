@@ -23,9 +23,11 @@ export interface Mentor {
 
 export function MentorCard({
   mentor,
+  mode,
   canRequest = false,
 }: {
   mentor: Mentor;
+  mode: "semantic" | "keyword";
   canRequest?: boolean;
 }) {
   const shared = new Set(
@@ -33,18 +35,13 @@ export function MentorCard({
   );
 
   return (
-    <Card className="h-full">
+    <Card className="h-full min-w-0">
       <CardHeader>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex min-w-0 items-start gap-3">
             <span className="grid size-11 shrink-0 place-items-center rounded-lg border bg-surface font-semibold" aria-hidden="true">{mentor.full_name.trim().slice(0, 1).toUpperCase()}</span>
             <div className="min-w-0"><CardTitle><h2 className="break-words">{mentor.full_name}</h2></CardTitle><CardDescription className="mt-1">{mentor.headline}</CardDescription></div>
           </div>
-          {typeof mentor.similarity === "number" && (
-            <Badge tone="accent" title="Profile similarity score, not a guarantee of mentorship fit">
-              {Math.round(mentor.similarity * 100)}% match
-            </Badge>
-          )}
         </div>
       </CardHeader>
       <CardContent className="grid gap-3">
@@ -53,9 +50,9 @@ export function MentorCard({
             {mentor.bio}
           </p>
         )}
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex min-w-0 flex-wrap gap-1.5">
           {mentor.skills.map((skill) => (
-            <Badge key={skill} tone={shared.has(skill.toLowerCase()) ? "accent" : "neutral"}>
+            <Badge key={skill} className="max-w-full [overflow-wrap:anywhere]" tone={shared.has(skill.toLowerCase()) ? "accent" : "neutral"}>
               {skill}
             </Badge>
           ))}
@@ -68,12 +65,22 @@ export function MentorCard({
             .filter(Boolean)
             .join(" · ")}
         </p>
-        {(mentor.shared_skills?.length ?? 0) > 0 && (
-          <p className="text-xs text-muted-foreground">
-            Matched on shared skills:{" "}
-            <span className="text-foreground">
-              {mentor.shared_skills!.join(", ")}
-            </span>
+        {mode === "semantic" ? (
+          <div className="grid min-w-0 gap-1 text-sm">
+            <p className="[overflow-wrap:anywhere]">
+              {(mentor.shared_skills?.length ?? 0) > 0 ? (
+                <>Shared skills: {mentor.shared_skills!.join(", ")}</>
+              ) : (
+                <>No exact shared skills identified. Review this mentor’s profile for relevant experience.</>
+              )}
+            </p>
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              Recommendations use profile text similarity. Similarity does not guarantee mentorship suitability or success.
+            </p>
+          </div>
+        ) : (
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            Found through your keyword search. Review this mentor’s profile to assess their experience.
           </p>
         )}
       </CardContent>
