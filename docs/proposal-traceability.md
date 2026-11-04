@@ -10,7 +10,7 @@ The Next.js 16.3.6 bundled guides consulted for interpreting the current structu
 
 1. **SO1 (§1.3.2.i):** Analyse existing alumni engagement and mentorship systems, identifying limits in scalability, matching intelligence, and institutional control.
 2. **SO2 (§1.3.2.ii):** Identify the challenges in existing solutions that impede effective mentorship pairing and scalable institution-to-alumni communication.
-3. **SO3 (§1.3.2.iii):** Design AlumniConnect's architecture around pgvector semantic matching, role-based access control, and full-text search.
+3. **SO3 (§1.3.2.iii):** Design AlumniKonneQt's architecture around pgvector semantic matching, role-based access control, and full-text search.
 4. **SO4 (§1.3.2.iv):** Implement that semantic engine, database-enforced role controls, and full-text search in the web platform.
 5. **SO5 (§1.3.2.v):** Test matching relevance, usability, and cold-start performance using established measures.
 

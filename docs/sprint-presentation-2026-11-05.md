@@ -1,4 +1,4 @@
-# AlumniConnect: Graded Sprint Review Presentation Runbook
+# AlumniKonneQt: Graded Sprint Review Presentation Runbook
 
 **Presentation Date:** 5 November 2026  
 **Assessment Weight:** 5% of Capstone Assessment  
@@ -36,7 +36,7 @@ This runbook provides the minute-by-minute rehearsal script, visual demonstratio
 ```
 
 ### Minutes 0:00 – 2:00 | Context, Problem & Architecture
-- **Hook & Motivation:** Professional alumni networks suffer from disengagement when matching relies on rigid keyword search or passive directory browsing. AlumniConnect provides intelligent semantic mentorship pairing based on profile experiences and skills.
+- **Hook & Motivation:** Professional alumni networks suffer from disengagement when matching relies on rigid keyword search or passive directory browsing. AlumniKonneQt provides intelligent semantic mentorship pairing based on profile experiences and skills.
 - **Core Technology Stack:**
   - Front-end / Edge: Next.js (App Router, Server Components, React 19).
   - Storage & Vector Engine: PostgreSQL 15 with `pgvector` extension and Row-Level Security (RLS).
@@ -87,7 +87,7 @@ This runbook provides the minute-by-minute rehearsal script, visual demonstratio
    - **Initialization:** Standard PyTorch random parameter initialization (`seed=42`, deterministic CPU algorithms enabled, `11,200` trainable parameters across a `57`-character vocabulary fitted on training profiles only). Zero pretrained weights, tokenizers, or backbones loaded; verified L1 weight movement after optimization.
    - **Architecture:** Character-level `Embedding(57, 32, padding_idx=0)` -> `Conv1d(32, 32, kernel_size=5, padding=2)` -> ReLU + global max pooling -> two directional linear projection heads (`query_head` and `mentor_head`, `Linear(32, 64)`) -> L2 normalization (`512`-character input truncation).
    - **Optimization:** Trained with Adam optimizer (`lr=0.001`, batch size `16`, ceiling `10` epochs, early-stopping patience `3`), minimizing **Mean Squared Error (`F.mse_loss`)** between the dot product of L2-normalized query/mentor vectors and scaled relevance grade (`relevance_score / 3`).
-   - **Verification:** Stopped after 4 epochs with best validation loss at `checkpoint-1.pt` (top-3 checkpoints retained as `checkpoint-{epoch}.pt`); verified safe reload via `torch.load(..., weights_only=True)` and reproduced identically in both local CPU and Google Colab (`My Drive/AlumniConnect-ML/runs/notebook-20261102T034308433827Z`).
+   - **Verification:** Stopped after 4 epochs with best validation loss at `checkpoint-1.pt` (top-3 checkpoints retained as `checkpoint-{epoch}.pt`); verified safe reload via `torch.load(..., weights_only=True)` and reproduced identically in both local CPU and Google Colab (`My Drive/AlumniKonneQt-ML/runs/notebook-20261102T034308433827Z`).
 3. **Evaluation Honesty & Limitations:**
    - Evaluated on the 5-query validation split (60 training pairs, 90 synthetic profiles, machine-labelled) using complete-pool ranking metrics:
      - **Char 3–5-gram TF-IDF baseline:** `nDCG@5 = 0.853932`, `P@1 = 0.800000`, `MRR@5 = 0.840000`, `Hit@5 = 1.000000`.

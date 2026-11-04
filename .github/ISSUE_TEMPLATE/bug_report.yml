@@ -1,11 +1,11 @@
 name: Bug report
-description: Report a reproducible problem in AlumniConnect
+description: Report a reproducible problem in AlumniKonneQt
 title: "[Bug]: "
 labels: [bug]
 body:
   - type: markdown
     attributes:
-      value: Thank you for helping improve AlumniConnect. Do not include credentials or sensitive personal data.
+      value: Thank you for helping improve AlumniKonneQt. Do not include credentials or sensitive personal data.
   - type: textarea
     id: description
     attributes:

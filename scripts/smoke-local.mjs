@@ -19,7 +19,7 @@ for (const url of [appUrl, databaseUrl]) {
   assert.equal(url.protocol, "http:", "Smoke tests require local HTTP");
   assert.ok(!url.username && !url.password && url.pathname === "/" && !url.search && !url.hash);
 }
-assert.equal(databaseUrl.port, "54321", "Expected the AlumniConnect local API port");
+assert.equal(databaseUrl.port, "54321", "Expected the AlumniKonneQt local API port");
 assert.ok(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY && process.env.SUPABASE_SERVICE_ROLE_KEY);
 assert.ok(!Object.keys(process.env).some(key => key.startsWith("NEXT_PUBLIC_") && /SERVICE_ROLE|SECRET/.test(key)));
 

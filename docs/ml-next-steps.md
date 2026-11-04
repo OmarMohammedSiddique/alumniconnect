@@ -68,7 +68,7 @@ formal retrieval evaluation needs complete judgments for the retained pool.
 ## Step 3 · Set up Colab and persistent storage
 
 1. Sign into the intended Google account and open Colab.
-2. Create a Drive folder `AlumniConnect-ML` with `data/pilot-v1` and `runs`.
+2. Create a Drive folder `AlumniKonneQt-ML` with `data/pilot-v1` and `runs`.
 3. Upload only the frozen curated files/manifests into `data/pilot-v1`.
 4. Use the versioned training notebook we will build locally; put source/config in
    GitHub and use its exact commit in Colab. Do not upload secrets or raw review identities.

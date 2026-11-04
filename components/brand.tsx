@@ -7,7 +7,7 @@ export function Brand({ className }: { className?: string }) {
       <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-(--brand-red) text-white">
         <Users className="size-5" aria-hidden="true" />
       </span>
-      <span>AlumniConnect</span>
+      <span>AlumniKonneQt</span>
     </span>
   );
 }

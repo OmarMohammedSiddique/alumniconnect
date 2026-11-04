@@ -8,7 +8,7 @@
 
 ## 1. Purpose and Governance
 
-AlumniConnect is designed as a secure, professional networking and mentorship platform for Kenya Airways (KQ) alumni, former employees, and current personnel. 
+AlumniKonneQt is designed as a secure, professional networking and mentorship platform for Kenya Airways (KQ) alumni, former employees, and current personnel. 
 
 While public registration allows prototype demonstration, self-service email signup or self-declared employer profile entries do not establish airline affiliation. This policy formalizes:
 1. Who is eligible to join and participate.
@@ -94,7 +94,7 @@ The system strictly decouples **who you are** (affiliation status) from **what y
 
 ## 5. Evidence Standards and Privacy Minimization (Kenya DPA 2019)
 
-In compliance with Sections 25–31 of the **Kenya Data Protection Act, 2019** (Principles of Data Protection: Purpose Limitation, Data Minimization, and Storage Limitation), AlumniConnect adopts the **least intrusive acceptable evidence standard**:
+In compliance with Sections 25–31 of the **Kenya Data Protection Act, 2019** (Principles of Data Protection: Purpose Limitation, Data Minimization, and Storage Limitation), AlumniKonneQt adopts the **least intrusive acceptable evidence standard**:
 
 ### 5.1 Prohibited Evidence (High-Risk)
 - **No National ID or Passport Document Uploads:** High-resolution scans or numbers of government IDs present unnecessary exposure to identity theft and regulatory liability. They are strictly prohibited from collection and storage.
@@ -134,7 +134,7 @@ In compliance with Sections 25–31 of the **Kenya Data Protection Act, 2019** (
 ## 7. Honest Prototype Disclosure
 
 As an academic capstone prototype:
-- The platform interface (`/signup`, `/login`, `/privacy`, and the workspace `PrototypeNotice`) explicitly discloses that AlumniConnect is an academic prototype, that registration and Google/email sign-in do not verify employment or Kenya Airways affiliation, and that the proposed Data Protection Act wording on `/signup` links to `/privacy` explaining the unverified prototype boundaries.
+- The platform interface (`/signup`, `/login`, `/privacy`, and the workspace `PrototypeNotice`) explicitly discloses that AlumniKonneQt is an academic prototype, that registration and Google/email sign-in do not verify employment or Kenya Airways affiliation, and that the proposed Data Protection Act wording on `/signup` links to `/privacy` explaining the unverified prototype boundaries.
 - No representations of official airline sponsorship or commercial endorsement may be made in public release documentation.
 
 ---

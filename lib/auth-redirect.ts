@@ -1,4 +1,4 @@
-const REDIRECT_ORIGIN = "https://alumniconnect.invalid";
+const REDIRECT_ORIGIN = "https://alumnikonneqt.invalid";
 const DEFAULT_REDIRECT = "/discover";
 
 export function getSafeSignInRedirect(value: string): string {

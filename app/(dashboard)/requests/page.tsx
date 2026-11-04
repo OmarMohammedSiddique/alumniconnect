@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export const metadata = { title: "Requests - AlumniConnect" };
+export const metadata = { title: "Requests - AlumniKonneQt" };
 
 interface RequestRow {
   id: string;

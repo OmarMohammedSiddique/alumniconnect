@@ -1,4 +1,4 @@
--- AlumniConnect - RLS test suite (Sprint 1).
+-- AlumniKonneQt - RLS test suite (Sprint 1).
 -- Run with: psql <local db url> -v ON_ERROR_STOP=1 -f supabase/tests/rls_tests.sql
 -- Impersonates each role by setting the JWT claims RLS policies read.
 -- Every scenario raises an exception (failing the run) if a policy misbehaves.

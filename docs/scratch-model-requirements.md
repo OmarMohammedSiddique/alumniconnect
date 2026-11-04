@@ -8,7 +8,7 @@
 
 ## 1. Context and Origin of Requirement
 
-The AlumniConnect capstone project was initially scaffolded with a pretrained sentence embedding pipeline (`Xenova/all-MiniLM-L6-v2`) in `lib/embedding/embed.ts`. While this demonstrated end-to-end vector retrieval with PostgreSQL and `pgvector`, academic capstone requirements mandate that machine learning competency must be demonstrated through **training a model from scratch**.
+The AlumniKonneQt capstone project was initially scaffolded with a pretrained sentence embedding pipeline (`Xenova/all-MiniLM-L6-v2`) in `lib/embedding/embed.ts`. While this demonstrated end-to-end vector retrieval with PostgreSQL and `pgvector`, academic capstone requirements mandate that machine learning competency must be demonstrated through **training a model from scratch**.
 
 On 4 November 2026, the student formally confirmed the following core requirements:
 1. **Training from scratch is an academic requirement:** The project cannot rely exclusively on fine-tuning or off-the-shelf pretrained language model weights.
@@ -36,7 +36,7 @@ To satisfy academic assessment rigor, "training from scratch" is defined strictl
 
 ## 3. Live-Model Integration Contract (#26)
 
-The trained model must interface with the AlumniConnect Next.js / Supabase application via a strict deployment contract:
+The trained model must interface with the AlumniKonneQt Next.js / Supabase application via a strict deployment contract:
 
 1. **Artifact Format:** The trained PyTorch model must be exported to Open Neural Network Exchange (`.onnx`) format with fixed or dynamic batch dimensions and explicit input/output tensor signatures.
 2. **Output Embedding Dimensionality ($D$):**

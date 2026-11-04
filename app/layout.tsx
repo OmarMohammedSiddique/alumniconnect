@@ -14,10 +14,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AlumniConnect",
+  title: "AlumniKonneQt",
   description:
     "Independent academic prototype for professional mentorship and networking. Inspired by Kenya Airways, not an official airline product.",
-  applicationName: "AlumniConnect",
+  applicationName: "AlumniKonneQt",
 };
 
 export default function RootLayout({

@@ -49,7 +49,7 @@ The live GitHub `main` login source checked on the same date does not include th
 
    If the stack was already running, reload it using the CLI's documented restart workflow without resetting the database. Apply any required existing migrations separately; do not run `db reset` on member data.
 6. Run `npm run auth:check` again and resolve any failures. Restart Next.js after changing `.env.local`. Visit `http://127.0.0.1:3000/login`, click **Sign in with Google** and complete Google's account/consent steps yourself.
-7. An unregistered Google account must return the fixed message "Register with AlumniConnect before signing in with Google." without creating an Auth user or profile. Register through the normal signup flow first, then verify the same-email Google account can use the existing identity/profile without changing its role. Confirm refresh persistence, sign-out and subsequent sign-in. Direct OAuth initiation must obey the same rejection policy.
+7. An unregistered Google account must return the fixed message "Register with AlumniKonneQt before signing in with Google." without creating an Auth user or profile. Register through the normal signup flow first, then verify the same-email Google account can use the existing identity/profile without changing its role. Confirm refresh persistence, sign-out and subsequent sign-in. Direct OAuth initiation must obey the same rejection policy.
 
 Supabase's local redirect allow list includes the exact Next.js URLs `http://127.0.0.1:3000/auth/callback` and `http://localhost:3000/auth/callback`. The callback URL has no dynamic query string; the desired next page is stored separately in a short-lived HttpOnly cookie. Do not mix `localhost` and `127.0.0.1` within one flow because cookies are host-bound.
 

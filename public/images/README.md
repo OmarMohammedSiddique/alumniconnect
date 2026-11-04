@@ -6,4 +6,4 @@
 It is used under the [Unsplash license](https://unsplash.com/license).
 
 The photograph illustrates workplace collaboration. The people shown are not
-identified as AlumniConnect members or Kenya Airways staff.
+identified as AlumniKonneQt members or Kenya Airways staff.

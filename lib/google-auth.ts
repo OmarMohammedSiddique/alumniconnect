@@ -1,9 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 type Auth = SupabaseClient["auth"];
-export const GOOGLE_NEXT_COOKIE = "alumniconnect-google-next";
+export const GOOGLE_NEXT_COOKIE = "alumnikonneqt-google-next";
 export type GoogleAuthError = "cancelled" | "registration_required" | "exchange_failed" | "unavailable" | "unreachable" | "invalid_key" | "not_configured";
-export const GOOGLE_REGISTRATION_REQUIRED_MESSAGE = "Register with AlumniConnect before signing in with Google.";
+export const GOOGLE_REGISTRATION_REQUIRED_MESSAGE = "Register with AlumniKonneQt before signing in with Google.";
 
 export function getGoogleAuthMessage(reason: string | null): string | null {
   switch (reason) {

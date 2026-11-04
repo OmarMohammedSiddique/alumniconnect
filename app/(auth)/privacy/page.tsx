@@ -1,11 +1,11 @@
 import Link from "next/link";
 
-export const metadata = { title: "Prototype privacy information - AlumniConnect" };
+export const metadata = { title: "Prototype privacy information - AlumniKonneQt" };
 
 export default function PrivacyPage() {
   return <article className="mx-auto grid max-w-3xl gap-5 border bg-card p-5 sm:p-8">
     <h1 className="text-2xl font-semibold">Prototype privacy information</h1>
-    <p>AlumniConnect is an independent academic prototype. It is not an official Kenya Airways service or an operating alumni association.</p>
+    <p>AlumniKonneQt is an independent academic prototype. It is not an official Kenya Airways service or an operating alumni association.</p>
     <section className="grid gap-2">
       <h2 className="text-lg font-semibold">Account and profile information</h2>
       <p>Registration sends your name, email address, password and chosen mentorship role to Supabase Auth. Supabase manages account authentication. Profile information supports mentorship discovery and connections; optional profile pictures are stored in Supabase Storage and can be accessed by signed-in members.</p>

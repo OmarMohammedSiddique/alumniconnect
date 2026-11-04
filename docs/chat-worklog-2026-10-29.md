@@ -1,4 +1,4 @@
-# AlumniConnect conversation worklog and handoff
+# AlumniKonneQt conversation worklog and handoff
 
 Prepared: 29 October 2026. Coverage: the work discussed and performed in this
 chat through commit `e1c604c`, including the earlier design, checkpoint and QoL
@@ -13,7 +13,7 @@ included.
 
 ## 1. Current outcome
 
-AlumniConnect now has a coherent public and authenticated interface, seven form
+AlumniKonneQt now has a coherent public and authenticated interface, seven form
 and workflow QoL improvements, guided first-time profile setup, a verified
 controlled local mentorship journey, and a reproducible synthetic-data audit.
 A request-response authorization defect found during testing was fixed.
@@ -60,7 +60,7 @@ proof that every line in its diff was first authored during the redesign step.
 
 ### Product and brand decisions
 
-- Kept AlumniConnect visibly independent and academic, inspired by Kenya Airways
+- Kept AlumniKonneQt visibly independent and academic, inspired by Kenya Airways
   without an official logo, promotional aircraft imagery or endorsement claims.
 - Kept Geist rather than obtaining proprietary display fonts.
 - Used brand-reference red `#ED1C24` selectively, deeper accessible action red
@@ -97,7 +97,7 @@ The later user preference explicitly superseded that treatment. `021e2af`:
 - Replaced active glass/translucency with opaque surfaces and clear borders.
 - Strengthened dark navigation and neutral contrast.
 - Kept red primary and reserved supporting Kenyan green `#006B3F` for meaningful
-  success/accepted-connection states. Green is an AlumniConnect supporting token,
+  success/accepted-connection states. Green is an AlumniKonneQt supporting token,
   not a verified official airline specification.
 - Updated PRODUCT.md so future work follows the square, opaque direction.
 
@@ -387,7 +387,7 @@ documents are owned by their corresponding later milestone.
 
 ### 2026-10-15 · `3455d3a`
 
-✨ feat: establish cohesive AlumniConnect visual system
+✨ feat: establish cohesive AlumniKonneQt visual system
 
 Attribution: Chat.
 

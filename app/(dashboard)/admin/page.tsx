@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { RoleForm, VisibilityForm } from "./admin-controls";
 
-export const metadata = { title: "Admin - AlumniConnect" };
+export const metadata = { title: "Admin - AlumniKonneQt" };
 
 interface ProfileRow {
   id: string;

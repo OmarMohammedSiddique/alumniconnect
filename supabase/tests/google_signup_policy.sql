@@ -18,7 +18,7 @@ declare
 begin
   blocked := auth_hooks.reject_google_signup('{"user":{"app_metadata":{"provider":"google"},"user_metadata":{"role":"mentor","provider":"email"}}}');
   assert blocked -> 'error' ->> 'http_code' = '403';
-  assert blocked -> 'error' ->> 'message' = 'Register with AlumniConnect before signing in with Google.';
+  assert blocked -> 'error' ->> 'message' = 'Register with AlumniKonneQt before signing in with Google.';
   -- User-editable metadata must not change the decision in either direction.
   assert auth_hooks.reject_google_signup('{"user":{"app_metadata":{"provider":"email"},"user_metadata":{"provider":"google"}}}') = '{}'::jsonb;
   assert auth_hooks.reject_google_signup('{"user":{"app_metadata":{"provider":"email"}}}') = '{}'::jsonb;
