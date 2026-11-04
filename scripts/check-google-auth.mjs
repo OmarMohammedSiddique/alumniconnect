@@ -37,6 +37,9 @@ if (local) {
   check(Boolean(process.env.SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID), "Local Google client ID is present", "Add SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID privately to .env.local.");
   check(Boolean(process.env.SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET), "Local Google client secret is present", "Add SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET privately to .env.local.");
   check(enabled, "Local Google provider is enabled in config.toml", "After supplying credentials, set [auth.external.google].enabled = true and restart local Supabase with those variables exported.");
+  const guard = config.split("[auth.hook.before_user_created]")[1]?.split(/^\[/m)[0] ?? "";
+  check(/^enabled\s*=\s*true\s*$/m.test(guard) && guard.includes('"pg-functions://postgres/auth_hooks/reject_google_signup"'),
+    "Local Google registration guard is configured", "Apply the Google signup migration, enable the before-user-created hook and restart local Supabase. This checks the config file; verify the running hook separately.");
 } else if (service) {
   console.log("Hosted provider credentials belong in Supabase Dashboard > Authentication > Sign In / Providers > Google.");
 }

@@ -20,7 +20,7 @@ export function GoogleSignIn({ next }: { next: string }) {
       </Button>
     </form>
     {(state.error || callbackMessage) && <StatusMessage tone="error">{state.error || callbackMessage}</StatusMessage>}
-    <p className="text-xs leading-relaxed text-muted-foreground">New Google accounts start as Mentees. Existing accounts keep their mentorship role. Google sign-in does not verify alumni affiliation.</p>
+    <p className="text-xs leading-relaxed text-muted-foreground">Register first, then use Google with the same email address. Existing accounts keep their mentorship role. Google sign-in does not verify alumni affiliation.</p>
     <div className="flex items-center gap-3 text-xs text-muted-foreground"><span className="h-px flex-1 bg-border" />or sign in with email<span className="h-px flex-1 bg-border" /></div>
   </div>;
 }

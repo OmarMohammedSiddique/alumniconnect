@@ -2,11 +2,13 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 type Auth = SupabaseClient["auth"];
 export const GOOGLE_NEXT_COOKIE = "alumniconnect-google-next";
-export type GoogleAuthError = "cancelled" | "exchange_failed" | "unavailable" | "unreachable" | "invalid_key" | "not_configured";
+export type GoogleAuthError = "cancelled" | "registration_required" | "exchange_failed" | "unavailable" | "unreachable" | "invalid_key" | "not_configured";
+export const GOOGLE_REGISTRATION_REQUIRED_MESSAGE = "Register with AlumniConnect before signing in with Google.";
 
 export function getGoogleAuthMessage(reason: string | null): string | null {
   switch (reason) {
     case "cancelled": return "Google sign-in was cancelled. Try again or use your email and password.";
+    case "registration_required": return GOOGLE_REGISTRATION_REQUIRED_MESSAGE;
     case "exchange_failed": return "Google sign-in could not be completed. The link may have expired. Please start again.";
     case "unavailable": return "Google sign-in is temporarily unavailable. Try again or use your email and password.";
     case "unreachable": return "Could not reach the sign-in service. Please try again later or ask the administrator to check the authentication setup.";
@@ -68,6 +70,8 @@ export async function beginGoogleSignIn(auth: Pick<Auth, "signInWithOAuth">, cal
 }
 
 export async function finishGoogleSignIn(params: URLSearchParams, auth: Pick<Auth, "exchangeCodeForSession">): Promise<GoogleAuthError | null> {
+  // Classify only our exact hook message; never reflect provider descriptions.
+  if (params.has("error") && params.get("error_description") === GOOGLE_REGISTRATION_REQUIRED_MESSAGE) return "registration_required";
   if (params.has("error")) return params.get("error") === "access_denied" ? "cancelled" : "exchange_failed";
   const code = params.get("code");
   if (!code || code.length > 2048) return "exchange_failed";
