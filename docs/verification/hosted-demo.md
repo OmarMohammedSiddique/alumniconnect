@@ -87,3 +87,24 @@ Mentees. All six demo profiles have embeddings. The normal Recommended mode stil
 uses stored MiniLM vectors; the scratch pilot runs separately in Compare models.
 Do not claim the final scratch-model migration, research-quality relevance,
 participant evaluation, or a final release is complete. #8 and #26 remain open.
+
+## Subsequent approved personal-profile copy
+
+The user subsequently chose to copy their saved local professional details. The
+active localhost session identified a populated personal profile distinct from
+the initially checked empty local account. Its saved name, headline, biography,
+skills, industry and graduation year were copied through the normal hosted
+Profile form to the already authenticated personal account. Email, role, login
+credentials and privacy settings were preserved; field values and account
+identifiers are omitted from this shared record.
+
+A read-only comparison confirmed every copied field matched the local source,
+the Mentee role was retained, and live embedding generation saved a 384-value
+vector. Safari then visibly rendered five results per comparison model and all
+five Recommended cards for that personal account. The observed comparison
+timings were 728 ms for MiniLM and 84 ms for the scratch pilot; these are single
+observations, not benchmarks. The separate demo fixtures remain available.
+
+This later approved copy supersedes the earlier current-state statement that
+both personal profiles were unchanged. It required no code, schema or deployment
+change. Sanitised follow-up evidence is recorded in #8 and #26.
