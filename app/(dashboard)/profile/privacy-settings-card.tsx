@@ -33,15 +33,17 @@ interface PrivacySettingsCardProps {
 export function PrivacySettingsCard({
   memberVisible: initialMemberVisible,
   staffHidden,
-  isVisible,
   blockedMembers: initialBlockedMembers,
 }: PrivacySettingsCardProps) {
   const [memberVisible, setMemberVisible] = useState(initialMemberVisible);
   const [blockedList, setBlockedList] = useState<BlockedMember[]>(initialBlockedMembers);
   const [visibilityMessage, setVisibilityMessage] = useState<string | null>(null);
   const [visibilityError, setVisibilityError] = useState<string | null>(null);
+  const [unblockError, setUnblockError] = useState<string | null>(null);
   const [isPendingVisibility, startVisibilityTransition] = useTransition();
   const [unblockingId, setUnblockingId] = useState<string | null>(null);
+
+  const effectiveVisible = memberVisible && !staffHidden;
 
   const handleToggleVisibility = (newValue: boolean) => {
     setVisibilityMessage(null);
@@ -61,11 +63,16 @@ export function PrivacySettingsCard({
 
   const handleUnblock = async (blockedId: string) => {
     setUnblockingId(blockedId);
+    setUnblockError(null);
     try {
       const res = await unblockMemberAction(blockedId);
       if (res.ok) {
         setBlockedList((prev) => prev.filter((m) => m.blocked_id !== blockedId));
+      } else {
+        setUnblockError(res.error || "Could not unblock this member.");
       }
+    } catch {
+      setUnblockError("Could not unblock this member. Please try again.");
     } finally {
       setUnblockingId(null);
     }
@@ -77,7 +84,7 @@ export function PrivacySettingsCard({
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            {isVisible ? (
+            {effectiveVisible ? (
               <Eye className="size-5 text-primary" aria-hidden="true" />
             ) : (
               <EyeOff className="size-5 text-muted-foreground" aria-hidden="true" />
@@ -168,6 +175,12 @@ export function PrivacySettingsCard({
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {unblockError && (
+            <div className="mb-3 flex items-center gap-2 text-xs text-destructive" role="alert">
+              <ShieldAlert className="size-4" />
+              <span>{unblockError}</span>
+            </div>
+          )}
           {blockedList.length === 0 ? (
             <p className="text-sm text-muted-foreground py-2">
               You haven’t blocked any members.

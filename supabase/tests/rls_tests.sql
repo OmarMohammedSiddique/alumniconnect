@@ -75,12 +75,16 @@ do $$ begin
   end if;
 end $$;
 
--- TEST 4: user can update own bio, but NOT another user's profile.
+-- TEST 4: user can update own bio (and updated_at advances), but NOT another user's profile.
+update public.profiles set updated_at = '2020-01-01T00:00:00Z' where id = '00000000-0000-0000-0000-000000000001';
 select pg_temp.impersonate('00000000-0000-0000-0000-000000000001');
 update public.profiles set bio = 'Aspiring data engineer' where id = auth.uid();
 do $$ begin
   if (select bio from public.profiles where id = auth.uid()) <> 'Aspiring data engineer' then
     raise exception 'FAIL 4: user could not update own bio';
+  end if;
+  if (select updated_at from public.profiles where id = auth.uid()) <= '2020-01-01T00:00:00Z'::timestamptz then
+    raise exception 'FAIL 4: protect_profile_columns did not advance updated_at';
   end if;
 end $$;
 update public.profiles set bio = 'hacked' where id = '00000000-0000-0000-0000-000000000002';
@@ -520,13 +524,74 @@ do $$ begin
   end;
 end $$;
 
+-- Blocked user (Nina) ALSO cannot see the blocker (Mentee 1) in profile queries:
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000003');
+do $$ begin
+  if exists (select 1 from public.profiles where id = '00000000-0000-0000-0000-000000000001') then
+    raise exception 'FAIL 17: blocked user can still read blocker profile';
+  end if;
+end $$;
+
 -- Unblocking restores visibility:
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000001');
 delete from public.blocks where blocker_id = auth.uid() and blocked_id = '00000000-0000-0000-0000-000000000003';
 do $$ begin
   if not exists (select 1 from public.profiles where id = '00000000-0000-0000-0000-000000000003') then
     raise exception 'FAIL 17: unblocking did not restore profile visibility';
   end if;
 end $$;
+
+-- When Mentor Nina blocks Mentee 1 while a pending request exists, the pending request
+-- is automatically cancelled and Mentee 1 (the blocked party) cannot see Nina in
+-- profiles, match_mentors, search_mentors, or insert a new request to Nina:
+insert into public.mentorship_requests (mentee_id, mentor_id, message)
+values (auth.uid(), '00000000-0000-0000-0000-000000000003', 'Pending before mentor blocks mentee');
+
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000003');
+insert into public.blocks (blocker_id, blocked_id)
+values (auth.uid(), '00000000-0000-0000-0000-000000000001');
+
+do $$ begin
+  if exists (
+    select 1 from public.mentorship_requests
+    where mentee_id = '00000000-0000-0000-0000-000000000001'
+      and mentor_id = '00000000-0000-0000-0000-000000000003'
+      and status = 'pending'
+  ) then
+    raise exception 'FAIL 17: blocking did not auto-cancel pending mentorship request';
+  end if;
+end $$;
+
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000001');
+do $$ begin
+  if exists (select 1 from public.profiles where id = '00000000-0000-0000-0000-000000000003') then
+    raise exception 'FAIL 17: blocked mentee can see blocker mentor profile';
+  end if;
+  if exists (
+    select 1 from public.match_mentors(
+      (select array_agg(case when i = 2 then 1.0 else 0.0 end)::extensions.vector(384)
+       from generate_series(1, 384) i), 10
+    ) where id = '00000000-0000-0000-0000-000000000003'
+  ) then
+    raise exception 'FAIL 17: blocker mentor appears in match_mentors for blocked mentee';
+  end if;
+  if exists (
+    select 1 from public.search_mentors('Nina', 10)
+    where id = '00000000-0000-0000-0000-000000000003'
+  ) then
+    raise exception 'FAIL 17: blocker mentor appears in search_mentors for blocked mentee';
+  end if;
+  begin
+    insert into public.mentorship_requests (mentee_id, mentor_id, message)
+    values (auth.uid(), '00000000-0000-0000-0000-000000000003', 'Blocked mentee trying to request blocker');
+    raise exception 'FAIL 17: blocked mentee inserted request to blocker mentor';
+  exception when others then
+    if sqlerrm like 'FAIL%' then raise; end if;
+  end;
+end $$;
+
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000003');
+delete from public.blocks where blocker_id = auth.uid() and blocked_id = '00000000-0000-0000-0000-000000000001';
 select pg_temp.reset_role();
 
 -- ---------------------------------------------------------------------------

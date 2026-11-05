@@ -1,11 +1,7 @@
-"use client";
+import { cn } from "@/lib/utils";
 
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
-
-// Match-result reveal: brief staggered fade-in of ranked mentor cards
-// (one of the micro-interactions the build instructions assign to GSAP).
-// Animation is decoration only - content is visible immediately without it.
+// Match-result reveal: lightweight CSS-driven entrance transition that
+// respects prefers-reduced-motion without shipping a JS animation library.
 export function StaggerReveal({
   children,
   className,
@@ -13,28 +9,5 @@ export function StaggerReveal({
   children: React.ReactNode;
   className?: string;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || el.children.length === 0) return;
-    const media = gsap.matchMedia();
-    media.add("(prefers-reduced-motion: no-preference)", () => {
-      const duration = parseFloat(getComputedStyle(el).getPropertyValue("--motion-standard")) / 1000;
-      gsap.from(el.children, {
-        y: 8,
-        duration: Number.isFinite(duration) ? duration : 0.22,
-        ease: "power1.out",
-        stagger: 0.03,
-        clearProps: "all",
-      });
-    }, el);
-    return () => media.revert();
-  }, []);
-
-  return (
-    <div ref={ref} className={className}>
-      {children}
-    </div>
-  );
+  return <div className={cn("stagger-reveal", className)}>{children}</div>;
 }

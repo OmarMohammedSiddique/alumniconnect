@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { updateMentorshipRequest, type RequestState } from "@/lib/mentorship-request";
 import { MAX_INTRODUCTION_LENGTH } from "@/lib/form-limits";
+import { isValidUuid } from "@/lib/profile-privacy";
 
 export type { RequestState } from "@/lib/mentorship-request";
 
@@ -11,11 +12,13 @@ export async function createRequest(
   _prev: RequestState,
   formData: FormData,
 ): Promise<RequestState> {
-  const mentorId = String(formData.get("mentor_id") ?? "");
+  const mentorId = String(formData.get("mentor_id") ?? "").trim();
   const message = String(formData.get("message") ?? "")
     .trim()
     .slice(0, MAX_INTRODUCTION_LENGTH);
-  if (!mentorId) return { error: "Missing mentor.", ok: false };
+  if (!mentorId || !isValidUuid(mentorId)) {
+    return { error: "Missing or invalid mentor reference.", ok: false };
+  }
 
   const supabase = await createClient();
   const {
@@ -42,10 +45,11 @@ export async function createRequest(
         ok: false,
       };
     }
-    return { error: error.message, ok: false };
+    return { error: "We couldn't send this request right now. Please try again.", ok: false };
   }
 
   revalidatePath("/requests");
+  revalidatePath("/discover");
   return { error: null, ok: true };
 }
 
@@ -53,9 +57,15 @@ export async function cancelRequest(
   _prev: RequestState,
   formData: FormData,
 ): Promise<RequestState> {
-  const id = String(formData.get("request_id") ?? "");
+  const id = String(formData.get("request_id") ?? "").trim();
+  if (!isValidUuid(id)) {
+    return { error: "Choose a valid request action and try again.", ok: false };
+  }
   const result = await updateMentorshipRequest(createClient, id, "cancel");
-  if (result.ok) revalidatePath("/requests");
+  if (result.ok) {
+    revalidatePath("/requests");
+    revalidatePath("/discover");
+  }
   return result;
 }
 
@@ -63,10 +73,16 @@ export async function respondRequest(
   _prev: RequestState,
   formData: FormData,
 ): Promise<RequestState> {
-  const id = String(formData.get("request_id") ?? "");
+  const id = String(formData.get("request_id") ?? "").trim();
+  if (!isValidUuid(id)) {
+    return { error: "Choose a valid request action and try again.", ok: false };
+  }
   const accept = formData.get("accept");
   const decision = accept === "true" ? "accept" : accept === "false" ? "decline" : null;
   const result = await updateMentorshipRequest(createClient, id, decision);
-  if (result.ok) revalidatePath("/requests");
+  if (result.ok) {
+    revalidatePath("/requests");
+    revalidatePath("/discover");
+  }
   return result;
 }

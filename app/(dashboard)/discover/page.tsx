@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { DiscoverClient } from "./discover-client";
 import { QuickActions } from "@/components/quick-actions";
 import { PageHeading } from "@/components/ui/page-heading";
@@ -8,29 +8,26 @@ import { buildRequestStateMap } from "@/lib/discovery-filters";
 export const metadata = { title: "Discover - AlumniKonneQt" };
 
 export default async function DiscoverPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getAuthenticatedUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  // Load existing requests and connections involving this user to reflect persistent relationship states
-  const [{ data: userRequests }, { data: userConnections }] = await Promise.all([
-    supabase
-      .from("mentorship_requests")
-      .select("mentor_id, status")
-      .eq("mentee_id", user.id),
-    supabase
-      .from("connections")
-      .select("mentor_id")
-      .eq("mentee_id", user.id),
-  ]);
+  // Load role, existing requests, and connections in parallel
+  const [{ data: profile }, { data: userRequests }, { data: userConnections }] =
+    await Promise.all([
+      supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single(),
+      supabase
+        .from("mentorship_requests")
+        .select("mentor_id, status")
+        .eq("mentee_id", user.id),
+      supabase
+        .from("connections")
+        .select("mentor_id")
+        .eq("mentee_id", user.id),
+    ]);
 
   const initialRequestMap = buildRequestStateMap(
     userRequests ?? [],

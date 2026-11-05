@@ -23,7 +23,9 @@ const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{
 const PERMISSION_MESSAGES = new Set([
   "only admins can change roles",
   "only moderators or admins can change visibility",
+  "only moderators or admins can change staff moderation status",
   "moderators may only change visibility on other profiles",
+  "cannot edit another member profile",
 ]);
 
 function fail(error: string): AdminActionState {

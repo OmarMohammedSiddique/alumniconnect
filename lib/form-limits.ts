@@ -1,3 +1,6 @@
+export const MAX_FULL_NAME_LENGTH = 200;
 export const MAX_HEADLINE_LENGTH = 120;
 export const MAX_BIO_LENGTH = 2000;
+export const MAX_INDUSTRY_LENGTH = 100;
 export const MAX_INTRODUCTION_LENGTH = 500;
+export const MAX_REVIEW_NOTE_LENGTH = 1000;

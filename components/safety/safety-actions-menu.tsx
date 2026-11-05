@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Flag, MoreVertical, ShieldAlert } from "lucide-react";
 import { ReportDialog } from "./report-dialog";
 import { BlockDialog } from "./block-dialog";
@@ -22,6 +22,17 @@ export function SafetyActionsMenu({
   const [reportOpen, setReportOpen] = useState(false);
   const [blockOpen, setBlockOpen] = useState(false);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [menuOpen]);
+
   return (
     <>
       <div className="relative inline-block text-left">
@@ -31,6 +42,7 @@ export function SafetyActionsMenu({
           className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground focus:outline-hidden focus:ring-2 focus:ring-primary transition-colors"
           aria-label={`Safety options for ${targetName}`}
           aria-expanded={menuOpen}
+          aria-haspopup="menu"
         >
           <MoreVertical className="size-4" />
         </button>
@@ -75,21 +87,25 @@ export function SafetyActionsMenu({
         )}
       </div>
 
-      <ReportDialog
-        reportedId={targetId}
-        reportedName={targetName}
-        isOpen={reportOpen}
-        onClose={() => setReportOpen(false)}
-        onReportSubmitted={() => onReported?.()}
-      />
+      {reportOpen && (
+        <ReportDialog
+          reportedId={targetId}
+          reportedName={targetName}
+          isOpen={reportOpen}
+          onClose={() => setReportOpen(false)}
+          onReportSubmitted={() => onReported?.()}
+        />
+      )}
 
-      <BlockDialog
-        targetId={targetId}
-        targetName={targetName}
-        isOpen={blockOpen}
-        onClose={() => setBlockOpen(false)}
-        onBlocked={() => onBlocked?.()}
-      />
+      {blockOpen && (
+        <BlockDialog
+          targetId={targetId}
+          targetName={targetName}
+          isOpen={blockOpen}
+          onClose={() => setBlockOpen(false)}
+          onBlocked={() => onBlocked?.()}
+        />
+      )}
     </>
   );
 }
