@@ -4,6 +4,9 @@ import { cookies, headers } from "next/headers";
 import { beginGoogleSignIn, checkGoogleProvider, getGoogleAuthMessage, getGoogleAuthOrigin, GOOGLE_NEXT_COOKIE } from "@/lib/google-auth";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { fetchAuthWithDeadline } from "@/lib/supabase/auth-fetch";
+import { ACCOUNT_EMAIL_FLOW, ACCOUNT_EMAIL_SECONDS } from "@/lib/account-email";
+import { normalizeOtpEmail } from "@/lib/email-otp";
 import { formatFullName } from "@/lib/profile-name";
 import { getIdentityCollectionError } from "@/lib/registration-privacy";
 import { getPasswordError } from "@/lib/signup-validation";
@@ -13,6 +16,8 @@ import { getSafeSignInRedirect } from "@/lib/auth-redirect";
 export interface AuthState {
   error: string | null;
   confirmationRequired?: boolean;
+  confirmationEmail?: string;
+  confirmationCodeEnabled?: boolean;
 }
 
 export async function signUp(
@@ -22,7 +27,7 @@ export async function signUp(
   const identityError = getIdentityCollectionError(formData);
   if (identityError) return { error: identityError };
 
-  const email = String(formData.get("email") ?? "").trim();
+  const email = normalizeOtpEmail(formData.get("email"));
   const password = String(formData.get("password") ?? "");
   let firstName = formatFullName(String(formData.get("first_name") ?? ""));
   let lastName = formatFullName(String(formData.get("last_name") ?? ""));
@@ -46,17 +51,14 @@ export async function signUp(
     return { error: "Invalid role." };
   }
   if (firstName.length > 100 || lastName.length > 100) return { error: "Each name must be 100 characters or fewer." };
-  const passwordError = getPasswordError(
-    password,
-    formData.has("confirm_password") ? confirmation : password
-  );
+  const passwordError = getPasswordError(password, confirmation);
   if (passwordError) return { error: passwordError };
   if (hasPhoto) {
     const photoError = await validateProfilePhoto(photo);
     if (photoError) return { error: photoError };
   }
 
-  const supabase = await createClient();
+  const supabase = await createClient(fetchAuthWithDeadline);
   let photoFailed = false;
   try {
     const { data, error } = await supabase.auth.signUp({
@@ -64,8 +66,16 @@ export async function signUp(
       password,
       options: { data: { full_name: fullName, first_name: firstName, last_name: lastName, role } },
     });
-    if (error) return { error: error.message };
-    if (!data.session) return { error: null, confirmationRequired: true };
+    if (error) return { error: error.status === 429 ? "Too many registration attempts. Wait a few minutes and try again." : "Registration could not complete. Try signing in or resetting your password, or try again later." };
+    if (!data.session) {
+      const confirmationCodeEnabled = process.env.ACCOUNT_EMAIL_ENABLED === "true";
+      if (confirmationCodeEnabled) {
+        const flow = ACCOUNT_EMAIL_FLOW.signup;
+        const jar = await cookies();
+        jar.set(flow.cookie, JSON.stringify({ email, purpose: "signup", requestedAt: Date.now(), next: hasPhoto ? "/profile/photo" : "/profile" }), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: flow.path, maxAge: ACCOUNT_EMAIL_SECONDS });
+      }
+      return { error: null, confirmationRequired: true, confirmationEmail: email, confirmationCodeEnabled };
+    }
     if (hasPhoto) {
       try { photoFailed = Boolean(await saveProfilePhoto(photo)); }
       catch { photoFailed = true; }

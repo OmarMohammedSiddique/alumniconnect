@@ -83,6 +83,14 @@ async function confirmMailbox(label) {
   }
   assert.ok(message, "Confirmation must reach the isolated mail sink");
   const body = `${message.Text ?? message.body?.text ?? ""}\n${message.HTML ?? message.body?.html ?? ""}`;
+  const code = body.match(/\b\d{8}\b/)?.[0];
+  if (code) {
+    const client = createClient(api.href, publicKey, sdkOptions);
+    ok(await client.auth.verifyOtp({ email: email(label), token: code, type: "signup" }), "Provider must accept delivered confirmation code");
+    await client.auth.signOut({ scope: "global" });
+    assert.ok((await fixture(label)).email_confirmed_at, "Email must be confirmed by Auth");
+    return;
+  }
   const match = body.match(/https?:\/\/[^\s"<>]*\/auth\/v1\/verify\?[^\s"<>]+/);
   assert.ok(match, "Mail must contain a provider confirmation link");
   const link = new URL(match[0].replaceAll("&amp;", "&"));
