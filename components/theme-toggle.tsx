@@ -9,12 +9,14 @@ export interface ThemeToggleProps {
   className?: string;
   variant?: "compact" | "segmented";
   showLabel?: boolean;
+  menuPlacement?: "top" | "bottom";
 }
 
 export function ThemeToggle({
   className,
   variant = "compact",
   showLabel = false,
+  menuPlacement = "top",
 }: ThemeToggleProps) {
   const { theme, resolvedTheme, setTheme, systemTheme } = useTheme();
   const [open, setOpen] = useState(false);
@@ -119,7 +121,10 @@ export function ThemeToggle({
         <div
           role="menu"
           aria-label="Select color theme"
-          className="absolute right-0 z-(--z-popover) mt-1.5 w-48 rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md transition-all duration-(--motion-fast)"
+          className={cn(
+            "absolute right-0 z-(--z-popover) w-48 rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md transition-all duration-(--motion-fast)",
+            menuPlacement === "top" ? "bottom-full mb-1.5" : "top-full mt-1.5"
+          )}
         >
           {options.map(({ value, label, icon: Icon, description }) => {
             const isSelected = theme === value;

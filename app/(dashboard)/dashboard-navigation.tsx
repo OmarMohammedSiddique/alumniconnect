@@ -45,7 +45,6 @@ export function DashboardNavigation({ name, role }: { name: string; role: string
         <span className="grid size-9 shrink-0 place-items-center rounded-md border bg-background text-sm font-semibold" aria-hidden="true">{name.trim().slice(0, 1).toUpperCase()}</span>
         <div className="min-w-0"><p className="truncate text-sm font-medium">{name}</p><p className="text-xs capitalize text-muted-foreground">{role}</p></div>
       </div>
-      <ThemeToggle variant="segmented" showLabel className="px-3" />
       <form
         action={signOut}
         onSubmit={() => {
@@ -58,6 +57,9 @@ export function DashboardNavigation({ name, role }: { name: string; role: string
       </form>
       <Link href="/" onClick={closeMenu} className="flex min-h-11 items-center gap-3 rounded-md px-3 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"><House className="size-4" aria-hidden="true" />Public homepage</Link>
       <PrototypeNotice className="px-3" />
+      <div className="border-t pt-3 mt-1 px-3">
+        <ThemeToggle variant="segmented" showLabel />
+      </div>
     </div>
   );
 

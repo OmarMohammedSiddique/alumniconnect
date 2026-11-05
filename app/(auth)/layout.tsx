@@ -11,15 +11,15 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <Link href="/" aria-label="AlumniKonneQt home" className="inline-flex min-h-11 items-center focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
             <Brand imageClassName="h-11 sm:h-12" />
           </Link>
-          <div className="flex items-center gap-3">
-            <ThemeToggle variant="compact" />
-            <Link href="/" className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
-              <ArrowLeft className="size-4" aria-hidden="true" />Back to home
-            </Link>
-          </div>
+          <Link href="/" className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
+            <ArrowLeft className="size-4" aria-hidden="true" />Back to home
+          </Link>
         </header>
         {children}
-        <PrototypeNotice className="mx-auto mt-3 text-center" />
+        <div className="mt-4 flex flex-col items-center justify-center gap-2">
+          <ThemeToggle variant="compact" menuPlacement="top" />
+          <PrototypeNotice className="text-center" />
+        </div>
       </main>
     </div>
   );
