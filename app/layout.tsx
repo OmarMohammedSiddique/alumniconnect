@@ -28,8 +28,32 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <meta name="color-scheme" content="light" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                var t = localStorage.getItem("alumnikonneqt-theme");
+                if (t === "dark") {
+                  document.documentElement.classList.add("dark");
+                  document.documentElement.classList.remove("light");
+                  var m = document.querySelector('meta[name="color-scheme"]');
+                  if (m) m.content = "dark";
+                } else {
+                  document.documentElement.classList.add("light");
+                  document.documentElement.classList.remove("dark");
+                  var m = document.querySelector('meta[name="color-scheme"]');
+                  if (m) m.content = "light";
+                }
+              } catch (_) {}
+            `,
+          }}
+        />
+      </head>
       <body suppressHydrationWarning className="min-h-full flex flex-col">
         {children}
         <Analytics />

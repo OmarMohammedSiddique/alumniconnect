@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Brand, PrototypeNotice } from "@/components/brand";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -15,7 +16,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           </Link>
         </header>
         {children}
-        <PrototypeNotice className="mx-auto mt-3 text-center" />
+        <div className="mt-4 flex flex-col items-center justify-center gap-2">
+          <ThemeToggle variant="compact" menuPlacement="top" />
+          <PrototypeNotice className="text-center" />
+        </div>
       </main>
     </div>
   );

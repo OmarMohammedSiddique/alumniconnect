@@ -86,6 +86,7 @@ jobs:
             echo "::endgroup::"
           }
           run_suite postgres supabase/tests/rls_tests.sql
+          run_suite postgres supabase/tests/email_notifications.sql
           run_suite supabase_admin supabase/tests/google_signup_policy.sql
 
       - name: Stop local Supabase
