@@ -1,6 +1,8 @@
 # Email code sign-in (#32) and Resend setup (#34)
 
-Implemented locally on 5 November 2026. Hosted delivery and real mailbox acceptance
+Implemented and deployed on 5 November 2026. Hosted SMTP/template configuration and
+one owner-observed inbox delivery are verified. The expanded local acceptance below
+is complete; the final hosted session check and publication of the outage correction
 remain pending. Do not close #32 or #34 from automated tests alone.
 
 ## Contract
@@ -175,3 +177,96 @@ used by SMTP. #34's application notifications/webhooks remain separate work.
 - https://resend.com/docs/send-with-supabase-smtp
 - https://resend.com/docs/dashboard/domains/introduction
 - https://resend.com/pricing
+
+## Expanded OTP acceptance — 5 November 2026 (#32)
+
+Based on merged `bfac917`, with a scoped correction for outages: verification now
+returns an actionable service-unavailable message for provider 5xx/transport errors
+and its Auth fetch has an eight-second deadline. This avoids indefinite gateway
+waits while retaining the email/recovery context. Other database/Storage clients
+keep their previous fetch behavior. These corrections are not claimed as deployed
+until their branch is published and merged.
+
+`npm run test:otp` runs `scripts/verify-email-otp.mjs` against the same dedicated
+local stack used by registration acceptance. It refuses non-loopback or unexpected
+project/API targets. Use Node 22.12+ for the pinned Playwright/axe test tooling.
+The actual run used Chrome 157.0.8103.38, Playwright 1.64.1 and axe 4.14.0.
+
+All nine real-provider/browser acceptance groups passed:
+
+1. Unknown address: generic response, no mailbox message and no account/profile
+   creation. Entry layouts at 320/375/768/1366px had no horizontal overflow and no
+   WCAG 2 A/AA or WCAG 2.1 AA violations in the automated axe checks.
+2. Pending submission blocked duplicates; one code arrived in Mailpit; provider
+   email-frequency throttling returned 429; resend countdown was disabled. Labels,
+   numeric input and one-time-code autocomplete semantics were checked.
+3. Wrong/reused codes were rejected. Clipboard paste, refresh during verification,
+   actual session cookies, intended `/profile` redirect, own-profile mutation through
+   RLS, refresh persistence, staff-page denial, sign-out and protected-page denial
+   passed. Request codes did not appear in URLs.
+4. Real resend produced a fresh code; its predecessor failed; the new code permitted
+   a subsequent sign-in after logout.
+5. Expiry was exercised by aging only the fixture's provider token timestamps past
+   the configured 600 seconds. Provider rejection and fresh-code recovery passed;
+   the application challenge was still valid, so this tested provider expiry.
+6. A second tab changed the email/request. The stale tab was rejected, refresh
+   recovered the current request and authenticated the correct account. A separate
+   browser context could verify the valid delivered code for its intended account.
+7. A protocol-relative external destination fell back to `/discover` on the app's
+   own origin after actual authentication.
+8. Stopping only the disposable SMTP container produced the same generic request
+   response and retained refresh/retry context. Stopping only its Auth container
+   produced bounded, actionable unavailability; the same still-valid code worked
+   once Auth recovered. Both services were restored in cleanup.
+9. Real provider verification throttling produced 429 and the application's fixed
+   safe message. Error accessibility checks passed; delivered codes/passwords were
+   absent from the actual local production-app log.
+
+**Rate-limit test boundary:** the installed local Auth v2.192.0 explicitly skips
+IP limits when `RateLimitHeader` is unset, which is the CLI's local default. The
+suite starts a temporary replica of that exact image with a dedicated test header
+and uses a controlled local key to measure actual enforcement. The main test stack
+is unchanged, the replica/private environment file are removed, and no bursts or
+outage injection run against production. This is not a claim that the unmodified
+local CLI stack enforces its displayed IP-limit values. Production's configured
+provider limits were inspected separately; its limiter was not stress-tested.
+
+All four synthetic fixture accounts were removed after each run, global fixture
+sessions revoked and the isolated account baseline restored. No codes, recipient
+identifiers, passwords or session tokens are included in this evidence. Automated
+accessibility/ARIA/keyboard evidence does not claim a native VoiceOver listening
+session or physical-device test.
+
+### Reproduction
+
+Start the dedicated stack using the registration acceptance guide. In the private
+test environment `/private/tmp/issue36.env`, set `EMAIL_OTP_ENABLED=true`. Keep the
+normal eight-digit/600-second/60-second configuration. The test quota can be raised
+only on this disposable local project; the CLI's local SMTP quota is not equivalent
+to the hosted Resend plan. Build with `node scripts/registration-test-stack.mjs build`
+and serve with its `serve` command, then run:
+
+```sh
+node --experimental-strip-types --env-file=/private/tmp/issue36.env scripts/verify-email-otp.mjs
+```
+
+With normal installed dependencies no module-path overrides are needed. A separate
+local tools install can be selected via `REGISTRATION_PLAYWRIGHT_PATH` and
+`OTP_AXE_PATH`. Optional `OTP_EVIDENCE_DIR` retains screenshots of the empty entry
+page only. Stop the dedicated app/stack afterward. Private failure diagnostics may
+contain synthetic codes and must never be committed or pasted into issues.
+
+### Hosted evidence and remaining closure gate
+
+Production deployment `dpl_DiV1YNhXWa3HzQT1Vt3GHR5aYnhG` was READY on merged main
+`bfac917`, with the canonical custom domain and OTP feature enabled. Supabase's
+numeric-code template, eight digits, 600-second expiry, 60-second resend interval,
+custom sender and exact callback configuration were read back. The owner confirmed
+actual inbox delivery; the first disposable delivery account was removed afterward.
+
+A separate controlled hosted account is prepared for the owner-performed session
+check without sharing any password/code in chat: delivered-code sign-in, refresh,
+sign-out and fresh-code sign-in. Only sanitized backend session/audit counts will
+be retained to corroborate that result. #32 remains open until this evidence and
+publication/merge of the outage correction are recorded. #15's confirmation/recovery
+journey and #34's application mail/isolation/webhooks remain separate work.

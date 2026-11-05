@@ -47,6 +47,7 @@ export async function verifyEmailOtp(auth: Pick<Auth, "verifyOtp">, email: strin
   try {
     const { data, error } = await auth.verifyOtp({ email, token, type: "email" });
     if (error?.status === 429) return "Too many attempts. Wait a few minutes before trying again.";
+    if (error && (!error.status || error.status >= 500)) return "The sign-in service is temporarily unavailable. Keep this page open and try again shortly.";
     if (error || !data.session || !data.user) return OTP_INVALID_MESSAGE;
     return null;
   } catch { return "Could not reach the sign-in service. Try again shortly."; }
