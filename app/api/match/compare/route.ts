@@ -5,6 +5,7 @@ import { generateEmbedding, MODEL_ID } from "@/lib/embedding/embed";
 import { EmbedGuard } from "@/lib/embedding/embed-guard";
 import { generateScratchEmbeddings, SCRATCH_MODEL_ID } from "@/lib/scratch-model";
 import { comparisonText, rankComparison, type ComparisonModelResult, type ComparisonProfile } from "@/lib/model-comparison";
+import { withRequestDeadline } from "@/lib/request-deadline";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -13,7 +14,22 @@ let running = 0;
 const fields = "id, full_name, headline, bio, skills, industry, graduation_year, accepting_requests";
 
 export async function POST() {
-  const supabase = await createClient();
+  try {
+    return await withRequestDeadline(compareModels, 55_000);
+  } catch (reason) {
+    return NextResponse.json({ error: reason instanceof Error && reason.name === "TimeoutError"
+      ? "The models took too long to respond. Please retry shortly."
+      : "Could not compare models right now. Please retry." }, {
+      status: reason instanceof Error && reason.name === "TimeoutError" ? 504 : 503,
+      headers: { "Cache-Control": "private, no-store" },
+    });
+  }
+}
+
+async function compareModels(signal: AbortSignal) {
+  const supabase = await createClient((input, init) => fetch(input, {
+    ...init, signal: init?.signal ? AbortSignal.any([signal, init.signal]) : signal,
+  }));
   const { data: { user } } = await supabase.auth.getUser();
   const json = (body: unknown, status = 200, headers = {}) =>
     NextResponse.json(body, { status, headers: { "Cache-Control": "private, no-store", ...headers } });
@@ -41,6 +57,7 @@ export async function POST() {
   // A bounded, ID-ordered pool avoids selecting candidates with either model.
   // All inference uses this fresh snapshot; no vectors are written back to profiles.
   const texts = [profile, ...mentors].map(comparisonText);
+  signal.throwIfAborted();
   if (running >= 2) return json({ error: "Model comparison is busy. Please retry shortly." }, 503);
   running++;
   const job = (async () => {
@@ -72,13 +89,5 @@ export async function POST() {
     return { candidateCount: mentors.length, truncated: (candidates.data?.length ?? 0) > 50, models };
   })().finally(() => { running--; });
   // Native work retains its concurrency slot even if the HTTP deadline expires.
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  try {
-    const result = await Promise.race([job, new Promise<null>((resolve) => {
-      timer = setTimeout(() => resolve(null), 55_000);
-    })]);
-    return result ? json(result) : json({ error: "The models took too long to respond. Please retry shortly." }, 504);
-  } finally {
-    clearTimeout(timer);
-  }
+  return json(await job);
 }

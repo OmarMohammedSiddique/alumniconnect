@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { LoadingState } from "@/components/ui/loading-state";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusMessage } from "@/components/ui/status-message";
+import { discoveryFailureMessage, withRequestDeadline } from "@/lib/request-deadline";
 import {
   extractAvailableFilters,
   filterMentors,
@@ -67,30 +68,34 @@ export function DiscoverClient({
   useEffect(() => {
     if (mode !== "semantic") return;
     let cancelled = false;
-    fetch("/api/match", { method: "POST", body: JSON.stringify({ count: 12 }) })
-      .then(async (res) => {
-        const body = await res.json();
+    const controller = new AbortController();
+    withRequestDeadline(async (signal) => {
+      const res = await fetch("/api/match", { method: "POST", body: JSON.stringify({ count: 12 }), signal });
+      return { res, body: await res.json() };
+    }, 15_000, controller.signal)
+      .then(({ res, body }) => {
         if (cancelled) return;
         if (!res.ok) {
           setMentors([]);
           setNeedsProfile(res.status === 422);
           setSearchError(res.status !== 422);
-          setNotice(res.status === 422 ? null : body.error ?? "Could not load matches.");
+          setNotice(res.status === 422 ? null : discoveryFailureMessage(res.status, body.error ?? "Could not load matches."));
         } else {
           setNeedsProfile(false);
           setSearchError(false);
           setMentors(body.matches);
         }
       })
-      .catch(() => {
+      .catch((reason) => {
         if (!cancelled) {
           setSearchError(true);
-          setNotice("Could not load matches.");
+          setNotice(reason?.name === "TimeoutError" ? "Loading recommendations took too long. Retry or use Keyword search." : "Could not load matches.");
         }
       })
       .finally(() => !cancelled && setLoading(false));
     return () => {
       cancelled = true;
+      controller.abort();
     };
   }, [mode, semanticRetryTick]);
 
@@ -103,22 +108,29 @@ export function DiscoverClient({
     setSearchError(false);
     setNotice(null);
     const supabase = createClient();
-    const { data, error } = await supabase.rpc("search_mentors", {
-      search_query: trimmed,
-      match_count: 20,
-    });
-    // Guard against superseded searches or mode switches
-    if (reqId !== searchSeqRef.current) return;
-    if (error) {
+    try {
+      const { data, error } = await withRequestDeadline(async (signal) => await supabase.rpc("search_mentors", {
+        search_query: trimmed, match_count: 20,
+      }).abortSignal(signal), 15_000);
+      // Guard against superseded searches or mode switches
+      if (reqId !== searchSeqRef.current) return;
+      if (error) {
+        setSearchError(true);
+        setNotice("Search failed. Try different terms or retry.");
+        setMentors([]);
+      } else {
+        setSearchError(false);
+        setMentors(data);
+        if (data.length === 0) setNotice("No mentors matched that search.");
+      }
+    } catch {
+      if (reqId !== searchSeqRef.current) return;
       setSearchError(true);
-      setNotice("Search failed. Try different terms or retry.");
+      setNotice("Search took too long or could not connect. Please retry.");
       setMentors([]);
-    } else {
-      setSearchError(false);
-      setMentors(data);
-      if (data.length === 0) setNotice("No mentors matched that search.");
+    } finally {
+      if (reqId === searchSeqRef.current) setLoading(false);
     }
-    setLoading(false);
   }
 
   async function runKeywordSearch(e: React.FormEvent) {

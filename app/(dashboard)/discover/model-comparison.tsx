@@ -8,6 +8,7 @@ import { StatusMessage } from "@/components/ui/status-message";
 import { MentorCard } from "./mentor-card";
 import { getActiveRelationshipStatus, type MentorRequestState } from "@/lib/discovery-filters";
 import type { ModelComparisonResponse } from "@/lib/model-comparison";
+import { discoveryFailureMessage, withRequestDeadline } from "@/lib/request-deadline";
 
 export function ModelComparison({ canRequest, requestMap, onRequestSent, onBlocked }: {
   canRequest: boolean;
@@ -23,17 +24,21 @@ export function ModelComparison({ canRequest, requestMap, onRequestSent, onBlock
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/api/match/compare", { method: "POST", signal: controller.signal, cache: "no-store" })
-      .then(async (response) => {
-        const body = await response.json();
+    withRequestDeadline(async (signal) => {
+      const response = await fetch("/api/match/compare", { method: "POST", signal, cache: "no-store" });
+      return { response, body: await response.json() };
+    }, 65_000, controller.signal)
+      .then(({ response, body }) => {
         if (controller.signal.aborted) return;
         if (!response.ok) {
           setNeedsProfile(response.status === 422);
-          setError(body.error ?? "Could not compare models. Please retry.");
+          setError(discoveryFailureMessage(response.status, body.error ?? "Could not compare models. Please retry.", response.headers.get("Retry-After")));
         } else setResult(body);
       })
-      .catch(() => {
-        if (!controller.signal.aborted) setError("Could not compare models. Please retry.");
+      .catch((reason) => {
+        if (!controller.signal.aborted) setError(reason?.name === "TimeoutError"
+          ? "The comparison took too long. Retry, or use Recommended or Keyword search while it recovers."
+          : "Could not compare models. Please retry.");
       })
       .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
