@@ -116,7 +116,13 @@ export default async function AdminPage() {
                     )}
                   </td>
                   <td className="px-3 py-2">
-                    <VisibilityForm userId={p.id} name={p.full_name || "this user"} visible={p.is_visible} />
+                    {p.id !== user.id ? (
+                      <VisibilityForm userId={p.id} name={p.full_name || "this user"} visible={p.is_visible} />
+                    ) : (
+                      <span className="text-xs text-muted-foreground">
+                        {p.is_visible ? "Visible" : "Hidden"}
+                      </span>
+                    )}
                   </td>
                   <td className="px-3 py-2 text-muted-foreground">
                     {new Date(p.created_at).toLocaleDateString("en-GB")}

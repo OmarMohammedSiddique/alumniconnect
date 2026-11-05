@@ -7,6 +7,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeading } from "@/components/ui/page-heading";
+import { SafetyActionsMenu } from "@/components/safety/safety-actions-menu";
 import {
   Card,
   CardContent,
@@ -19,6 +20,8 @@ export const metadata = { title: "Requests - AlumniKonneQt" };
 
 interface RequestRow {
   id: string;
+  mentee_id: string;
+  mentor_id: string;
   status: string;
   message: string;
   created_at: string;
@@ -63,14 +66,17 @@ export default async function RequestsPage() {
     .single();
   const isMentor = profile?.role === "mentor";
 
-  // RLS already limits rows to ones the caller participates in.
+  // Explicitly scope to rows the signed-in user participates in (staff RLS
+  // permits reading all platform rows for moderation, which must not leak into
+  // personal request/connection views).
   const { data: requests } = await supabase
     .from("mentorship_requests")
     .select(
-      `id, status, message, created_at,
+      `id, mentee_id, mentor_id, status, message, created_at,
        mentee:profiles!mentorship_requests_mentee_id_fkey(full_name),
        mentor:profiles!mentorship_requests_mentor_id_fkey(full_name)`,
     )
+    .or(`mentee_id.eq.${user.id},mentor_id.eq.${user.id}`)
     .order("created_at", { ascending: false })
     .returns<RequestRow[]>();
 
@@ -81,6 +87,7 @@ export default async function RequestsPage() {
        mentee:profiles!connections_mentee_id_fkey(full_name, role, headline, industry),
        mentor:profiles!connections_mentor_id_fkey(full_name, role, headline, industry)`,
     )
+    .or(`mentee_id.eq.${user.id},mentor_id.eq.${user.id}`)
     .order("created_at", { ascending: false })
     .returns<ConnectionRow[]>();
 
@@ -97,30 +104,43 @@ export default async function RequestsPage() {
           </EmptyState>
         )}
         <div className="grid gap-3">
-          {requests?.map((req) => (
-            <Card key={req.id}>
-              <CardHeader>
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <CardTitle className="min-w-0 break-words text-base"><h2>
-                    {isMentor
-                      ? (req.mentee?.full_name ?? "Unknown")
-                      : `To: ${req.mentor?.full_name ?? "Unknown"}`}
-                  </h2></CardTitle>
-                  <Badge tone={req.status === "accepted" ? "success" : req.status === "pending" ? "warning" : "neutral"}>
-                    {STATUS_LABEL[req.status] ?? req.status}
-                  </Badge>
-                </div>
-                {req.message && (
-                  <CardDescription className="mt-3 whitespace-pre-wrap break-words">“{req.message}”</CardDescription>
+          {requests?.map((req) => {
+            const isIncoming = req.mentor_id === user.id;
+            const counterpartId = isIncoming ? req.mentee_id : req.mentor_id;
+            const counterpartName = isIncoming
+              ? (req.mentee?.full_name ?? "Unknown")
+              : (req.mentor?.full_name ?? "Unknown");
+            return (
+              <Card key={req.id}>
+                <CardHeader>
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <CardTitle className="min-w-0 break-words text-base"><h2>
+                      {isIncoming ? counterpartName : `To: ${counterpartName}`}
+                    </h2></CardTitle>
+                    <div className="flex items-center gap-1.5">
+                      <Badge tone={req.status === "accepted" ? "success" : req.status === "pending" ? "warning" : "neutral"}>
+                        {STATUS_LABEL[req.status] ?? req.status}
+                      </Badge>
+                      {counterpartId && counterpartId !== user.id && (
+                        <SafetyActionsMenu
+                          targetId={counterpartId}
+                          targetName={counterpartName}
+                        />
+                      )}
+                    </div>
+                  </div>
+                  {req.message && (
+                    <CardDescription className="mt-3 whitespace-pre-wrap break-words">“{req.message}”</CardDescription>
+                  )}
+                </CardHeader>
+                {req.status === "pending" && (
+                  <CardContent>
+                    <RequestActions requestId={req.id} isMentor={isIncoming} />
+                  </CardContent>
                 )}
-              </CardHeader>
-              {req.status === "pending" && (
-                <CardContent>
-                  <RequestActions requestId={req.id} isMentor={isMentor} />
-                </CardContent>
-              )}
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
         </div>
       </section>
 
@@ -136,18 +156,19 @@ export default async function RequestsPage() {
         )}
         <div className="grid gap-4">
           {connections?.map((c) => {
-            const partner = isMentor ? c.mentee : c.mentor;
-            const partnerId = isMentor ? c.mentee_id : c.mentor_id;
+            const isConnectionMentor = c.mentor_id === user.id;
+            const partner = isConnectionMentor ? c.mentee : c.mentor;
+            const partnerId = isConnectionMentor ? c.mentee_id : c.mentor_id;
             return (
               <ConnectionCard
                 key={c.id}
                 connectionId={c.id}
                 connectedSince={c.created_at}
-                isMentor={isMentor}
+                isMentor={isConnectionMentor}
                 partner={{
                   id: partnerId,
                   fullName: partner?.full_name ?? "Unavailable member",
-                  role: partner?.role ?? (isMentor ? "mentee" : "mentor"),
+                  role: partner?.role ?? (isConnectionMentor ? "mentee" : "mentor"),
                   headline: partner?.headline ?? "",
                   industry: partner?.industry ?? "",
                   available: Boolean(partner),
