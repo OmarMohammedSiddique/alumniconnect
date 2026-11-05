@@ -48,3 +48,6 @@ supabase/.temp/
 /ml/artifacts/
 __pycache__/
 *.py[cod]
+
+# ONNX Runtime's local device identifier for models loaded from memory.
+/:memory:.ses

@@ -11,6 +11,9 @@ let extractorPromise: Promise<FeatureExtractionPipeline> | null = null;
 function getExtractor() {
   extractorPromise ??= pipeline("feature-extraction", MODEL_ID, {
     dtype: "q8",
+  }).catch((error) => {
+    extractorPromise = null;
+    throw error;
   });
   return extractorPromise;
 }
