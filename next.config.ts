@@ -5,10 +5,10 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/api/match/compare": [
       "./ml/models/scratch-pilot-v1/encoder.onnx",
-      "./node_modules/onnxruntime-node/bin/**/*",
+      "./node_modules/onnxruntime-node/**/*",
     ],
     "/api/embed": [
-      "./node_modules/onnxruntime-node/bin/**/*",
+      "./node_modules/onnxruntime-node/**/*",
     ],
   },
   // OAuth codes must not appear in development request logs.
