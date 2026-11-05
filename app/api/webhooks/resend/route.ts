@@ -1,3 +1,5 @@
+import { createAdminClient } from "@/lib/supabase/admin";
+import { emailHash } from "@/lib/notification-email";
 import { NextResponse } from "next/server";
 import { verifyResendWebhook, handleResendWebhookEvent } from "@/lib/email-webhook";
 
@@ -27,6 +29,25 @@ export async function POST(request: Request) {
       { error: verification.reason },
       { status: verification.status }
     );
+  }
+
+  // Persist suppression before acknowledging, so retries and other instances
+  // retain it. Verified bounce/complaint events are monotonic and idempotent.
+  if (["email.bounced", "email.complained"].includes(verification.event.type)) {
+    const recipients = verification.event.data.to;
+    if (!Array.isArray(recipients) || !recipients.every(to => typeof to === "string")) {
+      return NextResponse.json({ error: "Invalid recipients" }, { status: 400 });
+    }
+    try {
+      const hashes = [...new Set(recipients.map(emailHash))];
+      if (hashes.length) {
+        const { error } = await createAdminClient().from("email_suppressions")
+          .upsert(hashes.map(email_hash => ({ email_hash })), { onConflict: "email_hash", ignoreDuplicates: true });
+        if (error) throw error;
+      }
+    } catch {
+      return NextResponse.json({ error: "Suppression persistence unavailable" }, { status: 503 });
+    }
   }
 
   const result = handleResendWebhookEvent(id!, verification.event);

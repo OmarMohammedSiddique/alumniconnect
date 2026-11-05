@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { dispatchNotificationEmails } from "@/lib/notification-dispatch";
 import { createClient } from "@/lib/supabase/server";
 import { updateMentorshipRequest, type RequestState } from "@/lib/mentorship-request";
 import { MAX_INTRODUCTION_LENGTH } from "@/lib/form-limits";
@@ -48,6 +49,7 @@ export async function createRequest(
     return { error: "We couldn't send this request right now. Please try again.", ok: false };
   }
 
+  dispatchNotificationEmails();
   revalidatePath("/requests");
   revalidatePath("/discover");
   return { error: null, ok: true };
@@ -81,6 +83,7 @@ export async function respondRequest(
   const decision = accept === "true" ? "accept" : accept === "false" ? "decline" : null;
   const result = await updateMentorshipRequest(createClient, id, decision);
   if (result.ok) {
+    dispatchNotificationEmails();
     revalidatePath("/requests");
     revalidatePath("/discover");
   }

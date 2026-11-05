@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { dispatchNotificationEmails } from "@/lib/notification-dispatch";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
@@ -132,6 +133,7 @@ export async function POST() {
       );
     }
 
+    dispatchNotificationEmails();
     return NextResponse.json({
       ok: true,
       dimensions: result.dimensions,

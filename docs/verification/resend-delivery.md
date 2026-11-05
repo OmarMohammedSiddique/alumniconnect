@@ -153,3 +153,38 @@ Inbound delivery feedback is received at `/api/webhooks/resend`.
   - Bounce and complaint suppression tracking.
 
 All **119 unit tests** pass locally via `npm test`. Linting (`npm run lint`) and TypeScript verification (`npm run typecheck`) pass with zero errors.
+
+## 10. Mentorship activity emails (#33, 5 November 2026)
+
+The notification migration adds a durable, address-free `email_outbox`. Database triggers enqueue only committed changes; existing requests are not backfilled. Request acceptance creates the connection and both notification events atomically. Failed transactions cannot leave notification events.
+
+| Event | Recipient | Trigger / deduplication | Category |
+| --- | --- | --- | --- |
+| New request | Mentor | Request insertion, once per request ID | Requests |
+| Successful connection | Both participants, separately | Pending → accepted, once per request ID and recipient | Connections |
+| Declined request | Mentee | Pending → declined, once per request ID | Requests |
+| Recommendations ready | Mentee | Changed persisted embedding with a visible, available, unblocked Mentor candidate; once per UTC day | Matches |
+
+Recommendations are suggestions, not accepted connections, endorsements or guaranteed relevance. These emails are triggered by a changed mentee embedding; the implementation does not run a periodic search for newly joined Mentors. Reminders and mentions are deferred; there is no scheduler for pending reminders or unsupported mention feature.
+
+### User controls and content
+
+`/profile/email-preferences` provides authenticated per-category opt-outs. Every template links there with “Manage email preferences or unsubscribe”; members uncheck categories and save. This intentionally requires sign-in, avoiding bearer unsubscribe tokens or unauthenticated preference changes. Optional activity defaults to enabled; Supabase account/security mail is independent. Read failures disable the settings form instead of overwriting preferences with defaults. There is no existing-user email backfill or bulk campaign.
+
+Templates contain generic event copy, HTTPS canonical application links (HTTP loopback permitted locally), and explicit text links. They omit names, profile details, introductions and private contact addresses. Links require normal authentication/RLS. Worker delivery rechecks visibility, blocking, request/connection state, category preferences, confirmed email, banned status and persistent suppression. Changes after a send starts cannot retract an email already accepted by Resend.
+
+### Delivery and recovery
+
+Successful request/response actions and embedding updates call Next.js `after` for prompt processing without delaying the core response. The queue survives crashes and email outages. Configure an external scheduler to POST `/api/notifications/process` every five minutes with `Authorization: Bearer <NOTIFICATION_WORKER_SECRET>`; the endpoint rejects missing/incorrect secrets. Scheduler setup is an operator/deployment step and has not been performed by this local implementation. Each run claims at most five rows with `FOR UPDATE SKIP LOCKED`, uses a five-minute lease and a four-second send timeout, and makes one provider attempt per claimed event. Retries back off exponentially, with at most five claims and a 20-hour lifetime. Expired/exhausted rows become `failed` for operator inspection. Do not reset terminal events or replay old events automatically.
+
+Resend receives stable `notification/<event UUID>` idempotency keys. The 20-hour lifetime stays within its documented 24-hour key retention, including crash recovery. A successful API result records `sent` (provider acceptance), **not observed inbox delivery**. A crash between provider acceptance and ledger persistence reuses the same key. Mock/suppressed sends are recorded as `skipped`, not as successful provider deliveries. Missing live credentials fail before claiming events, leaving the backlog intact. Outcomes record fixed error codes without provider error bodies or recipient addresses.
+
+Bounce/complaint webhooks persist normalized SHA-256 address hashes in `email_suppressions` before acknowledgement; failed persistence returns 503 so the provider can retry. Suppression is monotonic across retries, event ordering and application instances. Other webhook processing retains its existing in-memory event cache; this change does not add a durable delivered/opened/clicked event history.
+
+Vercel previews keep destination allowlists even when `NODE_ENV=production`. For local tests use explicit `EMAIL_DELIVERY_MODE=mock` or `suppress`; for controlled provider acceptance tests use explicit permitted recipients. Avoid mock/suppress processing of production events: it consumes them as skipped. The service-role client remains server-only; queue, eligibility RPCs and suppression hashes are inaccessible to ordinary members. Private trigger functions need definer privileges to write the otherwise inaccessible ledger; worker RPCs use invoker privileges and are service-role-only.
+
+### Deployment checklist and evidence boundaries
+
+Apply `20261105074456_mentorship_email_notifications.sql` through the separately authorized deployment workflow, configure the server-only Resend key, sender, canonical `SITE_URL`, webhook secret and random `NOTIFICATION_WORKER_SECRET`, deploy application code, then configure the authenticated scheduler. Coordinate the schema and app release; missing tables/RPCs leave notification processing unavailable until migration. Inspect the queue with trusted operator tooling and verify controlled request, acceptance, decline and match delivery, opt-outs, outage recovery and destination links before marking #33/#34 complete.
+
+Local verification: nine notification template/worker tests plus a rolled-back database suite exercise request transaction rollback, recipients, two-party acceptance, daily match cap, claim leases, opt-outs, cross-user settings denial, queue/RPC privileges, blocked users and hidden profiles. These tests do not send mail to real members or certify deployment/inbox delivery. The database suite is included in CI; a local pass does not mean CI has run.

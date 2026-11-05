@@ -85,7 +85,8 @@ export function isRecipientPermitted(
   const normalized = normalizeEmail(email);
   if (!normalized) return false;
 
-  const isProd = options.isProduction ?? (process.env.NODE_ENV === "production");
+  const isProd = options.isProduction ?? (process.env.NODE_ENV === "production" &&
+    (!process.env.VERCEL_ENV || process.env.VERCEL_ENV === "production"));
 
   // In production, all syntactically valid emails are permitted
   if (isProd) return true;
@@ -286,8 +287,6 @@ export async function sendApplicationEmail(
         signal: controller.signal,
       });
 
-      clearTimeout(timer);
-
       if (response.ok) {
         const data = (await response.json()) as { id?: string };
         return {
@@ -345,6 +344,8 @@ export async function sendApplicationEmail(
         code: "PROVIDER_ERROR",
         retryable: true,
       };
+    } finally {
+      clearTimeout(timer);
     }
   }
 

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { ProfileForm } from "./profile-form";
@@ -47,6 +48,7 @@ export default async function ProfilePage() {
       {details.role === "mentor" && (
         <AvailabilityCard acceptingRequests={accepting_requests ?? true} />
       )}
+      <p className="mt-8"><Link href="/profile/email-preferences" className="text-sm underline underline-offset-4">Manage email preferences or unsubscribe</Link></p>
       <PrivacySettingsCard
         memberVisible={member_visible ?? true}
         staffHidden={staff_hidden ?? false}
