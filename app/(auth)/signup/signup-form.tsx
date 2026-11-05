@@ -20,7 +20,7 @@ const ROLES = [
 ] as const;
 
 export function SignupForm() {
-  const [state, formAction, pending] = useActionState(signUp, initialState);
+  const [editingConfirmation, setEditingConfirmation] = useState(false);
   const [role, setRole] = useState<"mentee" | "mentor">("mentee");
   const [details, setDetails] = useState({ first_name: "", last_name: "", email: "" });
   const [password, setPassword] = useState("");
@@ -28,16 +28,23 @@ export function SignupForm() {
   const [clientError, setClientError] = useState<string | null>(null);
   const [confirmationTouched, setConfirmationTouched] = useState(false);
   const mismatch = confirmationTouched && password !== confirmation;
+  const [state, formAction, pending] = useActionState(async (previous: AuthState, data: FormData) => {
+    const result = await signUp(previous, data);
+    if (result.confirmationRequired) { setEditingConfirmation(false); setPassword(""); setConfirmation(""); }
+    return result;
+  }, initialState);
 
-  if (state.confirmationRequired) return (
+  if (state.confirmationRequired && !editingConfirmation) return (
     <Card className="mx-auto max-w-xl">
       <CardHeader>
         <CardTitle><h1 className="text-2xl font-semibold">Check your email</h1></CardTitle>
-        <CardDescription>Follow the confirmation link in your email, then sign in to continue.</CardDescription>
+        <CardDescription>{state.confirmationCodeEnabled ? "Enter the code from your registration email to continue." : "Follow the confirmation link in your email, then sign in to continue."}</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
         <p>If you selected a picture, choose it again after verifying your email and signing in.</p>
-        <Link href="/login?next=/profile/photo" className="inline-flex min-h-11 items-center font-medium text-primary underline">Continue to sign in</Link>
+        {state.confirmationEmail && <p className="break-words text-sm">Registration email: <strong>{state.confirmationEmail}</strong></p>}
+        {state.confirmationCodeEnabled ? <Link href="/verify-email" className="inline-flex min-h-11 items-center font-medium text-primary underline">Enter confirmation code</Link> : <Link href="/login?next=/profile/photo" className="inline-flex min-h-11 items-center font-medium text-primary underline">Continue to sign in</Link>}
+        <Button type="button" variant="outline" onClick={() => setEditingConfirmation(true)}>Correct registration details</Button>
       </CardContent>
     </Card>
   );
@@ -48,6 +55,7 @@ export function SignupForm() {
         <CardTitle><h1 className="text-2xl font-semibold tracking-tight">Create your account</h1></CardTitle>
         <CardDescription>Connect with Kenya Airways alumni and eligible participants. Registration does not verify employment or airline affiliation.</CardDescription>
       </CardHeader>
+      {state.confirmationRequired && editingConfirmation && <CardContent><Button type="button" variant="outline" onClick={() => setEditingConfirmation(false)}>Return to pending confirmation</Button></CardContent>}
       <form action={formAction} aria-busy={pending} onSubmit={(event) => {
         const error = getPasswordError(password, confirmation);
         if (error) {

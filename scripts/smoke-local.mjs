@@ -87,7 +87,7 @@ async function account(role, label) {
   const email = `smoke-${run}-${label}@example.test`;
   const password = `${randomUUID()}aA1!`;
   const result = await action(cookies, "signUp", "/signup", {
-    email, password, role, full_name: `smoke ${label.toLowerCase()}`,
+    email, password, confirm_password: password, role, first_name: "Smoke", last_name: label.toLowerCase(),
   }, { error: null });
   const data = expectOk(await sdk.auth.getUser(), "Local signup session missing");
   assert.ok(data.user?.id, "Signup must create a user");
@@ -138,7 +138,7 @@ try {
   pass("unsigned-in profile and API access is blocked");
 
   const invalidSignup = await action(new Map(), "signUp", "/signup", {
-    email: `smoke-${run}-invalid@example.test`, password: "too-short", full_name: "Smoke Invalid", role: "admin",
+    email: `smoke-${run}-invalid@example.test`, password: "too-short", confirm_password: "too-short", first_name: "Smoke", last_name: "Invalid", role: "admin",
   }, { error: null });
   assert.deepEqual(invalidSignup, { error: "Invalid role." });
   pass("signup server action rejects self-assigned staff roles before account creation");

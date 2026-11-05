@@ -22,7 +22,8 @@
     "smoke:local": "node --env-file=.env.local scripts/smoke-local.mjs",
     "auth:check": "node --env-file=.env.local scripts/check-google-auth.mjs",
     "test:registration": "node scripts/verify-registration.mjs",
-    "test:otp": "node --experimental-strip-types scripts/verify-email-otp.mjs"
+    "test:otp": "node --experimental-strip-types scripts/verify-email-otp.mjs",
+    "test:account-email": "node scripts/verify-account-email.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
