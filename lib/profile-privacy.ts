@@ -287,3 +287,47 @@ export async function executeUpdateVisibility(
       : "Your profile is now hidden from discovery and recommendations.",
   };
 }
+
+/**
+ * Updates the signed-in Mentor's availability for NEW mentorship requests.
+ * Existing pending requests and connections are unaffected. The
+ * protect_profile_availability trigger and the request INSERT policy remain
+ * the authority; this only validates input and reports the persisted value.
+ */
+export async function executeUpdateAvailability(
+  supabase: GenericClient,
+  acceptingRequests: unknown,
+): Promise<{ ok: boolean; message?: string; error?: string; acceptingRequests?: boolean }> {
+  if (typeof acceptingRequests !== "boolean") {
+    return { ok: false, error: "Invalid availability value." };
+  }
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { ok: false, error: "Not authenticated." };
+  }
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({ accepting_requests: acceptingRequests })
+    .eq("id", user.id)
+    .eq("role", "mentor")
+    .select("accepting_requests")
+    .maybeSingle();
+
+  if (error) {
+    return { ok: false, error: "Failed to update availability. Please try again." };
+  }
+  if (!data || data.accepting_requests !== acceptingRequests) {
+    return { ok: false, error: "Only Mentors can change availability." };
+  }
+
+  return {
+    ok: true,
+    acceptingRequests,
+    message: acceptingRequests
+      ? "You are now accepting new mentorship requests."
+      : "New mentorship requests are paused. Existing requests and connections are unchanged.",
+  };
+}

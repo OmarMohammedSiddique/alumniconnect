@@ -22,6 +22,7 @@ export interface Mentor {
   skills: string[];
   industry: string;
   graduation_year: number | null;
+  accepting_requests?: boolean;
   similarity?: number;
   shared_skills?: string[];
 }
@@ -48,6 +49,8 @@ export function MentorCard({
   );
 
   const isLongBio = (mentor.bio ?? "").length > 180;
+  // Availability is maintained by the Mentor and enforced again by RLS on insert.
+  const isAccepting = mentor.accepting_requests !== false;
 
   if (isBlocked) return null;
 
@@ -75,6 +78,9 @@ export function MentorCard({
             )}
             {requestStatus === "connected" && (
               <Badge tone="success">Connected</Badge>
+            )}
+            {!isAccepting && requestStatus !== "connected" && (
+              <Badge tone="neutral">Not accepting requests</Badge>
             )}
             <SafetyActionsMenu
               targetId={mentor.id}
@@ -168,6 +174,10 @@ export function MentorCard({
                 Track on requests page →
               </Link>
             </div>
+          ) : !isAccepting ? (
+            <p className="text-xs text-muted-foreground" role="status">
+              {mentor.full_name} is not accepting new mentorship requests right now. Check back later.
+            </p>
           ) : (
             <RequestButton
               mentorId={mentor.id}

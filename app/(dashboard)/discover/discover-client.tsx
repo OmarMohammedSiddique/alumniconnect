@@ -45,6 +45,7 @@ export function DiscoverClient({
   const [selectedIndustry, setSelectedIndustry] = useState<string>("all");
   const [selectedGraduationYear, setSelectedGraduationYear] = useState<string>("all");
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [onlyAccepting, setOnlyAccepting] = useState(false);
   const [semanticRetryTick, setSemanticRetryTick] = useState(0);
   const [searchError, setSearchError] = useState(false);
   const searchSeqRef = useRef(0);
@@ -124,18 +125,21 @@ export function DiscoverClient({
       graduationYear: selectedGraduationYear,
       skills: selectedSkills,
       matchMode: "any",
+      onlyAccepting,
     });
-  }, [mentors, selectedIndustry, selectedGraduationYear, selectedSkills]);
+  }, [mentors, selectedIndustry, selectedGraduationYear, selectedSkills, onlyAccepting]);
 
   const hasActiveFilters =
     selectedIndustry !== "all" ||
     selectedGraduationYear !== "all" ||
-    selectedSkills.length > 0;
+    selectedSkills.length > 0 ||
+    onlyAccepting;
 
   function resetFilters() {
     setSelectedIndustry("all");
     setSelectedGraduationYear("all");
     setSelectedSkills([]);
+    setOnlyAccepting(false);
   }
 
   function toggleSkillFilter(skill: string) {
@@ -275,6 +279,21 @@ export function DiscoverClient({
                   </select>
                 </div>
               )}
+
+              {/* Availability Toggle (#16) */}
+              <button
+                type="button"
+                onClick={() => setOnlyAccepting((prev) => !prev)}
+                aria-pressed={onlyAccepting}
+                className={`inline-flex h-8 items-center gap-1.5 rounded-md border px-2.5 text-xs transition-colors ${
+                  onlyAccepting
+                    ? "border-primary bg-primary text-primary-foreground font-medium"
+                    : "border-input bg-background text-muted-foreground hover:bg-surface"
+                }`}
+              >
+                Accepting new requests
+                {onlyAccepting && <span aria-hidden="true">✕</span>}
+              </button>
 
               {/* Active Filter Counter */}
               {hasActiveFilters && (

@@ -36,7 +36,11 @@ export async function createRequest(
       return { error: "You already have a pending request to this mentor.", ok: false };
     }
     if (error.code === "42501") {
-      return { error: "Only mentees can send mentorship requests.", ok: false };
+      return {
+        error:
+          "This request could not be sent. Only mentees can send requests, and the Mentor must be visible and accepting new requests.",
+        ok: false,
+      };
     }
     return { error: error.message, ok: false };
   }

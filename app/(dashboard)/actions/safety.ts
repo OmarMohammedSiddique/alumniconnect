@@ -7,6 +7,7 @@ import {
   executeUnblockMember,
   executeReportMember,
   executeUpdateVisibility,
+  executeUpdateAvailability,
   type SafetyActionResult,
 } from "@/lib/profile-privacy";
 
@@ -65,6 +66,18 @@ export async function updateProfileVisibilityAction(
 ): Promise<{ ok: boolean; message?: string; error?: string; staffHidden?: boolean }> {
   const supabase = await createClient();
   const result = await executeUpdateVisibility(supabase, memberVisible);
+  if (result.ok) {
+    revalidatePath("/profile");
+    revalidatePath("/discover");
+  }
+  return result;
+}
+
+export async function updateAvailabilityAction(
+  acceptingRequests: boolean,
+): Promise<{ ok: boolean; message?: string; error?: string; acceptingRequests?: boolean }> {
+  const supabase = await createClient();
+  const result = await executeUpdateAvailability(supabase, acceptingRequests);
   if (result.ok) {
     revalidatePath("/profile");
     revalidatePath("/discover");

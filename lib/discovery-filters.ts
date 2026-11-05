@@ -3,6 +3,7 @@ export interface DiscoveryFilterOptions {
   graduationYear?: string | number;
   skills?: string[];
   matchMode?: "any" | "all";
+  onlyAccepting?: boolean;
 }
 
 export interface FilterableMentor {
@@ -13,6 +14,7 @@ export interface FilterableMentor {
   industry?: string;
   skills?: string[];
   graduation_year?: number | null;
+  accepting_requests?: boolean;
   similarity?: number;
   shared_skills?: string[];
 }
@@ -82,12 +84,23 @@ export function filterMentors<T extends FilterableMentor>(
     .map((s) => s.trim().toLowerCase())
     .filter((s) => s.length > 0);
   const matchMode = filter.matchMode ?? "any";
+  const onlyAccepting = Boolean(filter.onlyAccepting);
 
-  if ((!selectedIndustry || selectedIndustry === "all") && selectedYear === null && selectedSkills.length === 0) {
+  if (
+    (!selectedIndustry || selectedIndustry === "all") &&
+    selectedYear === null &&
+    selectedSkills.length === 0 &&
+    !onlyAccepting
+  ) {
     return mentors;
   }
 
   return mentors.filter((mentor) => {
+    // 0. Availability filter (#16)
+    if (onlyAccepting && mentor.accepting_requests === false) {
+      return false;
+    }
+
     // 1. Industry filter
     if (selectedIndustry && selectedIndustry !== "all") {
       const mentorIndustry = (mentor.industry ?? "").trim().toLowerCase();
