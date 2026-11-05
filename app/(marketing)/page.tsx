@@ -3,6 +3,7 @@ import Image from "next/image";
 import communityPhoto from "@/public/images/community-collaboration.webp";
 import { Brand, PrototypeNotice } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { CookieSettingsTrigger } from "@/components/cookie-settings-trigger";
 import {
   ArrowDown,
   ArrowRight,
@@ -93,6 +94,9 @@ export default function LandingPage() {
           <Link href="/" aria-label="AlumniKonneQt home"><Brand className={styles.brand} imageClassName="h-10" /></Link>
           <p>A Strathmore University academic prototype.</p>
           <nav aria-label="Footer navigation" className="flex flex-wrap items-center gap-5">
+            <Link href="/about-developer">About Developer</Link>
+            <Link href="/privacy">Privacy Policy</Link>
+            <CookieSettingsTrigger />
             <a href="#how-it-works">How it works</a>
             <Link href="/login">Sign in</Link>
             <a href="#main">Back to top ↑</a>

@@ -236,3 +236,16 @@
 @media (max-width: 767px) {
   #workspace { scroll-margin-top: var(--navigation-clearance); }
 }
+
+/* Modern Web Guidance: Native dialog scroll containment and backdrop */
+dialog:modal {
+  overscroll-behavior: contain;
+}
+
+dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+

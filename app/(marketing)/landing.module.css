@@ -144,7 +144,7 @@
 .utilityChoice span > span { font-size: 12px; line-height: 1.6; color: var(--muted); }
 @media (max-width: 1050px) and (min-width: 761px) { .utilityPanel { grid-template-columns: 1fr 1fr; } .utilityIntro { grid-column: 1 / -1; border-bottom: 1px solid var(--line); } .utilityIntro h2 { max-width: none; } .utilityChoice:nth-child(2) { border-left: 0; } }
 .independence { max-width: none; padding-bottom: 28px; font-size: 12px; line-height: 1.7; }
-.navLinks a, .signIn, .textLink, .communityLink, .footer nav a { min-height: var(--control-height); display: inline-flex; align-items: center; }
+.navLinks a, .signIn, .textLink, .communityLink, .footer nav a, .footer nav button { min-height: var(--control-height); display: inline-flex; align-items: center; }
 @media (max-width: 760px) { .utilityPanel { grid-template-columns: 1fr; margin-bottom: 36px; } .utilityIntro, .utilityChoice { padding: 24px; } .utilityIntro h2 { max-width: none; } .utilityChoice { border-left: 0; border-top: 1px solid var(--line); } }
 
 .community a:focus-visible { outline-color: var(--inverse-accent); }
