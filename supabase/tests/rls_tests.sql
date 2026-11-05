@@ -616,6 +616,81 @@ do $$ begin
   end if;
 end $$;
 
+-- ---------------------------------------------------------------------------
+-- TEST 19: Mentor availability (#16). Mentor 3 (Nina) is visible again.
+update public.profiles set is_visible = true, member_visible = true, staff_hidden = false,
+  skills = '{Nina,Python}'
+where id = '00000000-0000-0000-0000-000000000003';
+
+-- Only the mentor may change their availability; moderators and other members may not.
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000004');
+do $$ begin
+  begin
+    update public.profiles set accepting_requests = false
+      where id = '00000000-0000-0000-0000-000000000003';
+    raise exception 'FAIL 19: moderator changed mentor availability';
+  exception when others then
+    if sqlerrm like 'FAIL%' then raise; end if;
+  end;
+end $$;
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000003');
+update public.profiles set accepting_requests = false where id = auth.uid();
+select pg_temp.reset_role();
+do $$ begin
+  if (select accepting_requests from public.profiles
+      where id = '00000000-0000-0000-0000-000000000003') is not false then
+    raise exception 'FAIL 19: mentor could not pause availability';
+  end if;
+end $$;
+
+-- Unavailable mentors stay discoverable, report availability, and reject new requests.
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000006');
+do $$ begin
+  if (select accepting_requests from public.search_mentors('Nina', 10)
+      where id = '00000000-0000-0000-0000-000000000003') is not false then
+    raise exception 'FAIL 19: search_mentors did not report the mentor as unavailable';
+  end if;
+  if (select accepting_requests from public.match_mentors(
+        (select array_agg(case when i = 2 then 1.0 else 0.0 end)::extensions.vector(384)
+         from generate_series(1, 384) i), 10)
+      where id = '00000000-0000-0000-0000-000000000003') is not false then
+    raise exception 'FAIL 19: match_mentors did not report the mentor as unavailable';
+  end if;
+  begin
+    insert into public.mentorship_requests (mentee_id, mentor_id, message)
+    values (auth.uid(), '00000000-0000-0000-0000-000000000003', 'should be rejected');
+    raise exception 'FAIL 19: request created to an unavailable mentor';
+  exception when others then
+    if sqlerrm like 'FAIL%' then raise; end if;
+  end;
+end $$;
+
+-- Re-opening availability allows requests again.
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000003');
+update public.profiles set accepting_requests = true where id = auth.uid();
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000006');
+insert into public.mentorship_requests (mentee_id, mentor_id, message)
+values (auth.uid(), '00000000-0000-0000-0000-000000000003', 'now accepted');
+select pg_temp.reset_role();
+
+-- ---------------------------------------------------------------------------
+-- TEST 20: Hidden mentors are excluded by both discovery RPCs in the database (#16).
+update public.profiles set is_visible = false where id = '00000000-0000-0000-0000-000000000003';
+select pg_temp.impersonate('00000000-0000-0000-0000-000000000006');
+do $$ begin
+  if exists (select 1 from public.search_mentors('Nina', 10)
+             where id = '00000000-0000-0000-0000-000000000003') then
+    raise exception 'FAIL 20: hidden mentor returned by search_mentors';
+  end if;
+  if exists (select 1 from public.match_mentors(
+        (select array_agg(case when i = 2 then 1.0 else 0.0 end)::extensions.vector(384)
+         from generate_series(1, 384) i), 10)
+      where id = '00000000-0000-0000-0000-000000000003') then
+    raise exception 'FAIL 20: hidden mentor returned by match_mentors';
+  end if;
+end $$;
+select pg_temp.reset_role();
+
 select 'ALL RLS TESTS PASSED' as result;
 
 rollback;

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ProfileForm } from "./profile-form";
 import { PrivacySettingsCard, type BlockedMember } from "./privacy-settings-card";
+import { AvailabilityCard } from "./availability-card";
 import { PageHeading } from "@/components/ui/page-heading";
 
 export const metadata = { title: "Profile - AlumniKonneQt" };
@@ -16,7 +17,7 @@ export default async function ProfilePage() {
   const { data: profile } = await supabase
     .from("profiles")
     .select(
-      "full_name, headline, bio, skills, industry, graduation_year, role, embedding, member_visible, staff_hidden, is_visible"
+      "full_name, headline, bio, skills, industry, graduation_year, role, embedding, member_visible, staff_hidden, is_visible, accepting_requests"
     )
     .eq("id", user.id)
     .single();
@@ -32,6 +33,7 @@ export default async function ProfilePage() {
     member_visible,
     staff_hidden,
     is_visible,
+    accepting_requests,
     ...details
   } = profile;
 
@@ -45,6 +47,9 @@ export default async function ProfilePage() {
         profile={details}
         hasMatchProfile={Boolean(embedding)}
       />
+      {details.role === "mentor" && (
+        <AvailabilityCard acceptingRequests={accepting_requests ?? true} />
+      )}
       <PrivacySettingsCard
         memberVisible={member_visible ?? true}
         staffHidden={staff_hidden ?? false}
