@@ -105,7 +105,7 @@ export default function AboutDeveloperPage() {
               <p>
                 AlumniKonneQt was inspired by the professional community of Kenya Airways alumni. Navigating career transitions,
                 seeking senior mentorship, or sharing industry guidance often relies on disjointed channels or ad-hoc networking.
-                I wanted to design an intelligent, purpose-built platform that bridges that gap—connecting mentees with mentors
+                I wanted to design an intelligent, purpose-built platform that bridges that gap by connecting mentees with mentors
                 through semantic similarity, shared backgrounds, and genuine common ground.
               </p>
               <p>
