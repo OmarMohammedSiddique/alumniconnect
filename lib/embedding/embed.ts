@@ -1,5 +1,7 @@
 import "server-only";
 import { pipeline, type FeatureExtractionPipeline } from "@huggingface/transformers";
+import { tmpdir } from "node:os";
+import path from "node:path";
 
 export const EMBEDDING_DIMENSIONS = 384;
 export const MODEL_ID = "Xenova/all-MiniLM-L6-v2";
@@ -11,7 +13,14 @@ let extractorPromise: Promise<FeatureExtractionPipeline> | null = null;
 function getExtractor() {
   extractorPromise ??= pipeline("feature-extraction", MODEL_ID, {
     dtype: "q8",
+    // Vercel's deployed node_modules is read-only. Cache downloaded model files
+    // in the writable temporary directory; local development keeps its cache.
+    ...(process.env.VERCEL ? { cache_dir: path.join(tmpdir(), "alumnikonneqt-transformers") } : {}),
   }).catch((error) => {
+    console.error("Embedding model load failed", {
+      name: error instanceof Error ? error.name : "UnknownError",
+      ...(typeof error?.code === "string" ? { code: error.code } : {}),
+    });
     extractorPromise = null;
     throw error;
   });

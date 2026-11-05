@@ -103,6 +103,7 @@ export async function POST() {
         .maybeSingle();
 
       if (updateError) {
+        console.error("Profile embedding persistence failed", { code: updateError.code });
         throw new Error("Could not persist match profile embedding.");
       }
 
