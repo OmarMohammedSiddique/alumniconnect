@@ -113,6 +113,7 @@ export function renderEmailLayout({
   title,
   preheader,
   bodyHtml,
+  bodyText,
   actionText,
   actionUrl,
   footerText = "You are receiving this message regarding your AlumniKonneQt account activity.",
@@ -120,6 +121,7 @@ export function renderEmailLayout({
   title: string;
   preheader?: string;
   bodyHtml: string;
+  bodyText?: string;
   actionText?: string;
   actionUrl?: string;
   footerText?: string;
@@ -181,9 +183,8 @@ export function renderEmailLayout({
   // Generate plain text equivalent
   let text = `${title}\n\n`;
   if (preheader) text += `${preheader}\n\n`;
-  // Strip tags for basic text
-  const strippedBody = bodyHtml.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
-  text += `${strippedBody}\n\n`;
+  // Plain text is supplied explicitly; HTML stripping is not sanitization.
+  text += `${bodyText ?? "Sign in to view your account activity."}\n\n`;
   if (actionText && actionUrl) text += `${actionText}: ${actionUrl}\n\n`;
   text += `---\n${footerText}\n`;
 

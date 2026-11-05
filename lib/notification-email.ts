@@ -37,6 +37,7 @@ export function buildNotificationEmail(event: EmailEvent, to: string, siteOrigin
   const settings = `${origin}/profile/email-preferences`;
   const rendered = renderEmailLayout({
     title,
+    bodyText: body,
     bodyHtml: `<p>${escapeHtml(body)}</p><p><a href="${escapeHtml(settings)}">Manage email preferences or unsubscribe</a></p>`,
     actionText,
     actionUrl: `${origin}${path}`,
