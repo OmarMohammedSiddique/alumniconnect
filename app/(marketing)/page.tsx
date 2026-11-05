@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import communityPhoto from "@/public/images/community-collaboration.webp";
 import { Brand, PrototypeNotice } from "@/components/brand";
+import { ThemeToggle } from "@/components/theme-toggle";
 import {
   ArrowDown,
   ArrowRight,
@@ -45,7 +46,10 @@ export default function LandingPage() {
           <nav className={styles.navLinks} aria-label="Main navigation">
             <a href="#how-it-works">How it works</a><a href="#community">For our community</a><a href="#questions">FAQs</a>
           </nav>
-          <div className={styles.navActions}><Link href="/login" className={styles.signIn}>Sign in</Link><Link href="/signup" className={styles.smallButton}>Join the network <ArrowRight size={16} aria-hidden="true" /></Link></div>
+          <div className={styles.navActions}>
+            <Link href="/login" className={styles.signIn}>Sign in</Link>
+            <Link href="/signup" className={styles.smallButton}>Join the network <ArrowRight size={16} aria-hidden="true" /></Link>
+          </div>
         </div>
       </header>
       <main id="main">
@@ -84,7 +88,19 @@ export default function LandingPage() {
         <section id="questions" className={`${styles.container} ${styles.faqSection}`} aria-labelledby="faq-heading"><div><h2 id="faq-heading">A few things<br />you might be wondering.</h2><p>A little clarity before your first connection.</p></div><div className={styles.faqs}>{FAQS.map(faq => <details key={faq.question}><summary>{faq.question}<span aria-hidden="true">+</span></summary><p>{faq.answer}</p></details>)}</div></section>
         <section className={`${styles.container} ${styles.finalCta}`} aria-labelledby="join-heading"><div><Link href="/" aria-label="AlumniKonneQt home" className="mb-3 inline-flex"><Brand tone="red" imageClassName="h-9" /></Link><h2 id="join-heading">A conversation can<br />change what comes next.</h2><p>Make your next connection with AlumniKonneQt.</p></div><Link href="/signup" className={styles.primaryButton}>Join the network <ArrowRight size={19} aria-hidden="true" /></Link></section>
       </main>
-      <footer className={styles.footer}><div className={styles.container}><Link href="/" aria-label="AlumniKonneQt home"><Brand className={styles.brand} imageClassName="h-10" /></Link><p>A Strathmore University academic prototype.</p><nav aria-label="Footer navigation"><a href="#how-it-works">How it works</a><Link href="/login">Sign in</Link><a href="#main">Back to top ↑</a></nav></div><PrototypeNotice className={`${styles.container} ${styles.independence}`} /></footer>
+      <footer className={styles.footer}>
+        <div className={styles.container}>
+          <Link href="/" aria-label="AlumniKonneQt home"><Brand className={styles.brand} imageClassName="h-10" /></Link>
+          <p>A Strathmore University academic prototype.</p>
+          <nav aria-label="Footer navigation" className="flex flex-wrap items-center gap-5">
+            <a href="#how-it-works">How it works</a>
+            <Link href="/login">Sign in</Link>
+            <a href="#main">Back to top ↑</a>
+            <ThemeToggle variant="compact" menuPlacement="top" />
+          </nav>
+        </div>
+        <PrototypeNotice className={`${styles.container} ${styles.independence}`} />
+      </footer>
     </div>
   );
 }

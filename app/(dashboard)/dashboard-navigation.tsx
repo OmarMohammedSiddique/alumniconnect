@@ -8,6 +8,7 @@ import { signOut } from "@/app/(auth)/actions";
 import { clearAllProfileDrafts } from "@/lib/profile-draft";
 import { Button } from "@/components/ui/button";
 import { Brand, PrototypeNotice } from "@/components/brand";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const NAV = [
   { href: "/discover", label: "Discover Mentors", icon: Compass },
@@ -56,6 +57,9 @@ export function DashboardNavigation({ name, role }: { name: string; role: string
       </form>
       <Link href="/" onClick={closeMenu} className="flex min-h-11 items-center gap-3 rounded-md px-3 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"><House className="size-4" aria-hidden="true" />Public homepage</Link>
       <PrototypeNotice className="px-3" />
+      <div className="border-t pt-3 mt-1 px-3">
+        <ThemeToggle variant="segmented" showLabel />
+      </div>
     </div>
   );
 
