@@ -37,6 +37,7 @@ import {
 
 interface ProfileFormProps {
   userId?: string;
+  userEmail?: string;
   hasMatchProfile: boolean;
   profile: {
     role: string;
@@ -60,7 +61,12 @@ const PROFILE_FIELDS = [
   { name: "graduation_year", label: "Graduation year" },
 ] as const;
 
-export function ProfileForm({ userId, profile, hasMatchProfile }: ProfileFormProps) {
+export function ProfileForm({
+  userId,
+  userEmail,
+  profile,
+  hasMatchProfile,
+}: ProfileFormProps) {
   const isMentor = profile.role === "mentor";
   const showSetup = !hasMatchProfile && (isMentor || profile.role === "mentee");
   const [draft, setDraft] = useState({
@@ -309,6 +315,25 @@ export function ProfileForm({ userId, profile, hasMatchProfile }: ProfileFormPro
               maxLength={MAX_FULL_NAME_LENGTH}
               required
             />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              value={userEmail ?? ""}
+              readOnly
+              autoComplete="email"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              aria-describedby="email-help"
+              className="cursor-default bg-muted/50 text-muted-foreground"
+            />
+            <p id="email-help" className="text-xs text-muted-foreground">
+              Your registered account email address. Kept private from other members.
+            </p>
           </div>
           <div className="grid gap-2">
             <Label htmlFor="headline">Headline</Label>

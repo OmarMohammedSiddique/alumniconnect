@@ -42,13 +42,23 @@ export default async function ProfilePage() {
       </PageHeading>
       <ProfileForm
         userId={user.id}
+        userEmail={user.email}
         profile={details}
         hasMatchProfile={Boolean(embedding)}
       />
       {details.role === "mentor" && (
         <AvailabilityCard acceptingRequests={accepting_requests ?? true} />
       )}
-      <p className="mt-8"><Link href="/profile/email-preferences" className="text-sm underline underline-offset-4">Manage email preferences or unsubscribe</Link></p>
+      <div className="mt-8 flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground">
+        {user.email && (
+          <p>
+            Account email: <span className="font-medium text-foreground">{user.email}</span>
+          </p>
+        )}
+        <Link href="/profile/email-preferences" className="underline underline-offset-4">
+          Manage email preferences or unsubscribe
+        </Link>
+      </div>
       <PrivacySettingsCard
         memberVisible={member_visible ?? true}
         staffHidden={staff_hidden ?? false}
