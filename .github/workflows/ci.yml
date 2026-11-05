@@ -111,13 +111,13 @@ jobs:
       - name: Audit and preparation tests
         run: python -B -m unittest discover -s ml -p 'test_*.py' -v
 
-      # Training/metric tests need the pinned CPU build of PyTorch, NumPy and scikit-learn.
-      - name: Install pinned training dependencies
+      # Use the export requirements too so ONNX security updates are exercised.
+      - name: Install pinned training and export dependencies
         run: >-
           python -m pip install --no-cache-dir
           --index-url https://download.pytorch.org/whl/cpu
           --extra-index-url https://pypi.org/simple
-          torch==2.15.0 numpy==2.5.4 scikit-learn==1.9.1
+          -r ml/requirements-export.txt
 
-      - name: Training and metric tests
+      - name: Training, metric and export tests
         run: python -B -m unittest discover -s ml/training_tests -p 'test_*.py' -v

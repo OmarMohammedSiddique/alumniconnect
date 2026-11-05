@@ -1,6 +1,6 @@
 """Export the selected engineering checkpoint, never load data or retrain it.
 
-Run with the pilot requirements plus onnx==1.20.1. The public export contains
+Install requirements-export.txt before running. The public export contains
 weights, vocabulary, Unicode casefold rules and invented parity inputs only.
 """
 import argparse
