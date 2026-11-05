@@ -25,6 +25,10 @@ Use Gitmoji-prefixed commit messages, for example `✨ feat: ...`,
 - Preserve user-owned and unrelated working-tree changes.
 - Do not push unless the current prompt explicitly authorizes pushing.
 
+## Typography and punctuation
+
+Never use em-dashes (—) or double hyphens (--) in prose, UI copy, documentation, commit messages, PR titles, PR descriptions, or issue comments. Use colons, parentheses, commas, or standard sentence structures instead. Preserve required language syntax tokens such as CSS custom properties (--variable), command-line flags (--flag), package script arguments, and SQL comments.
+
 ## GitHub issue checklist and progress updates
 
 Use GitHub Issues in `OmarMohammedSiddique/alumniconnect` as the shared project

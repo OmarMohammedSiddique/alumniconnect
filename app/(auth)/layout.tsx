@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Brand, PrototypeNotice } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { CookieSettingsTrigger } from "@/components/cookie-settings-trigger";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -16,10 +17,21 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           </Link>
         </header>
         {children}
-        <div className="mt-4 flex flex-col items-center justify-center gap-2">
-          <ThemeToggle variant="compact" menuPlacement="top" />
-          <PrototypeNotice className="text-center" />
-        </div>
+        <footer className="mt-6 flex flex-col items-center justify-center gap-3 text-xs text-muted-foreground">
+          <nav aria-label="Auth page footer navigation" className="flex flex-wrap items-center justify-center gap-4">
+            <Link href="/about-developer" className="underline-offset-4 hover:underline">
+              About Developer
+            </Link>
+            <Link href="/privacy" className="underline-offset-4 hover:underline">
+              Privacy Policy
+            </Link>
+            <CookieSettingsTrigger className="underline-offset-4 hover:underline" />
+          </nav>
+          <div className="flex flex-col items-center justify-center gap-2">
+            <ThemeToggle variant="compact" menuPlacement="top" />
+            <PrototypeNotice className="text-center" />
+          </div>
+        </footer>
       </main>
     </div>
   );

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { Analytics } from "@vercel/analytics/next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { CookieBanner } from "@/components/cookie-banner";
+import { AnalyticsWrapper } from "@/components/analytics-wrapper";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -56,7 +57,8 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning className="min-h-full flex flex-col">
         {children}
-        <Analytics />
+        <CookieBanner />
+        <AnalyticsWrapper />
       </body>
     </html>
   );
