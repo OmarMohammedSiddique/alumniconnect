@@ -28,3 +28,27 @@ export function hasPhotoSignature(bytes: Uint8Array, type: string): boolean {
   if (type === "image/webp") return String.fromCharCode(...bytes.slice(0, 4)) === "RIFF" && String.fromCharCode(...bytes.slice(8, 12)) === "WEBP";
   return false;
 }
+
+export function getAllowedPhotoMimeType(type: string): (typeof PHOTO_TYPES)[number] | null {
+  return PHOTO_TYPES.find((allowed) => allowed === type) ?? null;
+}
+
+const SAFE_BLOB_URL_CHARS =
+  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/-._[]";
+
+export function toSafeBlobUrl(rawUrl: string): string {
+  try {
+    const parsed = new URL(rawUrl);
+    if (parsed.protocol !== "blob:") return "";
+    const href = parsed.href;
+    let sanitized = "";
+    for (let i = 0; i < href.length; i++) {
+      const idx = SAFE_BLOB_URL_CHARS.indexOf(href[i]);
+      if (idx === -1) return "";
+      sanitized += SAFE_BLOB_URL_CHARS[idx];
+    }
+    return sanitized;
+  } catch {
+    return "";
+  }
+}
