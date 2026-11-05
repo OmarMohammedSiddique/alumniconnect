@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useId, useState } from "react";
 import { createRequest, type RequestState } from "../requests/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,8 @@ export function RequestButton({
   mentorId: string;
   onRequestSent?: () => void;
 }) {
+  // The same mentor may appear in both model lists; each form needs unique IDs.
+  const messageId = useId();
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [state, formAction, pending] = useActionState(
@@ -48,18 +50,18 @@ export function RequestButton({
   return (
     <form action={formAction} aria-busy={pending} className="grid w-full gap-3">
       <input type="hidden" name="mentor_id" value={mentorId} />
-      <Label htmlFor={`message-${mentorId}`}>Introduction <span className="font-normal text-muted-foreground">(optional)</span></Label>
+      <Label htmlFor={messageId}>Introduction <span className="font-normal text-muted-foreground">(optional)</span></Label>
       <Input
-        id={`message-${mentorId}`}
+        id={messageId}
         name="message"
         maxLength={MAX_INTRODUCTION_LENGTH}
         value={message}
         onChange={(event) => setMessage(event.target.value)}
-        aria-describedby={`message-${mentorId}-help message-${mentorId}-count`}
+        aria-describedby={`${messageId}-help ${messageId}-count`}
         placeholder="Add a short note (optional)"
         autoFocus
       />
-      <FieldGuidance id={`message-${mentorId}`} label="Introduction" value={message} maxLength={MAX_INTRODUCTION_LENGTH}>
+      <FieldGuidance id={messageId} label="Introduction" value={message} maxLength={MAX_INTRODUCTION_LENGTH}>
         Mention your goal and why you would value guidance from this Mentor. You can also send without a note.
       </FieldGuidance>
       <div className="flex gap-2">

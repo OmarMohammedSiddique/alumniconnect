@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { MentorCard, type Mentor } from "./mentor-card";
+import { ModelComparison } from "./model-comparison";
 import { StaggerReveal } from "@/components/animations/stagger-reveal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +19,7 @@ import {
   type MentorRequestState,
 } from "@/lib/discovery-filters";
 
-type Mode = "semantic" | "keyword";
+type Mode = "semantic" | "keyword" | "compare";
 
 export function DiscoverClient({
   canRequest,
@@ -29,7 +30,7 @@ export function DiscoverClient({
   isMentor: boolean;
   initialRequestMap?: Record<string, MentorRequestState>;
 }) {
-  const [mode, setMode] = useState<Mode>("semantic");
+  const [mode, setMode] = useState<Mode>("compare");
   const [query, setQuery] = useState("");
   const [mentors, setMentors] = useState<Mentor[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -175,49 +176,70 @@ export function DiscoverClient({
     }));
   }
 
+  const modeSelector = (
+    <div
+      role="group"
+      aria-label="Mentor discovery mode"
+      className="flex w-fit max-w-full flex-wrap gap-1 rounded-lg border bg-surface p-1"
+    >
+      <Button type="button" size="sm" aria-pressed={mode === "compare"}
+        variant={mode === "compare" ? "default" : "ghost"}
+        onClick={() => {
+          searchSeqRef.current++;
+          setMode("compare");
+        }}>
+        Compare models
+      </Button>
+      <Button
+        type="button"
+        size="sm"
+        aria-pressed={mode === "semantic"}
+        variant={mode === "semantic" ? "default" : "ghost"}
+        onClick={() => {
+          if (mode === "semantic") return;
+          searchSeqRef.current++;
+          setLoading(true);
+          setSearchError(false);
+          setNotice(null);
+          setNeedsProfile(false);
+          setMode("semantic");
+        }}
+      >
+        Recommended
+      </Button>
+      <Button
+        type="button"
+        size="sm"
+        aria-pressed={mode === "keyword"}
+        variant={mode === "keyword" ? "default" : "ghost"}
+        onClick={() => {
+          searchSeqRef.current++;
+          setLoading(false);
+          setSearchError(false);
+          setNeedsProfile(false);
+          setMode("keyword");
+          setMentors([]);
+          setNotice("Search mentors by name, skill, or field.");
+        }}
+      >
+        Keyword search
+      </Button>
+
+    </div>
+  );
+
+  if (mode === "compare") return (
+    <div className="grid gap-6">
+      {modeSelector}
+      <ModelComparison canRequest={canRequest} requestMap={requestMap}
+        onRequestSent={handleRequestSent} onBlocked={handleMentorBlocked} />
+    </div>
+  );
+
   return (
     <div className="grid gap-6" aria-busy={loading}>
       <div className="grid gap-5 rounded-lg border bg-card p-4 sm:p-5">
-        <div
-          role="group"
-          aria-label="Mentor discovery mode"
-          className="flex w-fit max-w-full flex-wrap gap-1 rounded-lg border bg-surface p-1"
-        >
-          <Button
-            type="button"
-            size="sm"
-            aria-pressed={mode === "semantic"}
-            variant={mode === "semantic" ? "default" : "ghost"}
-            onClick={() => {
-              if (mode === "semantic") return;
-              searchSeqRef.current++;
-              setLoading(true);
-              setSearchError(false);
-              setNotice(null);
-              setNeedsProfile(false);
-              setMode("semantic");
-            }}
-          >
-            Recommended
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            aria-pressed={mode === "keyword"}
-            variant={mode === "keyword" ? "default" : "ghost"}
-            onClick={() => {
-              searchSeqRef.current++;
-              setLoading(false);
-              setSearchError(false);
-              setNeedsProfile(false);
-              setMode("keyword");
-              setMentors([]);
-              setNotice("Search mentors by name, skill, or field.");
-            }}
-          >
-            Keyword search
-          </Button>
-        </div>
+        {modeSelector}
 
         {mode === "keyword" && (
           <form onSubmit={runKeywordSearch} role="search" className="grid gap-2">
