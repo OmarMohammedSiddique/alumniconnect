@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { fetchAuthWithDeadline } from "@/lib/supabase/auth-fetch";
 import { getSafeSignInRedirect } from "@/lib/auth-redirect";
 import { normalizeOtpEmail, OTP_COOKIE, OTP_FLOW_SECONDS, OTP_REQUEST_MESSAGE, otpRetrySeconds, readOtpChallenge, requestEmailOtp, verifyEmailOtp, type OtpState } from "@/lib/email-otp";
 
@@ -21,7 +22,7 @@ export async function emailOtpAction(_previous: OtpState, form: FormData): Promi
     if (!challenge || form.get("email") !== challenge.email || String(form.get("requestedAt")) !== String(challenge.requestedAt)) {
       return fail("This sign-in request changed or expired. Request a new code or refresh this page.");
     }
-    const supabase = await createClient();
+    const supabase = await createClient(fetchAuthWithDeadline);
     const error = await verifyEmailOtp(supabase.auth, challenge.email, String(form.get("token") ?? "").trim());
     if (error) return fail(error);
     jar.set(OTP_COOKIE, "", { path: "/login/code", maxAge: 0 });
@@ -35,7 +36,7 @@ export async function emailOtpAction(_previous: OtpState, form: FormData): Promi
   if (otpRetrySeconds(challenge) > 0) return fail("Wait one minute between code requests, including when changing email.");
   const next = getSafeSignInRedirect(intent === "resend" ? challenge!.next : String(form.get("next") ?? ""));
   const fresh = { email, next, requestedAt: Date.now() };
-  const supabase = await createClient();
+  const supabase = await createClient(fetchAuthWithDeadline);
   await requestEmailOtp(supabase.auth, email);
   jar.set(OTP_COOKIE, JSON.stringify(fresh), {
     httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/login/code", maxAge: OTP_FLOW_SECONDS,
