@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { RequestActions } from "./request-actions";
 import { ConnectionCard } from "./connection-card";
 import Link from "next/link";
@@ -53,43 +53,41 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 export default async function RequestsPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getAuthenticatedUser();
   if (!user) redirect("/login");
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-  const isMentor = profile?.role === "mentor";
 
   // Explicitly scope to rows the signed-in user participates in (staff RLS
   // permits reading all platform rows for moderation, which must not leak into
   // personal request/connection views).
-  const { data: requests } = await supabase
-    .from("mentorship_requests")
-    .select(
-      `id, mentee_id, mentor_id, status, message, created_at,
-       mentee:profiles!mentorship_requests_mentee_id_fkey(full_name),
-       mentor:profiles!mentorship_requests_mentor_id_fkey(full_name)`,
-    )
-    .or(`mentee_id.eq.${user.id},mentor_id.eq.${user.id}`)
-    .order("created_at", { ascending: false })
-    .returns<RequestRow[]>();
-
-  const { data: connections } = await supabase
-    .from("connections")
-    .select(
-      `id, created_at, mentee_id, mentor_id,
-       mentee:profiles!connections_mentee_id_fkey(full_name, role, headline, industry),
-       mentor:profiles!connections_mentor_id_fkey(full_name, role, headline, industry)`,
-    )
-    .or(`mentee_id.eq.${user.id},mentor_id.eq.${user.id}`)
-    .order("created_at", { ascending: false })
-    .returns<ConnectionRow[]>();
+  const [{ data: profile }, { data: requests }, { data: connections }] =
+    await Promise.all([
+      supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single(),
+      supabase
+        .from("mentorship_requests")
+        .select(
+          `id, mentee_id, mentor_id, status, message, created_at,
+           mentee:profiles!mentorship_requests_mentee_id_fkey(full_name),
+           mentor:profiles!mentorship_requests_mentor_id_fkey(full_name)`,
+        )
+        .or(`mentee_id.eq.${user.id},mentor_id.eq.${user.id}`)
+        .order("created_at", { ascending: false })
+        .returns<RequestRow[]>(),
+      supabase
+        .from("connections")
+        .select(
+          `id, created_at, mentee_id, mentor_id,
+           mentee:profiles!connections_mentee_id_fkey(full_name, role, headline, industry),
+           mentor:profiles!connections_mentor_id_fkey(full_name, role, headline, industry)`,
+        )
+        .or(`mentee_id.eq.${user.id},mentor_id.eq.${user.id}`)
+        .order("created_at", { ascending: false })
+        .returns<ConnectionRow[]>(),
+    ]);
+  const isMentor = profile?.role === "mentor";
 
   return (
     <div className="grid max-w-4xl gap-10">

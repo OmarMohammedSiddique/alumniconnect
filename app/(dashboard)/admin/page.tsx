@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { RoleForm, VisibilityForm, ReportReviewForm } from "./admin-controls";
 import { REPORT_REASON_LABELS } from "@/lib/profile-privacy";
 
@@ -39,10 +39,7 @@ interface ReportRow {
 }
 
 export default async function AdminPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getAuthenticatedUser();
   if (!user) redirect("/login");
 
   const { data: me } = await supabase
@@ -54,29 +51,30 @@ export default async function AdminPage() {
   const isStaff = isAdmin || me?.role === "moderator";
   if (!isStaff) redirect("/discover");
 
-  const { data: profiles } = await supabase
-    .from("profiles")
-    .select("id, full_name, role, is_visible, created_at")
-    .order("created_at", { ascending: false })
-    .returns<ProfileRow[]>();
-
-  const { data: reports } = await supabase
-    .from("reports")
-    .select(
-      `id, reason, details, status, created_at, reporter_id, reported_id,
-       reporter:profiles!reports_reporter_id_fkey(full_name),
-       reported:profiles!reports_reported_id_fkey(full_name, role, is_visible, staff_hidden)`
-    )
-    .eq("status", "pending")
-    .order("created_at", { ascending: false })
-    .returns<ReportRow[]>();
-
-  const { data: audit } = await supabase
-    .from("audit_logs")
-    .select("id, action, target_table, detail, created_at")
-    .order("id", { ascending: false })
-    .limit(50)
-    .returns<AuditRow[]>();
+  const [{ data: profiles }, { data: reports }, { data: audit }] =
+    await Promise.all([
+      supabase
+        .from("profiles")
+        .select("id, full_name, role, is_visible, created_at")
+        .order("created_at", { ascending: false })
+        .returns<ProfileRow[]>(),
+      supabase
+        .from("reports")
+        .select(
+          `id, reason, details, status, created_at, reporter_id, reported_id,
+           reporter:profiles!reports_reporter_id_fkey(full_name),
+           reported:profiles!reports_reported_id_fkey(full_name, role, is_visible, staff_hidden)`,
+        )
+        .eq("status", "pending")
+        .order("created_at", { ascending: false })
+        .returns<ReportRow[]>(),
+      supabase
+        .from("audit_logs")
+        .select("id, action, target_table, detail, created_at")
+        .order("id", { ascending: false })
+        .limit(50)
+        .returns<AuditRow[]>(),
+    ]);
 
   return (
     <div className="grid max-w-4xl gap-10">

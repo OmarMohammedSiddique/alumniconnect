@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
@@ -27,3 +28,13 @@ export async function createClient(fetcher?: typeof fetch) {
     },
   );
 }
+
+// Deduplicates Supabase client creation and auth.getUser() across layout and
+// page Server Components within the same render pass.
+export const getAuthenticatedUser = cache(async () => {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return { supabase, user };
+});
