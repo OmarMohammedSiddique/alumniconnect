@@ -98,11 +98,11 @@ export async function POST() {
       }
 
       const { data, error: updateError } = await query
-        .select("id")
+        .select("id, updated_at")
         .maybeSingle();
 
       if (updateError) {
-        throw new Error(updateError.message);
+        throw new Error("Could not persist match profile embedding.");
       }
 
       if (!data && profileUpdatedAt) {
@@ -115,7 +115,7 @@ export async function POST() {
         textHash,
         MODEL_ID,
         embedding.length,
-        profileUpdatedAt,
+        String(data?.updated_at ?? profileUpdatedAt),
       );
 
       return { dimensions: embedding.length, reused: false, superseded: false };
@@ -137,8 +137,10 @@ export async function POST() {
       dimensions: result.dimensions,
       ...(result.reused ? { reused: true } : {}),
     });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Inference failed";
-    return NextResponse.json({ error: message }, { status: 500 });
+  } catch {
+    return NextResponse.json(
+      { error: "Could not update your match profile right now. Please try again." },
+      { status: 500 },
+    );
   }
 }

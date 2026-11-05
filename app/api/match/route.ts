@@ -16,7 +16,9 @@ export async function POST(request: Request) {
   let count = 10;
   try {
     const body = await request.json();
-    if (Number.isInteger(body?.count) && body.count > 0) count = body.count;
+    if (Number.isInteger(body?.count) && body.count > 0) {
+      count = Math.min(body.count, 50);
+    }
   } catch {
     // empty body - use default count
   }
@@ -40,7 +42,10 @@ export async function POST(request: Request) {
   });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: "Could not load mentor matches right now. Please try again." },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ matches });

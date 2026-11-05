@@ -36,10 +36,22 @@ export function DiscoverClient({
   const [notice, setNotice] = useState<string | null>(null);
   const [needsProfile, setNeedsProfile] = useState(false);
 
-  // Persistent relationship states
-  const [requestMap, setRequestMap] = useState<Record<string, MentorRequestState>>(
-    initialRequestMap,
-  );
+  // Local overrides layered on top of server-provided initialRequestMap
+  const [localRequestOverrides, setLocalRequestOverrides] = useState<
+    Record<string, MentorRequestState | null>
+  >({});
+
+  const requestMap = useMemo(() => {
+    const merged: Record<string, MentorRequestState> = { ...initialRequestMap };
+    for (const [id, status] of Object.entries(localRequestOverrides)) {
+      if (status === null) {
+        delete merged[id];
+      } else {
+        merged[id] = status;
+      }
+    }
+    return merged;
+  }, [initialRequestMap, localRequestOverrides]);
 
   // Filter state
   const [selectedIndustry, setSelectedIndustry] = useState<string>("all");
@@ -149,9 +161,17 @@ export function DiscoverClient({
   }
 
   function handleRequestSent(mentorId: string) {
-    setRequestMap((prev) => ({
+    setLocalRequestOverrides((prev) => ({
       ...prev,
       [mentorId]: "pending",
+    }));
+  }
+
+  function handleMentorBlocked(mentorId: string) {
+    setMentors((prev) => (prev ? prev.filter((m) => m.id !== mentorId) : prev));
+    setLocalRequestOverrides((prev) => ({
+      ...prev,
+      [mentorId]: null,
     }));
   }
 
@@ -432,6 +452,7 @@ export function DiscoverClient({
               canRequest={canRequest}
               requestStatus={getActiveRelationshipStatus(m.id, requestMap)}
               onRequestSent={handleRequestSent}
+              onBlocked={handleMentorBlocked}
             />
           ))}
         </StaggerReveal>

@@ -10,8 +10,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusMessage } from "@/components/ui/status-message";
 import { FieldGuidance } from "@/components/ui/field-guidance";
-import { MAX_BIO_LENGTH, MAX_HEADLINE_LENGTH } from "@/lib/form-limits";
-import { getSkillsLimitError, MAX_PROFILE_SKILLS, normalizeSkills } from "@/lib/profile-skills";
+import {
+  MAX_BIO_LENGTH,
+  MAX_FULL_NAME_LENGTH,
+  MAX_HEADLINE_LENGTH,
+  MAX_INDUSTRY_LENGTH,
+} from "@/lib/form-limits";
+import { getSkillsValidationError, MAX_PROFILE_SKILLS, normalizeSkills } from "@/lib/profile-skills";
 import { createProfileMatchUpdater, type MatchUpdateStatus } from "@/lib/profile-match-update";
 import {
   Card,
@@ -141,7 +146,7 @@ export function ProfileForm({ userId, profile, hasMatchProfile }: ProfileFormPro
     };
   }, [hasUnsavedChanges]);
   const skills = normalizeSkills(draft.skills);
-  const skillsError = getSkillsLimitError(skills.length);
+  const skillsError = getSkillsValidationError(skills);
   const missing = PROFILE_FIELDS.filter(({ name }) => {
     const value = draft[name].trim();
     if (name === "skills") return skills.length === 0 || Boolean(skillsError);
@@ -149,8 +154,10 @@ export function ProfileForm({ userId, profile, hasMatchProfile }: ProfileFormPro
       const year = Number(value);
       return !value || !Number.isInteger(year) || year < 1950 || year > new Date().getFullYear();
     }
+    if (name === "full_name") return !value || value.length > MAX_FULL_NAME_LENGTH;
     if (name === "headline") return !value || value.length > MAX_HEADLINE_LENGTH;
     if (name === "bio") return !value || value.length > MAX_BIO_LENGTH;
+    if (name === "industry") return !value || value.length > MAX_INDUSTRY_LENGTH;
     return !value;
   });
   const completed = PROFILE_FIELDS.length - missing.length;
@@ -299,6 +306,7 @@ export function ProfileForm({ userId, profile, hasMatchProfile }: ProfileFormPro
               name="full_name"
               value={draft.full_name}
               onChange={updateDraft}
+              maxLength={MAX_FULL_NAME_LENGTH}
               required
             />
           </div>
@@ -365,6 +373,7 @@ export function ProfileForm({ userId, profile, hasMatchProfile }: ProfileFormPro
                 name="industry"
                 value={draft.industry}
                 onChange={updateDraft}
+                maxLength={MAX_INDUSTRY_LENGTH}
                 placeholder="e.g. Technology"
               />
             </div>

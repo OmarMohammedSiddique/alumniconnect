@@ -3,8 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { formatFullName } from "@/lib/profile-name";
-import { getSkillsLimitError, normalizeSkills } from "@/lib/profile-skills";
-import { MAX_BIO_LENGTH, MAX_HEADLINE_LENGTH } from "@/lib/form-limits";
+import { getSkillsValidationError, normalizeSkills } from "@/lib/profile-skills";
+import {
+  MAX_BIO_LENGTH,
+  MAX_FULL_NAME_LENGTH,
+  MAX_HEADLINE_LENGTH,
+  MAX_INDUSTRY_LENGTH,
+} from "@/lib/form-limits";
 
 export type ProfileState =
   | { error: string | null; saved: false }
@@ -28,14 +33,18 @@ export async function updateProfile(
   const industry = String(formData.get("industry") ?? "").trim();
   const yearRaw = String(formData.get("graduation_year") ?? "").trim();
   const skills = normalizeSkills(String(formData.get("skills") ?? ""));
-  const skillsError = getSkillsLimitError(skills.length);
+  const skillsError = getSkillsValidationError(skills);
 
   if (!fullName) return { error: "Full name is required.", saved: false };
+  if (fullName.length > MAX_FULL_NAME_LENGTH)
+    return { error: `Full name must be ${MAX_FULL_NAME_LENGTH} characters or fewer.`, saved: false };
   if (skillsError) return { error: skillsError, saved: false };
   if (headline.length > MAX_HEADLINE_LENGTH)
     return { error: `Headline must be ${MAX_HEADLINE_LENGTH} characters or fewer.`, saved: false };
   if (bio.length > MAX_BIO_LENGTH)
     return { error: `Bio must be ${MAX_BIO_LENGTH} characters or fewer.`, saved: false };
+  if (industry.length > MAX_INDUSTRY_LENGTH)
+    return { error: `Industry must be ${MAX_INDUSTRY_LENGTH} characters or fewer.`, saved: false };
 
   let graduationYear: number | null = null;
   if (yearRaw) {
@@ -61,8 +70,12 @@ export async function updateProfile(
     })
     .eq("id", user.id);
 
-  if (error) return { error: error.message, saved: false };
+  if (error) {
+    return { error: "We couldn't save your profile right now. Please try again.", saved: false };
+  }
 
   revalidatePath("/profile");
+  revalidatePath("/discover");
+  revalidatePath("/", "layout");
   return { error: null, saved: true, fullName };
 }

@@ -57,6 +57,7 @@ export async function updateMentorshipRequest(
           "request not found",
           "request is not pending",
           "only the recipient mentor can respond",
+          "cannot accept request between blocked participants",
         ].includes(error.message)) return unavailable;
         return failed;
       }

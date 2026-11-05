@@ -1,8 +1,39 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Refreshes the Supabase session on every request and guards dashboard routes.
+function withResponseCookies(source: NextResponse, target: NextResponse) {
+  for (const cookie of source.cookies.getAll()) {
+    target.cookies.set(cookie);
+  }
+  return target;
+}
+
+// Refreshes the Supabase session on requests with auth cookies and guards dashboard routes.
 export async function proxy(request: NextRequest) {
+  const path = request.nextUrl.pathname;
+  const isAuthPage = path === "/login" || path === "/login/code" || path === "/signup";
+  const isProtected =
+    path.startsWith("/profile") ||
+    path.startsWith("/discover") ||
+    path.startsWith("/requests") ||
+    path.startsWith("/admin");
+
+  const hasAuthCookie = request.cookies
+    .getAll()
+    .some((cookie) => cookie.name.startsWith("sb-"));
+
+  // Fast-path unauthenticated visitors: skip Supabase client creation and network round-trip.
+  if (!hasAuthCookie) {
+    if (isProtected) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      url.search = "";
+      url.searchParams.set("next", `${path}${request.nextUrl.search}`);
+      return NextResponse.redirect(url);
+    }
+    return NextResponse.next({ request });
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -32,26 +63,18 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const path = request.nextUrl.pathname;
-  const isAuthPage = path === "/login" || path === "/login/code" || path === "/signup";
-  const isProtected =
-    path.startsWith("/profile") ||
-    path.startsWith("/discover") ||
-    path.startsWith("/requests") ||
-    path.startsWith("/network") ||
-    path.startsWith("/admin");
-
   if (!user && isProtected) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    url.searchParams.set("next", path);
-    return NextResponse.redirect(url);
+    url.search = "";
+    url.searchParams.set("next", `${path}${request.nextUrl.search}`);
+    return withResponseCookies(response, NextResponse.redirect(url));
   }
   if (user && isAuthPage) {
     const url = request.nextUrl.clone();
     url.pathname = "/discover";
     url.search = "";
-    return NextResponse.redirect(url);
+    return withResponseCookies(response, NextResponse.redirect(url));
   }
 
   return response;
