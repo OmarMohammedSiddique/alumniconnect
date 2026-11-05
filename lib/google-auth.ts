@@ -29,6 +29,17 @@ export function getGoogleAuthOrigin(requestOrigin: string, siteUrl: string | und
       (!siteUrl && !local)) {
     throw new Error("Configure SITE_URL with the trusted application origin.");
   }
+  // Both loopback aliases are allow-listed locally. Keep the initiating host's
+  // PKCE cookies instead of moving a localhost login to 127.0.0.1 (or vice versa).
+  if (!production && local && requestOrigin) {
+    const incoming = new URL(requestOrigin);
+    if (!["localhost", "127.0.0.1", "[::1]"].includes(incoming.hostname) ||
+        incoming.protocol !== url.protocol || incoming.port !== url.port ||
+        incoming.username || incoming.password || incoming.pathname !== "/" || incoming.search || incoming.hash) {
+      throw new Error("Use a trusted loopback application origin.");
+    }
+    return incoming.origin;
+  }
   return url.origin;
 }
 
@@ -36,7 +47,7 @@ export function getGoogleCallbackOrigin(request: Request, siteUrl: string | unde
   const url = new URL(request.url);
   // Next dev can reconstruct request.url with localhost even when the browser
   // used 127.0.0.1. Preserve its host-bound cookies; inference is loopback-only.
-  const incoming = !production && !siteUrl && request.headers.get("host")
+  const incoming = !production && request.headers.get("host")
     ? `${url.protocol}//${request.headers.get("host")}`
     : url.origin;
   return getGoogleAuthOrigin(incoming, siteUrl, production);
@@ -70,8 +81,11 @@ export async function beginGoogleSignIn(auth: Pick<Auth, "signInWithOAuth">, cal
 }
 
 export async function finishGoogleSignIn(params: URLSearchParams, auth: Pick<Auth, "exchangeCodeForSession">): Promise<GoogleAuthError | null> {
-  // Classify only our exact hook message; never reflect provider descriptions.
-  if (params.has("error") && params.get("error_description") === GOOGLE_REGISTRATION_REQUIRED_MESSAGE) return "registration_required";
+  // The hosted hook predates the product rename. Recognise both exact messages;
+  // never reflect arbitrary provider descriptions or relax the registration rule.
+  if (params.has("error") && [GOOGLE_REGISTRATION_REQUIRED_MESSAGE,
+    "Register with AlumniConnect before signing in with Google.",
+  ].includes(params.get("error_description") ?? "")) return "registration_required";
   if (params.has("error")) return params.get("error") === "access_denied" ? "cancelled" : "exchange_failed";
   const code = params.get("code");
   if (!code || code.length > 2048) return "exchange_failed";
