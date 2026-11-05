@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import communityPhoto from "@/public/images/community-collaboration.webp";
 import { Brand, PrototypeNotice } from "@/components/brand";
+import { ThemeToggle } from "@/components/theme-toggle";
 import {
   ArrowDown,
   ArrowRight,
@@ -45,7 +46,11 @@ export default function LandingPage() {
           <nav className={styles.navLinks} aria-label="Main navigation">
             <a href="#how-it-works">How it works</a><a href="#community">For our community</a><a href="#questions">FAQs</a>
           </nav>
-          <div className={styles.navActions}><Link href="/login" className={styles.signIn}>Sign in</Link><Link href="/signup" className={styles.smallButton}>Join the network <ArrowRight size={16} aria-hidden="true" /></Link></div>
+          <div className={styles.navActions}>
+            <ThemeToggle variant="compact" />
+            <Link href="/login" className={styles.signIn}>Sign in</Link>
+            <Link href="/signup" className={styles.smallButton}>Join the network <ArrowRight size={16} aria-hidden="true" /></Link>
+          </div>
         </div>
       </header>
       <main id="main">
