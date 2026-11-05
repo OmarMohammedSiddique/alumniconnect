@@ -32,25 +32,23 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-        <meta name="color-scheme" content="light dark" />
+        <meta name="color-scheme" content="light" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
               try {
-                var t = localStorage.getItem("alumnikonneqt-theme") || "system";
-                var d = t === "dark" || (t === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-                if (d) {
+                var t = localStorage.getItem("alumnikonneqt-theme");
+                if (t === "dark") {
                   document.documentElement.classList.add("dark");
                   document.documentElement.classList.remove("light");
-                } else if (t === "light") {
+                  var m = document.querySelector('meta[name="color-scheme"]');
+                  if (m) m.content = "dark";
+                } else {
                   document.documentElement.classList.add("light");
                   document.documentElement.classList.remove("dark");
-                } else {
-                  document.documentElement.classList.remove("dark");
-                  document.documentElement.classList.remove("light");
+                  var m = document.querySelector('meta[name="color-scheme"]');
+                  if (m) m.content = "light";
                 }
-                var m = document.querySelector('meta[name="color-scheme"]');
-                if (m) m.content = t === "system" ? "light dark" : t;
               } catch (_) {}
             `,
           }}

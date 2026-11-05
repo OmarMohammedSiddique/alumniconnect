@@ -1,44 +1,34 @@
 // Theme management for AlumniKonneQt.
-// Supports System default, Light mode, and Dark mode (Black, Red, White).
-// Follows modern-web-guidance: color-scheme meta synchronization, FOUC prevention,
-// prefers-color-scheme change listeners, and cross-tab storage sync.
+// Supports Light mode (default) and Dark mode (Black, Red, White).
+// Persists explicit user choice in localStorage with cross-tab synchronization.
 
 import { useEffect, useSyncExternalStore } from "react";
 
-export type Theme = "system" | "light" | "dark";
-export type ResolvedTheme = "light" | "dark";
+export type Theme = "light" | "dark";
 
 export const THEME_STORAGE_KEY = "alumnikonneqt-theme";
 
-export function getSystemTheme(): ResolvedTheme {
-  if (typeof window === "undefined") return "light";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
-
 export function parseTheme(value: unknown): Theme {
-  if (value === "light" || value === "dark" || value === "system") {
-    return value;
+  if (value === "dark") {
+    return "dark";
   }
-  return "system";
+  return "light";
 }
 
 export function getStoredTheme(): Theme {
-  if (typeof window === "undefined") return "system";
+  if (typeof window === "undefined") return "light";
   try {
     return parseTheme(localStorage.getItem(THEME_STORAGE_KEY));
   } catch {
-    return "system";
+    return "light";
   }
 }
 
-export function resolveTheme(theme: Theme): ResolvedTheme {
-  if (theme === "system") {
-    return getSystemTheme();
-  }
-  return theme;
+export function resolveTheme(theme: Theme): Theme {
+  return theme === "dark" ? "dark" : "light";
 }
 
-export function applyTheme(theme: Theme): ResolvedTheme {
+export function applyTheme(theme: Theme): Theme {
   if (typeof document === "undefined") return "light";
 
   const resolved = resolveTheme(theme);
@@ -55,7 +45,7 @@ export function applyTheme(theme: Theme): ResolvedTheme {
   // Update meta[name="color-scheme"] presentational hint
   const meta = document.querySelector<HTMLMetaElement>('meta[name="color-scheme"]');
   if (meta) {
-    meta.content = theme === "system" ? "light dark" : theme;
+    meta.content = resolved;
   }
 
   return resolved;
@@ -71,31 +61,20 @@ function notify() {
   }
 }
 
-let activeTheme: Theme = "system";
-let activeResolvedTheme: ResolvedTheme = "light";
+let activeTheme: Theme = "light";
 let isInitialized = false;
 
 function ensureInitialized() {
   if (isInitialized || typeof window === "undefined") return;
   isInitialized = true;
   activeTheme = getStoredTheme();
-  activeResolvedTheme = applyTheme(activeTheme);
-
-  // Listen to OS prefers-color-scheme changes
-  const media = window.matchMedia("(prefers-color-scheme: dark)");
-  const mediaHandler = () => {
-    if (activeTheme === "system") {
-      activeResolvedTheme = applyTheme("system");
-      notify();
-    }
-  };
-  media.addEventListener("change", mediaHandler);
+  applyTheme(activeTheme);
 
   // Listen to cross-tab storage changes
   const storageHandler = (e: StorageEvent) => {
     if (e.key === THEME_STORAGE_KEY) {
       activeTheme = parseTheme(e.newValue);
-      activeResolvedTheme = applyTheme(activeTheme);
+      applyTheme(activeTheme);
       notify();
     }
   };
@@ -103,18 +82,18 @@ function ensureInitialized() {
 }
 
 export function setAppTheme(newTheme: Theme): void {
-  activeTheme = newTheme;
+  activeTheme = parseTheme(newTheme);
   try {
-    if (newTheme === "system") {
-      localStorage.removeItem(THEME_STORAGE_KEY);
-    } else {
-      localStorage.setItem(THEME_STORAGE_KEY, newTheme);
-    }
+    localStorage.setItem(THEME_STORAGE_KEY, activeTheme);
   } catch {
     // localStorage might be unavailable in restricted contexts
   }
-  activeResolvedTheme = applyTheme(newTheme);
+  applyTheme(activeTheme);
   notify();
+}
+
+export function toggleAppTheme(): void {
+  setAppTheme(activeTheme === "dark" ? "light" : "dark");
 }
 
 /**
@@ -122,9 +101,8 @@ export function setAppTheme(newTheme: Theme): void {
  */
 export function useTheme(): {
   theme: Theme;
-  resolvedTheme: ResolvedTheme;
   setTheme: (theme: Theme) => void;
-  systemTheme: ResolvedTheme;
+  toggleTheme: () => void;
 } {
   useEffect(() => {
     ensureInitialized();
@@ -142,16 +120,12 @@ export function useTheme(): {
       ensureInitialized();
       return activeTheme;
     },
-    () => ("system" as Theme)
+    () => ("light" as Theme)
   );
-
-  const resolvedTheme = typeof window !== "undefined" ? activeResolvedTheme : "light";
-  const systemTheme = getSystemTheme();
 
   return {
     theme,
-    resolvedTheme,
     setTheme: setAppTheme,
-    systemTheme,
+    toggleTheme: toggleAppTheme,
   };
 }

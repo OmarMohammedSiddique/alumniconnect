@@ -49,7 +49,7 @@
 }
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
   /* Approved palette. All supporting shades derive from these three colours. */
   --brand-red: #ED1C24;
   --brand-ink: #0D0D0D;
@@ -150,36 +150,7 @@
   --ring: var(--brand-red);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not(.light) {
-    color-scheme: dark;
-    --surface: color-mix(in srgb, var(--brand-white) 3%, var(--brand-ink));
-    --success: var(--card);
-    --success-foreground: var(--foreground);
-    --warning: var(--surface);
-    --warning-foreground: var(--foreground);
-    --info: var(--surface);
-    --info-foreground: var(--foreground);
-    --background: var(--brand-ink);
-    --foreground: var(--brand-white);
-    --card: color-mix(in srgb, var(--brand-white) 4%, var(--brand-ink));
-    --card-foreground: var(--brand-white);
-    --popover: color-mix(in srgb, var(--brand-white) 5%, var(--brand-ink));
-    --popover-foreground: var(--brand-white);
-    --primary: var(--brand-red);
-    --primary-foreground: var(--brand-white);
-    --secondary: color-mix(in srgb, var(--brand-white) 12%, var(--brand-ink));
-    --secondary-foreground: var(--brand-white);
-    --muted: color-mix(in srgb, var(--brand-white) 7%, var(--brand-ink));
-    --muted-foreground: color-mix(in srgb, var(--brand-white) 72%, var(--brand-ink));
-    --accent: var(--brand-red);
-    --accent-foreground: var(--brand-white);
-    --destructive: var(--brand-red);
-    --border: color-mix(in srgb, var(--brand-white) 16%, var(--brand-ink));
-    --input: color-mix(in srgb, var(--brand-white) 22%, var(--brand-ink));
-    --ring: var(--brand-red);
-  }
-}
+
 
 @layer base {
   * {
