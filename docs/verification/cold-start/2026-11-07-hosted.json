@@ -1,0 +1,111 @@
+{
+  "recordedAt": "2026-11-06T21:33:30.950Z",
+  "source": "0a80b2072c6647214319e461977c1c5420049421",
+  "environment": "hosted-production-disposable-fixtures",
+  "signupBoundary": "administratively preconfirmed fixtures; actual hosted profile forms/inference",
+  "results": [
+    {
+      "name": "fresh preconfirmed fixture has no match vector; incomplete profile rejected",
+      "passed": true
+    },
+    {
+      "name": "real hosted profile saves produce compatible inference and zero-history discovery",
+      "passed": true
+    },
+    {
+      "name": "interrupted refresh preserves saved goal and atomically removes stale inference",
+      "passed": true
+    },
+    {
+      "name": "real hosted retry restores the match vector and recommendations",
+      "passed": true
+    },
+    {
+      "name": "same-value saves preserve inference; member vectors and cross-user edits are denied",
+      "passed": true
+    },
+    {
+      "name": "both hosted models return separately identified outputs without mixed storage",
+      "passed": true
+    }
+  ],
+  "timings": [
+    {
+      "operation": "/api/match",
+      "status": 422,
+      "elapsedMs": 1818,
+      "returnedCount": null
+    },
+    {
+      "operation": "profile-save-to-embedding-response",
+      "status": 200,
+      "expectedFailure": false,
+      "elapsedMs": 5900
+    },
+    {
+      "operation": "profile-save-to-embedding-response",
+      "status": 200,
+      "expectedFailure": false,
+      "elapsedMs": 4589
+    },
+    {
+      "operation": "/api/match",
+      "status": 200,
+      "elapsedMs": 1733,
+      "returnedCount": 6
+    },
+    {
+      "operation": "profile-save-to-embedding-response",
+      "status": 503,
+      "expectedFailure": true,
+      "elapsedMs": 2237
+    },
+    {
+      "operation": "/api/match",
+      "status": 422,
+      "elapsedMs": 1080,
+      "returnedCount": null
+    },
+    {
+      "operation": "/api/match",
+      "status": 200,
+      "elapsedMs": 1050,
+      "returnedCount": 6
+    },
+    {
+      "operation": "/api/match/compare",
+      "status": 200,
+      "elapsedMs": 3585,
+      "returnedCount": null
+    }
+  ],
+  "relevanceJudged": false,
+  "models": [
+    {
+      "id": "Xenova/all-MiniLM-L6-v2",
+      "dimensions": 384,
+      "elapsedMs": 816,
+      "returnedCount": 5,
+      "error": false
+    },
+    {
+      "id": "scratch-pilot-v1:1ed9ed95cc33",
+      "dimensions": 64,
+      "elapsedMs": 100,
+      "returnedCount": 5,
+      "error": false
+    }
+  ],
+  "fixtureEmailsSent": 0,
+  "success": true,
+  "cleanup": true,
+  "remainingMarkedAccounts": 0,
+  "remainingFixtureOutbox": 0,
+  "hostedMigrationVersion": "20261106213149",
+  "cleanupReadback": {
+    "markedAccounts": 0,
+    "fixtureProfiles": 0,
+    "fixtureOutbox": 0,
+    "triggerEnabled": true
+  }
+}

@@ -40,8 +40,25 @@ Run `node scripts/run-cold-start.mjs` with pinned dependencies, Docker and Chrom
 
 The injected HTTP 503 is a controlled browser/API-boundary failure, not a real model-provider outage. The stale-write test deterministically exercises the existing timestamp predicate rather than claiming native inference was held in flight. The protocol is in `docs/cold-start-protocol.md`.
 
-The 7 November audit found application merge `4aad49e` READY in production as `dpl_2d1hbZ2wHr5XWLJjWL29jjobwoBf`, but the hosted migration/trigger absent. A deployed source migration file does not apply database DDL. The stale-vector correction is therefore locally/CI verified and merged, but not yet active on hosted profile writes. The exact hosted migration and disposable-fixture verification have been requested for separate authorization. No hosted data changes are claimed by this evidence publication.
+The initial 7 November audit found application merge `4aad49e` READY in production while the hosted migration was absent. That finding was corrected after the owner explicitly approved the exact migration and controlled hosted verification. The verified release below supersedes the earlier pending production status.
 
 ## Remaining final acceptance
 
 Keep #4 open for independently reviewed relevance (#3), selected scratch-model training/integration (#25/#26), the actual supervisor graph-scope decision and any agreed comparison (#27), genuine human profile-entry timing where claimed and final assessed hosted repetition (#8). The test infrastructure and present MiniLM engineering baseline are reusable for that release. Neither reviewer judgments nor supervisor approval can be manufactured by automated engineering work.
+
+## Approved hosted correction and acceptance, 7 November 2026
+
+The exact reviewed migration was applied as hosted version `20261106213149_invalidate_stale_profile_embeddings`. Read-back verified the trigger enabled, invoker privileges, no authenticated/anonymous direct function execution and no ordinary-member usage of the private schema. Existing vectors were not backfilled. Security advisor finding names/counts were unchanged from the pre-migration baseline; no new private-trigger exposure appeared. The application source `0a80b20` was already deployed and needed no application-code change for the trigger to take effect.
+
+[Sanitized hosted results](cold-start/2026-11-07-hosted.json) retain all six passed groups, per-operation statuses/timings, model identities and exact cleanup. Two generated, marked fictional accounts used reserved addresses, administrative preconfirmation and disabled email preferences before profile content/inference. This is not hosted signup-code verification. Chrome used the actual custom domain and submitted the real profile forms.
+
+- A name-only fixture had no vector and Recommended returned HTTP 422.
+- Actual Mentor/Mentee profile saves generated 384-value vectors, and the fresh Mentee saw the newly completed Mentor with zero requests/connections. The normal response returned six total candidates, including the fixture; existing member profiles were not edited.
+- Intercepting only the fixture browser's refresh with HTTP 503 after a saved goal change preserved the new text and immediately left the stored vector null. Recommended returned HTTP 422 rather than using the earlier goal. Clicking the real Retry update button regenerated inference and restored HTTP 200 recommendations.
+- Same-value saves preserved the valid vector. Authenticated member vector writes were rejected and cross-user profile updates returned no changed row.
+- Hosted Compare models returned separate MiniLM 384-value and scratch-pilot 64-value outputs without errors or mixed persistence. This remains the experimental pilot comparison, not final model selection.
+- No fixture event recorded provider acceptance or sent status. Exact identity/marker guards, sign-out and deletion removed only the two test accounts. Independent SQL read-back confirmed zero marked accounts, zero fixture profiles, zero fixture outbox records and the trigger still enabled. No real-member profile/password changed.
+
+Individual hosted observations were 5900 ms and 4589 ms for the two initial profile-save/embedding responses, 1733 ms for the first normal retrieval and 1050 ms for retrieval after retry. Comparison reported MiniLM 816 ms and scratch 100 ms internally, with an overall HTTP observation of 3585 ms. These include different boundaries and conditions from the isolated local trials; they are not a benchmark, relevance result or evidence that a performance target was met. The controlled HTTP 503 is a fault injection, not a claim of a real provider outage.
+
+The stale-vector correction is now active on production profile writes. Future matching-input edits clear old inference atomically; members use the existing save/refresh/retry path to obtain results for their current saved goal. Remaining #4 requirements are reviewed relevance, human timing where claimed, final selected scratch-model integration and the supervisor graph decision/comparison, followed by final assessed-release repetition. Hosted engineering acceptance does not close those research dependencies.
