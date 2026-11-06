@@ -88,22 +88,25 @@ export function isRecipientPermitted(
   const isProd = options.isProduction ?? (process.env.NODE_ENV === "production" &&
     (!process.env.VERCEL_ENV || process.env.VERCEL_ENV === "production"));
 
-  // In production, all syntactically valid emails are permitted
-  if (isProd) return true;
-
-  // In test / non-production, check destination controls
+  // Explicit restrictions also apply to production acceptance runs. An exact
+  // recipient list takes precedence over domains, with empty lists denying all.
   const allowedRecipients = options.allowedRecipients ??
-    (process.env.EMAIL_ALLOWED_RECIPIENTS ? process.env.EMAIL_ALLOWED_RECIPIENTS.split(",").map(s => s.trim().toLowerCase()) : []);
-  
-  if (allowedRecipients.length > 0 && allowedRecipients.includes(normalized)) {
-    return true;
+    (process.env.EMAIL_ALLOWED_RECIPIENTS !== undefined
+      ? process.env.EMAIL_ALLOWED_RECIPIENTS.split(",") : undefined);
+  if (allowedRecipients !== undefined) {
+    return allowedRecipients.some(recipient => normalizeEmail(recipient) === normalized);
   }
 
   const allowedDomains = options.allowedDomains ??
-    (process.env.EMAIL_ALLOWED_DOMAINS ? process.env.EMAIL_ALLOWED_DOMAINS.split(",").map(s => s.trim().toLowerCase()) : ["example.com", "example.test", "test.local", "auth.alumnikonneqt.com"]);
-
+    (process.env.EMAIL_ALLOWED_DOMAINS !== undefined
+      ? process.env.EMAIL_ALLOWED_DOMAINS.split(",") : undefined);
   const domain = normalized.split("@")[1];
-  return allowedDomains.includes(domain);
+  if (allowedDomains !== undefined) {
+    return allowedDomains.some(allowed => allowed.trim().toLowerCase() === domain);
+  }
+
+  // Normal production delivery remains unrestricted unless configured above.
+  return isProd || ["example.com", "example.test", "test.local", "auth.alumnikonneqt.com"].includes(domain);
 }
 
 /**

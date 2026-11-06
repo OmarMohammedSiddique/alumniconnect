@@ -89,7 +89,10 @@ To ensure automated tests, pull request previews, and local development environm
    - If `EMAIL_ALLOWED_DOMAINS` is set (e.g. `example.test,auth.alumnikonneqt.com`), any attempt to email addresses outside the allowlist is blocked with code `DESTINATION_BLOCKED`.
 3. **Production**:
    - `EMAIL_DELIVERY_MODE` is `"live"`.
-   - All recipient addresses are validated using strict RFC 5322 normalization before submission.
+   - Recipient addresses are normalized and checked for basic address format before submission.
+   - When set, `EMAIL_ALLOWED_RECIPIENTS` restricts delivery to those exact normalized addresses in every environment, including production. It overrides domain permissions. An empty or invalid explicit list denies all destinations.
+   - Without an exact recipient restriction, an explicitly configured `EMAIL_ALLOWED_DOMAINS` restricts domains in every environment. An empty list denies all destinations. With neither setting configured, normal production delivery permits valid addresses, while local and preview delivery retains the default test-domain restrictions.
+   - Controlled production acceptance must set the approved recipient list before enabling application delivery. Keep Resend credentials server-side. A blocked notification is recorded as failed, so do not use production mock/suppress modes or unrelated member activity to test the worker.
 
 ---
 
@@ -188,3 +191,22 @@ Vercel previews keep destination allowlists even when `NODE_ENV=production`. For
 Apply `20261105074456_mentorship_email_notifications.sql` through the separately authorized deployment workflow, configure the server-only Resend key, sender, canonical `SITE_URL`, webhook secret and random `NOTIFICATION_WORKER_SECRET`, deploy application code, then configure the authenticated scheduler. Coordinate the schema and app release; missing tables/RPCs leave notification processing unavailable until migration. Inspect the queue with trusted operator tooling and verify controlled request, acceptance, decline and match delivery, opt-outs, outage recovery and destination links before marking #33/#34 complete.
 
 Local verification: nine notification template/worker tests plus a rolled-back database suite exercise request transaction rollback, recipients, two-party acceptance, daily match cap, claim leases, opt-outs, cross-user settings denial, queue/RPC privileges, blocked users and hidden profiles. These tests do not send mail to real members or certify deployment/inbox delivery. The database suite is included in CI; a local pass does not mean CI has run.
+
+## 11. Completion audit and controlled release, 6 November 2026
+
+Production inspection at merge commit `e335ac6` found the application routes deployed but the notification migration absent. `email_outbox`, `email_preferences` and `email_suppressions` are not present. Hosted privacy, availability and hardening prerequisites are already recorded. Vercel has the worker secret, but no production `RESEND_API_KEY` or `RESEND_WEBHOOK_SECRET`. The scheduled worker consequently returns HTTP 503 before claiming events; this is not a successful delivery setup.
+
+The existing migration `20261105074456_mentorship_email_notifications.sql` was reviewed and rehearsed with `supabase/tests/email_notifications.sql` inside one local rolled-back transaction. The suite passed, and a separate query confirmed the outbox, preferences and disposable accounts were absent afterward. No hosted schema or user data was changed by this rehearsal.
+
+The delivery boundary now respects explicit recipient/domain restrictions in production as well as previews. Exact recipient restrictions take precedence over domains. Regression tests verify blocked recipients make zero provider requests, blank/malformed restrictions deny delivery, approved recipients can send, and unrestricted normal production behavior remains available when neither restriction is configured. All 164 application tests, ESLint and TypeScript checks passed.
+
+Before hosted acceptance:
+
+1. Confirm the controlled recipient and obtain authorization for the specific notification migration and release.
+2. Configure a dedicated Resend sending key for the verified domain as the sensitive, production-only Vercel variable `RESEND_API_KEY`. Do not copy secrets into chat, source files, issues or logs. Supabase SMTP remains separate and its credential must not be repurposed for this test.
+3. In Resend, configure the webhook endpoint `https://alumnikonneqt.com/api/webhooks/resend`, including bounce, complaint and delivery events. Store its signing secret as sensitive, production-only `RESEND_WEBHOOK_SECRET` in Vercel.
+4. Deploy the recipient-restriction correction with an explicit `EMAIL_ALLOWED_RECIPIENTS` value containing only the approved inbox. Apply only the reviewed notification migration through the approved migration workflow. It creates no historical mail backlog.
+5. Use controlled fixtures to verify request and response events, worker recovery, duplicate processing, destination links, preferences, signed webhooks and actual inbox arrival. Verify account confirmation, recovery and OTP through Supabase Auth separately. Provider acceptance alone does not establish inbox arrival.
+6. Keep normal member delivery restricted until separately authorized. Do not consume production events using mock/suppress mode. A rejected destination is recorded as failed, so keep the controlled test limited to its fixtures and inspect affected queue outcomes before broad enablement.
+
+The owner must provide Resend access or configure the two provider secrets securely before live tests can proceed. No live email was sent during this audit. The issue remains open until hosted acceptance evidence is recorded.
