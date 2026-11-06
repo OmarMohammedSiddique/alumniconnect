@@ -5,7 +5,7 @@ import { buildNotificationEmail, emailHash, notificationOrigin, type EmailEvent 
 export async function processNotificationEmails(
   admin: SupabaseClient,
   siteUrl: string,
-  options: DeliveryOptions = {},
+  options: DeliveryOptions & { scheduleReminders?: boolean } = {},
 ): Promise<{ processed: number }> {
   const origin = notificationOrigin(siteUrl); // Fail before claiming any events.
   const mode = options.deliveryMode ?? process.env.EMAIL_DELIVERY_MODE ?? "live";
@@ -25,6 +25,12 @@ export async function processNotificationEmails(
     .in("status", ["pending", "processing"]).gte("attempts", 5)
     .lt("available_at", new Date().toISOString());
   if (exhaustedError) throw new Error("Could not expire email attempts");
+  // Only the authenticated scheduler enqueues reminders. Ordinary post-response
+  // dispatch still drains due mail without scanning pending requests.
+  if (options.scheduleReminders) {
+    const { error: reminderError } = await admin.rpc("enqueue_request_reminders");
+    if (reminderError) throw new Error("Could not schedule request reminders");
+  }
   const { data, error } = await admin.rpc("claim_email_events");
   if (error) throw new Error("Could not claim email events");
   const events = (data ?? []) as EmailEvent[];
