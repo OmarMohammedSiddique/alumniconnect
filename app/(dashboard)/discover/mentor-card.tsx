@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import Link from "next/link";
 import {
   Card,
@@ -13,6 +13,7 @@ import {
 import { RequestButton } from "./request-button";
 import { Badge } from "@/components/ui/badge";
 import { SafetyActionsMenu } from "@/components/safety/safety-actions-menu";
+import { mentorExplanation, sharedSkillLabels } from "@/lib/mentor-explanation";
 
 export interface Mentor {
   id: string;
@@ -42,10 +43,13 @@ export function MentorCard({
   onRequestSent?: (mentorId: string) => void;
   onBlocked?: (mentorId: string) => void;
 }) {
+  const titleId = useId();
+  const bioId = useId();
+  const explanation = mentorExplanation(mode, mentor.shared_skills);
   const [showFullBio, setShowFullBio] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
   const shared = new Set(
-    (mentor.shared_skills ?? []).map((s) => s.toLowerCase()),
+    sharedSkillLabels(mentor.shared_skills).map((s) => s.toLowerCase()),
   );
 
   const isLongBio = (mentor.bio ?? "").length > 180;
@@ -55,7 +59,7 @@ export function MentorCard({
   if (isBlocked) return null;
 
   return (
-    <Card className="h-full min-w-0">
+    <Card role="article" aria-labelledby={titleId} className="h-full min-w-0 [overflow-wrap:anywhere]">
       <CardHeader>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex min-w-0 items-start gap-3">
@@ -67,7 +71,7 @@ export function MentorCard({
             </span>
             <div className="min-w-0">
               <CardTitle>
-                <h2 className="break-words">{mentor.full_name}</h2>
+                <h2 id={titleId}>{mentor.full_name}</h2>
               </CardTitle>
               <CardDescription className="mt-1">{mentor.headline}</CardDescription>
             </div>
@@ -97,6 +101,7 @@ export function MentorCard({
         {mentor.bio && (
           <div>
             <p
+              id={bioId}
               className={`text-sm leading-relaxed text-muted-foreground ${
                 !showFullBio && isLongBio ? "line-clamp-3" : ""
               }`}
@@ -107,7 +112,9 @@ export function MentorCard({
               <button
                 type="button"
                 onClick={() => setShowFullBio((prev) => !prev)}
-                className="mt-1 text-xs font-medium text-primary underline underline-offset-2 hover:opacity-80"
+                aria-expanded={showFullBio}
+                aria-controls={bioId}
+                className="mt-1 inline-flex min-h-11 items-center text-xs font-medium text-foreground underline underline-offset-2 hover:opacity-80"
               >
                 {showFullBio ? "Show less" : "Read full background"}
               </button>
@@ -118,8 +125,8 @@ export function MentorCard({
           {mentor.skills.map((skill) => (
             <Badge
               key={skill}
-              className="max-w-full [overflow-wrap:anywhere]"
-              tone={shared.has(skill.toLowerCase()) ? "accent" : "neutral"}
+              className={`max-w-full [overflow-wrap:anywhere] ${shared.has(skill.trim().toLowerCase()) ? "font-semibold" : ""}`}
+              tone={shared.has(skill.trim().toLowerCase()) ? "info" : "neutral"}
             >
               {skill}
             </Badge>
@@ -133,30 +140,18 @@ export function MentorCard({
             .filter(Boolean)
             .join(" · ")}
         </p>
-        {mode === "semantic" ? (
-          <div className="grid min-w-0 gap-1 text-sm">
-            <p className="[overflow-wrap:anywhere]">
-              {(mentor.shared_skills?.length ?? 0) > 0 ? (
-                <>Shared skills: {mentor.shared_skills!.join(", ")}</>
-              ) : (
-                <>No exact shared skills identified. Review this mentor’s profile for relevant experience.</>
-              )}
-            </p>
-            <p className="text-xs leading-relaxed text-muted-foreground">
-              Recommendations use profile text similarity. Similarity does not guarantee mentorship suitability or success.
-            </p>
-          </div>
-        ) : (
-          <p className="text-xs leading-relaxed text-muted-foreground">
-            Found through your keyword search. Review this mentor’s profile to assess their experience.
-          </p>
-        )}
+        <div className="grid min-w-0 gap-1 text-sm" role="group" aria-label="Why this profile appears">
+          <p>{explanation.summary}</p>
+          {explanation.limitation && (
+            <p className="text-xs leading-relaxed text-muted-foreground">{explanation.limitation}</p>
+          )}
+        </div>
       </CardContent>
       {canRequest && (
         <CardFooter className="mt-auto pt-3">
           {requestStatus === "connected" ? (
             <div className="flex w-full items-center justify-between text-xs">
-              <span className="font-medium text-success">✓ Mentorship active</span>
+              <span className="font-medium text-foreground">✓ Mentorship active</span>
               <Link
                 href="/requests"
                 className="font-medium text-primary underline underline-offset-4 hover:opacity-85"
