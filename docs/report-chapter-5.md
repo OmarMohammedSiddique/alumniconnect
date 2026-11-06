@@ -46,6 +46,12 @@ This design mitigates dependence on interaction history by using profile content
 
 Inference executes in the Next.js server through Transformers.js rather than the proposed external model API or Supabase Edge Function route. The running encoder uses 384 dimensions, superseding the 1,536-dimensional design mismatch identified in the report audit. Profile persistence and embedding generation are separate steps, with visible failure/retry handling; this is not evidence of a durable background retry queue. The repository records a scope amendment deferring jobs and events and narrowing cohort discovery to graduation-year information. Supervisor acceptance of report-level amendments must be established separately. No implemented knowledge-graph reasoning or measured graph contribution is claimed.
 
+### 5.3.4 Mentorship Notification Emails and Optional Reminders
+
+The 6 November release adds Resend activity mail for persisted mentorship requests, accepted connections, declined requests and recommendation-ready events. A durable address-free outbox separates the successful mentorship transaction from provider delivery. Delivery rechecks current preferences, request state, visibility, blocking, confirmed recipient identity and suppression. Bounded retries, leases and stable provider keys support recovery without generating fresh duplicate events. Account confirmation, sign-in and recovery mail remain separate from optional activity preferences.
+
+Pending-request reminders require a separate default-off opt-in. A new request received after consent can generate one reminder once it is three days old, expires at seven days and shares a rolling weekly cap for the receiving Mentor. Withdrawal invalidates queued reminders. The authenticated settings also provide per-category controls and unsubscribe-all. Mention mail is explicitly deferred because there is no supported posts/comments/mentions feature.
+
 ## 5.4 Testing Strategy and Functional Evidence
 
 Testing is divided into static checks, unit tests, database permissions, HTTP integration, browser observation and participant evaluation. Each layer answers a different question. An HTTP action test invokes real server behavior but does not exercise browser event handlers; manual browser acceptance does not supply representative-user usability scores. The following results are transcribed from dated evidence records and were not rerun during this chapter-writing milestone.
@@ -118,6 +124,8 @@ The earlier report also states a mean System Usability Scale target of at least 
 
 ## 5.7 Deployment Evidence and Remaining Acceptance
 
+Issue #33 supplies additional bounded production evidence from 6 November. PR #82 merged at `0126be8c`; the reminder migration was applied and eligible-member delivery enabled after controlled acceptance. Four request/reminder/decline/recommendation messages reached the approved owner-controlled inbox, complementing the earlier two-party connection delivery record under #34. Hosted preference, privacy/lifecycle and duplicate checks passed; all disposable accounts and dependent data were removed. The reminder test accelerated only disposable consent/request timestamps and does not establish three days of elapsed observation. Provider-outage and bounce/complaint behavior retain automated coverage, with actual provider-signed delivery callback evidence recorded separately. `docs/verification/resend-delivery.md`, sections 12 and 14, identifies the deployments, migrations, worker runs, inbox observations and limitations. These results do not establish recommendation relevance, participant usability or complete account-code verification.
+
 A hosted Vercel application and Supabase backend are documented. Issue #37 supplies bounded hosted Google authentication evidence; the email-OTP record separately reports provider configuration and owner-confirmed inbox delivery, with the complete session journey still awaiting its recorded acceptance gate. Neither result proves every account, recommendation or email workflow. Final hosted acceptance must identify deployment, source and model versions and verify the selected scratch artefact in the full mentorship path.
 
 The evidence establishes an implemented profile-based platform, local mentorship workflow observations and a reproducible scratch-training pilot with a negative validation result. Final claims remain limited by unreviewed relevance data, absent live scratch-model integration, unverified graph contribution, missing load measurements and missing participant usability results. These gaps must remain visible when assessing the objectives.
@@ -137,6 +145,7 @@ Table 5.5 Sources and final evidence still required
 | docs/eval-results.md | Historical 5 July aggregate scores; repair scoring and preserve raw rankings under #3. |
 | GitHub issues #36 and #37 | Registration regression boundary and verified existing-account Google authentication. |
 | docs/verification/email-otp.md | Recorded local/hosted OTP evidence and remaining acceptance boundary. |
+| docs/verification/resend-delivery.md, sections 12 and 14; issues #33 and #34 | Controlled observed activity-mail delivery, opt-in reminder lifecycle, authenticated unsubscribe, published source/database and eligible-member release; accelerated fixture age and automated failure evidence remain distinct from live observation. |
 | Issues #3–#5, #8, #25–#27 and #29 | Reviewed relevance, cold start, SUS, release, selected training, integration, graph and performance dependencies. |
 
 ### Evidence required before final submission
