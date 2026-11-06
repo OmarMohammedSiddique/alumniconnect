@@ -20,7 +20,7 @@ export function CookieBanner() {
         <aside
           role="region"
           aria-label="Cookie and local storage consent"
-          className="fixed bottom-0 inset-x-0 z-40 border-t-2 border-primary bg-card/95 text-foreground shadow-2xl backdrop-blur-md transition-all duration-300"
+          className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-card text-foreground shadow-2xl"
         >
           <div className="mx-auto flex max-w-7xl flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5 sm:px-6 lg:px-8">
             <div className="flex items-start gap-3 sm:max-w-3xl">
@@ -35,7 +35,7 @@ export function CookieBanner() {
                   We use cookies and browser storage to maintain secure authentication sessions, remember your theme preference, and measure anonymous usage to refine the AlumniKonneQt prototype. You can accept all, reject non-essential cookies, or customize your choices.{" "}
                   <Link
                     href="/privacy"
-                    className="font-medium text-primary underline underline-offset-4 hover:text-primary/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                    className="font-medium text-foreground underline underline-offset-4 hover:text-foreground/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                   >
                     Read our Privacy Policy
                   </Link>
@@ -68,7 +68,7 @@ export function CookieBanner() {
                 variant="default"
                 size="sm"
                 onClick={acceptAll}
-                className="gap-1.5"
+                className="gap-1.5 bg-[var(--brand-red-deep)] hover:bg-[var(--brand-red-deep)]"
               >
                 <ShieldCheck className="size-3.5" aria-hidden="true" />
                 Accept All
