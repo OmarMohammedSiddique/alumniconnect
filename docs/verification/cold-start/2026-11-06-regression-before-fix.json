@@ -1,0 +1,110 @@
+{
+  "source": "working-tree",
+  "run": "64f51def-c018-4449-86a8-a3b73e39e980",
+  "environment": "isolated-local-production-build",
+  "primaryModel": "Xenova/all-MiniLM-L6-v2",
+  "dimensions": 384,
+  "relevanceJudged": false,
+  "graphImplemented": false,
+  "humanOnboardingTimeMeasured": false,
+  "results": [
+    {
+      "name": "anonymous inference denied",
+      "passed": true
+    },
+    {
+      "name": "genuine signup has no vector or interaction-derived recommendations",
+      "passed": true
+    },
+    {
+      "name": "sparse professional profile embeds; empty catalogue stays empty",
+      "passed": true
+    },
+    {
+      "name": "new Mentor becomes discoverable after real inference; Mentee has zero history",
+      "passed": true
+    },
+    {
+      "name": "both models run on the same fresh pool with isolated vector widths",
+      "passed": true
+    }
+  ],
+  "timings": [
+    {
+      "operation": "scripted-signup-submit-to-profile",
+      "elapsedMs": 215
+    },
+    {
+      "operation": "/api/embed",
+      "status": 422,
+      "elapsedMs": 24
+    },
+    {
+      "operation": "/api/match",
+      "status": 422,
+      "elapsedMs": 19
+    },
+    {
+      "operation": "/api/match/compare",
+      "status": 422,
+      "elapsedMs": 25
+    },
+    {
+      "operation": "scripted-profile-save-to-embedding-response",
+      "status": 200,
+      "elapsedMs": 366
+    },
+    {
+      "operation": "/api/match",
+      "status": 200,
+      "elapsedMs": 34
+    },
+    {
+      "operation": "scripted-signup-submit-to-profile",
+      "elapsedMs": 221
+    },
+    {
+      "operation": "/api/match",
+      "status": 200,
+      "elapsedMs": 34
+    },
+    {
+      "operation": "scripted-profile-save-to-embedding-response",
+      "status": 200,
+      "elapsedMs": 190
+    },
+    {
+      "operation": "/api/match",
+      "status": 200,
+      "elapsedMs": 29
+    },
+    {
+      "operation": "/api/match/compare",
+      "status": 200,
+      "elapsedMs": 39
+    },
+    {
+      "operation": "scripted-profile-save-to-embedding-response",
+      "status": 503,
+      "elapsedMs": 171
+    }
+  ],
+  "comparisons": [
+    {
+      "id": "Xenova/all-MiniLM-L6-v2",
+      "dimensions": 384,
+      "elapsedMs": 4,
+      "returned": 1
+    },
+    {
+      "id": "scratch-pilot-v1:1ed9ed95cc33",
+      "dimensions": 64,
+      "elapsedMs": 7,
+      "returned": 1
+    }
+  ],
+  "success": false,
+  "failure": "Saved profile edit retained a stale embedding after inference failure",
+  "cleanup": true,
+  "remainingProfiles": 0
+}

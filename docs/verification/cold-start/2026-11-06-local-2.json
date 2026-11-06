@@ -1,0 +1,290 @@
+{
+  "recordedAt": "2026-11-06T17:06:46.434Z",
+  "nodeVersion": "v26.8.2",
+  "verificationScriptSha256": "5e069a96c32d09522d24c5b5a60c458e97dacdfcfc24ad19762d33826e89303a",
+  "staleVectorMigrationSha256": "0e722259fe23bea0ddb3e90734a9676836293320320d65f65dedb88f3168cb44",
+  "source": "1668f9f966f79344e8306490888ba99651327080",
+  "run": "bbf3d089-ff9c-4236-8e05-046da2122fe5",
+  "environment": "isolated-local-production-build",
+  "primaryModel": "Xenova/all-MiniLM-L6-v2",
+  "dimensions": 384,
+  "relevanceJudged": false,
+  "graphImplemented": false,
+  "humanOnboardingTimeMeasured": false,
+  "cacheState": "fresh process for full runner; existing on-disk model cache may be reused",
+  "candidateCatalogue": [
+    {
+      "label": "Mentor",
+      "headline": "Backend engineering Mentor",
+      "skills": [
+        "Python",
+        "PostgreSQL"
+      ]
+    },
+    {
+      "label": "Second",
+      "headline": "Database systems Mentor",
+      "skills": [
+        "PostgreSQL"
+      ]
+    }
+  ],
+  "results": [
+    {
+      "name": "anonymous inference denied",
+      "passed": true
+    },
+    {
+      "name": "genuine signup has no vector or interaction-derived recommendations",
+      "passed": true
+    },
+    {
+      "name": "sparse professional profile embeds; empty catalogue stays empty",
+      "passed": true
+    },
+    {
+      "name": "new Mentor becomes discoverable after real inference; Mentee has zero history",
+      "passed": true
+    },
+    {
+      "name": "both models run on the same fresh pool with isolated vector widths",
+      "passed": true
+    },
+    {
+      "name": "saved unfamiliar input survives outage; stale vector excluded and real retry recovers",
+      "passed": true
+    },
+    {
+      "name": "both block directions, hidden Mentors, explicit availability, cross-user writes and model-width guards",
+      "passed": true
+    },
+    {
+      "name": "newer profile snapshots reject stale inference persistence",
+      "passed": true
+    },
+    {
+      "name": "browser request and acceptance persist; matching remains available with one interaction",
+      "passed": true
+    },
+    {
+      "name": "recommendations remain available with two distinct request interactions",
+      "passed": true
+    },
+    {
+      "name": "fixed-catalogue first results need no history; no skill overlap is not a suitability judgment",
+      "passed": true
+    },
+    {
+      "name": "discovery browser accessibility",
+      "passed": true
+    }
+  ],
+  "timings": [
+    {
+      "operation": "scripted-signup-submit-to-profile",
+      "elapsedMs": 246
+    },
+    {
+      "operation": "/api/embed",
+      "status": 422,
+      "elapsedMs": 21,
+      "returnedCount": null,
+      "candidateCount": null
+    },
+    {
+      "operation": "/api/match",
+      "status": 422,
+      "elapsedMs": 35,
+      "returnedCount": null,
+      "candidateCount": null
+    },
+    {
+      "operation": "/api/match/compare",
+      "status": 422,
+      "elapsedMs": 27,
+      "returnedCount": null,
+      "candidateCount": null
+    },
+    {
+      "operation": "scripted-profile-save-to-embedding-response",
+      "status": 200,
+      "expectedFailure": false,
+      "elapsedMs": 316
+    },
+    {
+      "operation": "/api/match",
+      "status": 200,
+      "elapsedMs": 26,
+      "returnedCount": 0,
+      "candidateCount": null
+    },
+    {
+      "operation": "scripted-signup-submit-to-profile",
+      "elapsedMs": 186
+    },
+    {
+      "operation": "/api/match",
+      "status": 200,
+      "elapsedMs": 22,
+      "returnedCount": 0,
+      "candidateCount": null
+    },
+    {
+      "operation": "scripted-profile-save-to-embedding-response",
+      "status": 200,
+      "expectedFailure": false,
+      "elapsedMs": 177
+    },
+    {
+      "operation": "/api/match",
+      "status": 200,
+      "elapsedMs": 23,
+      "returnedCount": 1,
+      "candidateCount": null
+    },
+    {
+      "operation": "mentor-profile-save-to-first-visible-result",
+      "elapsedMs": 203
+    },
+    {
+      "operation": "/api/match/compare",
+      "status": 200,
+      "elapsedMs": 28,
+      "returnedCount": null,
+      "candidateCount": 1
+    },
+    {
+      "operation": "scripted-profile-save-to-embedding-response",
+      "status": 503,
+      "expectedFailure": true,
+      "elapsedMs": 154
+    },
+    {
+      "operation": "/api/match",
+      "status": 422,
+      "elapsedMs": 41,
+      "returnedCount": null,
+      "candidateCount": null
+    },
+    {
+      "operation": "/api/match",
+      "status": 200,
+      "elapsedMs": 25,
+      "returnedCount": 1,
+      "candidateCount": null
+    },
+    {
+      "operation": "/api/match",
+      "status": 200,
+      "elapsedMs": 21,
+      "returnedCount": 0,
+      "candidateCount": null
+    },
+    {
+      "operation": "/api/match/compare",
+      "status": 200,
+      "elapsedMs": 23,
+      "returnedCount": null,
+      "candidateCount": 0
+    },
+    {
+      "operation": "/api/match",
+      "status": 200,
+      "elapsedMs": 22,
+      "returnedCount": 0,
+      "candidateCount": null
+    },
+    {
+      "operation": "/api/match",
+      "status": 200,
+      "elapsedMs": 31,
+      "returnedCount": 0,
+      "candidateCount": null
+    },
+    {
+      "operation": "/api/match",
+      "status": 200,
+      "elapsedMs": 46,
+      "returnedCount": 1,
+      "candidateCount": null
+    },
+    {
+      "operation": "/api/embed",
+      "status": 200,
+      "elapsedMs": 32,
+      "returnedCount": null,
+      "candidateCount": null
+    },
+    {
+      "operation": "/api/match",
+      "status": 200,
+      "elapsedMs": 29,
+      "returnedCount": 1,
+      "candidateCount": null
+    },
+    {
+      "operation": "scripted-signup-submit-to-profile",
+      "elapsedMs": 176
+    },
+    {
+      "operation": "scripted-profile-save-to-embedding-response",
+      "status": 200,
+      "expectedFailure": false,
+      "elapsedMs": 188
+    },
+    {
+      "operation": "/api/match",
+      "status": 200,
+      "elapsedMs": 39,
+      "returnedCount": 2,
+      "candidateCount": null
+    },
+    {
+      "operation": "scripted-signup-submit-to-profile",
+      "elapsedMs": 176
+    },
+    {
+      "operation": "scripted-profile-save-to-embedding-response",
+      "status": 200,
+      "expectedFailure": false,
+      "elapsedMs": 185
+    },
+    {
+      "operation": "/api/match",
+      "status": 200,
+      "elapsedMs": 22,
+      "returnedCount": 2,
+      "candidateCount": null
+    },
+    {
+      "operation": "mentee-profile-save-to-first-result",
+      "elapsedMs": 211,
+      "candidateCount": 2,
+      "returnedCount": 2,
+      "zeroHistory": true
+    }
+  ],
+  "comparisons": [
+    {
+      "id": "Xenova/all-MiniLM-L6-v2",
+      "dimensions": 384,
+      "elapsedMs": 5,
+      "returned": 1
+    },
+    {
+      "id": "scratch-pilot-v1:1ed9ed95cc33",
+      "dimensions": 64,
+      "elapsedMs": 7,
+      "returned": 1
+    }
+  ],
+  "browserVersion": "157.0.8103.38",
+  "success": true,
+  "summary": {
+    "passedCases": 12,
+    "recordedHttpOperations": 29,
+    "relevanceJudgments": 0
+  },
+  "cleanup": true,
+  "remainingProfiles": 0
+}
