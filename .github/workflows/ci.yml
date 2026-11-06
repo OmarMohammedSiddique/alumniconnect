@@ -88,6 +88,7 @@ jobs:
           run_suite postgres supabase/tests/rls_tests.sql
           run_suite postgres supabase/tests/email_notifications.sql
           run_suite postgres supabase/tests/request_reminders.sql
+          run_suite postgres supabase/tests/cold_start_embeddings.sql
           run_suite supabase_admin supabase/tests/google_signup_policy.sql
 
       - name: Stop local Supabase
