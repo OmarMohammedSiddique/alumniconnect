@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
   try {
-    const result = await processNotificationEmails(createAdminClient(), process.env.SITE_URL ?? "");
+    const result = await processNotificationEmails(createAdminClient(), process.env.SITE_URL ?? "", { scheduleReminders: true });
     return Response.json(result);
   } catch {
     return Response.json({ error: "Email processing unavailable. Retry later." }, { status: 503 });
