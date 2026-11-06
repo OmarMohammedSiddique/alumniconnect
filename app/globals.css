@@ -249,3 +249,23 @@ dialog::backdrop {
   backdrop-filter: blur(4px);
 }
 
+
+/* A static cursor needs no animation loop or pointer tracking. */
+@media (hover: hover) and (pointer: fine) and (forced-colors: none) {
+  body {
+    cursor: url("/cursors/paper-plane.svg") 3 3, auto;
+  }
+
+  a, button, summary, select, label[for], [role="button"],
+  input[type="checkbox"], input[type="radio"], input[type="submit"] {
+    cursor: pointer;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="file"]), textarea, [contenteditable="true"] {
+    cursor: text;
+  }
+
+  :disabled, [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+}

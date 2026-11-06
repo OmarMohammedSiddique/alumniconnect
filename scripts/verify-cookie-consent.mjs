@@ -23,8 +23,7 @@ const settings = () => page.getByRole("button", { name: "Cookie settings", exact
 async function closed() { await dialog.waitFor({ state: "hidden" }); }
 async function open() { await settings().click(); await dialog.waitFor({ state: "visible" }); }
 async function theme(name) {
-  await page.getByRole("button", { name: /Current theme:/ }).first().click();
-  await page.getByRole("menuitemradio", { name, exact: true }).click();
+  await page.getByRole("button", { name: `Switch to ${name.toLowerCase()} mode`, exact: true }).first().click();
   await page.evaluate(() => Promise.all(document.getAnimations()
     .filter(animation => animation.effect?.getComputedTiming().endTime !== Infinity)
     .map(animation => animation.finished.catch(() => {}))));

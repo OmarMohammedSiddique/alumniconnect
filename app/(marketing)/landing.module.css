@@ -2,12 +2,14 @@
   --ink: var(--foreground);
   --muted: var(--muted-foreground);
   --action: var(--primary);
+  --action-fill: var(--brand-red-deep);
   --soft-accent: var(--surface);
   --line: var(--border);
   background: var(--background);
   color: var(--ink);
   overflow: clip;
 }
+:global(.dark) .page { --action: color-mix(in srgb, var(--brand-red), var(--brand-white) 18%); }
 .page main { scroll-margin-top: var(--navigation-clearance); }
 .page a { text-decoration: none; }
 .page a:focus-visible, .page summary:focus-visible { outline: var(--focus-width) solid var(--ring); outline-offset: var(--focus-offset); }
@@ -15,7 +17,7 @@
 .skipLink { position: fixed; top: 12px; left: 12px; z-index: var(--z-skip); padding: 12px 20px; background: var(--card); transform: translateY(-160%); }
 .skipLink:focus { transform: translateY(0); }
 .identityBar { background: var(--inverse); color: var(--inverse-foreground); font-size: 12px; }
-.identityBar > div { min-height: 36px; display: flex; justify-content: space-between; align-items: center; gap: 20px; padding-block: 8px; }
+.identityBar > div { min-height: 36px; display: flex; justify-content: center; align-items: center; gap: 20px; padding-block: 8px; }
 .identityBar span:last-child { color: var(--inverse-muted); }
 .header { position: sticky; top: 0; z-index: var(--z-navigation); border-width: 0 0 1px; background: var(--card); color: var(--ink); }
 .header .navLinks a:hover, .header .signIn:hover { color: var(--action); text-decoration: underline; text-underline-offset: 5px; }
@@ -25,10 +27,10 @@
 .navLinks { color: var(--muted); }
 .navActions { gap: 22px; }
 .navLinks a:hover, .signIn:hover, .footer a:hover { color: var(--action); }
-.smallButton, .primaryButton { display: inline-flex; align-items: center; justify-content: center; gap: 12px; background: var(--action); color: var(--primary-foreground); border: 1px solid transparent; border-radius: var(--radius); font-weight: 550; transition: background var(--motion-fast) var(--ease-out), box-shadow var(--motion-fast) var(--ease-out); }
+.smallButton, .primaryButton { display: inline-flex; align-items: center; justify-content: center; gap: 12px; background: var(--action-fill); color: var(--primary-foreground); border: 1px solid transparent; border-radius: var(--radius); font-weight: 550; transition: background var(--motion-fast) var(--ease-out), box-shadow var(--motion-fast) var(--ease-out); }
 .smallButton { min-height: var(--control-height); padding: 10px 17px; font-size: 13px; }
 .primaryButton { min-height: 52px; padding: 14px 23px; font-size: 14px; box-shadow: var(--shadow-subtle); }
-.smallButton:hover, .primaryButton:hover { background: color-mix(in oklch, var(--action), var(--foreground) 12%); box-shadow: var(--shadow-panel); }
+.smallButton:hover, .primaryButton:hover { background: color-mix(in srgb, var(--action-fill), var(--brand-ink) 12%); box-shadow: var(--shadow-panel); }
 .hero { display: grid; grid-template-columns: 1.05fr 1fr; gap: 56px; align-items: center; padding-block: 64px; }
 .heroCopy { min-width: 0; }
 .heroLabel { font-size: 14px; font-weight: 650; color: var(--action); margin-bottom: 22px; }
@@ -111,7 +113,6 @@
   .heroNote { font-size: 12px; }
   .heroVisual { width: 100%; }
   .heroImage { aspect-ratio: 1.4; }
-  .identityBar span:last-child { display: none; }
   .contextStrip > div { flex-direction: column; align-items: flex-start; gap: 8px; padding-block: 21px; }
   .contextStrip span { font-size: 12px; }
   .section { padding-block: 62px; }

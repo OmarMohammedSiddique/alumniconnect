@@ -31,7 +31,7 @@ export default function AboutDeveloperPage() {
             <Brand imageClassName="h-10 sm:h-11" />
           </Link>
           <div className="flex items-center gap-3">
-            <ThemeToggle variant="compact" menuPlacement="bottom" />
+            <ThemeToggle />
             <Link
               href="/"
               className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:text-sm"
