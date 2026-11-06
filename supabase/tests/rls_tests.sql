@@ -686,6 +686,10 @@ end $$;
 update public.profiles set is_visible = true, member_visible = true, staff_hidden = false,
   skills = '{Nina,Python}'
 where id = '00000000-0000-0000-0000-000000000003';
+-- Refresh inference after changing this synthetic fixture's matching inputs.
+update public.profiles set embedding = (
+  select array_agg(case when i = 2 then 1.0 else 0.0 end)::extensions.vector(384)
+  from generate_series(1, 384) i) where id = '00000000-0000-0000-0000-000000000003';
 
 -- Only the mentor may change their availability; moderators and other members may not.
 select pg_temp.impersonate('00000000-0000-0000-0000-000000000004');
