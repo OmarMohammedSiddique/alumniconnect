@@ -1,5 +1,7 @@
 "use client";
 
+import { formatProfileSimilarity } from "@/lib/mentor-explanation";
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -98,7 +100,10 @@ export function ModelComparison({ canRequest, requestMap, onRequestSent, onBlock
             {model.error ? <StatusMessage tone="error">{model.error}</StatusMessage> :
               <ol className="space-y-4">
                 {model.matches.map((mentor, index) => <li key={mentor.id} className="space-y-2">
-                  <p className="text-sm font-medium">Rank {index + 1} <span className="text-muted-foreground">· Similarity {mentor.similarity.toFixed(3)}</span></p>
+                  <div>
+                    <p className="text-sm font-medium">Rank {index + 1}</p>
+                    <p className="text-xs text-muted-foreground">Profile text similarity: {formatProfileSimilarity(mentor.similarity)}</p>
+                  </div>
                   <MentorCard mentor={mentor} mode="semantic" canRequest={canRequest}
                     requestStatus={getActiveRelationshipStatus(mentor.id, requestMap)}
                     onRequestSent={onRequestSent} onBlocked={removeBlocked} />
