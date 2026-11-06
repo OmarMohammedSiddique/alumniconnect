@@ -22,7 +22,7 @@ export interface StoredCookieConsent {
 
 export const DEFAULT_PREFERENCES: CookiePreferences = {
   necessary: true,
-  functional: true,
+  functional: false,
   analytics: false,
 };
 
@@ -34,10 +34,13 @@ export function parseStoredConsent(value: unknown): StoredCookieConsent | null {
     if (parsed.version !== 1) return null;
     if (!parsed.preferences || typeof parsed.preferences !== "object") return null;
 
+    if (typeof parsed.preferences.functional !== "boolean" ||
+        typeof parsed.preferences.analytics !== "boolean") return null;
+
     const prefs: CookiePreferences = {
       necessary: true,
-      functional: Boolean(parsed.preferences.functional),
-      analytics: Boolean(parsed.preferences.analytics),
+      functional: parsed.preferences.functional,
+      analytics: parsed.preferences.analytics,
     };
 
     const timestamp = typeof parsed.timestamp === "string" ? parsed.timestamp : new Date().toISOString();
@@ -62,7 +65,7 @@ export function getStoredConsent(): StoredCookieConsent | null {
 }
 
 export function hasUserDecidedConsent(): boolean {
-  return getStoredConsent() !== null;
+  return getCookieConsentSnapshot() !== null;
 }
 
 // Global subscribers for reactive consent changes across components
@@ -97,26 +100,39 @@ function ensureConsentInitialized() {
 
   // Listen to cross-tab storage changes
   const storageHandler = (e: StorageEvent) => {
-    if (e.key === COOKIE_CONSENT_KEY) {
+    if (e.storageArea && e.storageArea !== localStorage) return;
+    if (e.key === COOKIE_CONSENT_KEY || e.key === null) {
       activeConsent = parseStoredConsent(e.newValue);
       notifyConsentListeners();
     }
   };
   window.addEventListener("storage", storageHandler);
+}
 
-  // Listen to custom DOM events for programmatic triggers
-  const customEventHandler = () => {
-    activeConsent = getStoredConsent();
-    notifyConsentListeners();
-  };
-  window.addEventListener(COOKIE_CONSENT_EVENT, customEventHandler);
+export function getCookieConsentSnapshot(): StoredCookieConsent | null {
+  if (typeof window === "undefined") return null;
+  ensureConsentInitialized();
+  return activeConsent;
+}
+
+export function subscribeToCookieConsent(listener: ConsentListener): () => void {
+  ensureConsentInitialized();
+  consentListeners.add(listener);
+  return () => { consentListeners.delete(listener); };
+}
+
+// The SDK can retain this callback after React unmounts Analytics on revocation.
+// Consult the live store on every event instead of capturing a render's grant.
+export function filterAnalyticsEvent<T>(event: T): T | null {
+  return getCookieConsentSnapshot()?.preferences.analytics === true ? event : null;
 }
 
 export function saveCookieConsent(preferences: Partial<CookiePreferences>): StoredCookieConsent {
+  ensureConsentInitialized();
   const finalPrefs: CookiePreferences = {
     necessary: true,
-    functional: preferences.functional ?? true,
-    analytics: preferences.analytics ?? false,
+    functional: preferences.functional === true,
+    analytics: preferences.analytics === true,
   };
 
   const payload: StoredCookieConsent = {
@@ -130,13 +146,15 @@ export function saveCookieConsent(preferences: Partial<CookiePreferences>): Stor
   if (typeof window !== "undefined") {
     try {
       localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify(payload));
-      window.dispatchEvent(new CustomEvent(COOKIE_CONSENT_EVENT, { detail: payload }));
     } catch {
       // Storage might be unavailable in restricted contexts
     }
   }
 
   notifyConsentListeners();
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent(COOKIE_CONSENT_EVENT, { detail: payload }));
+  }
   return payload;
 }
 
@@ -194,17 +212,8 @@ export function useCookieConsent(): {
   }, []);
 
   const consent = useSyncExternalStore(
-    (onStoreChange) => {
-      ensureConsentInitialized();
-      consentListeners.add(onStoreChange);
-      return () => {
-        consentListeners.delete(onStoreChange);
-      };
-    },
-    () => {
-      ensureConsentInitialized();
-      return activeConsent;
-    },
+    subscribeToCookieConsent,
+    getCookieConsentSnapshot,
     () => null
   );
 

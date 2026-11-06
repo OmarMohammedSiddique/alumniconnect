@@ -22,7 +22,7 @@ export default function PrivacyPage() {
         <li><strong className="text-foreground">Analytics &amp; Usability:</strong> Aggregated, privacy-preserving usage telemetry via Vercel Web Analytics to measure page navigation and platform stability. No personal identifiers or individual user data are recorded or shared.</li>
       </ul>
       <p className="mt-1 text-sm">
-        You can review or change your cookie choices at any time:{" "}
+        Optional functional storage and analytics remain off until you choose them. Rejecting functional storage removes your saved theme; appearance changes still work for the current session. Revoking analytics blocks subsequent events. You can review or change your choices at any time:{" "}
         <CookieSettingsTrigger className="inline-flex font-medium text-primary underline underline-offset-4 hover:text-primary/80" label="Manage cookie & storage settings" />.
       </p>
     </section>

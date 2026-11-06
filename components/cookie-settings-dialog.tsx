@@ -109,9 +109,9 @@ export function CookieSettingsDialog({ isOpen, onClose }: CookieSettingsDialogPr
       {...({ closedby: "any" } as Record<string, string>)}
       aria-labelledby={titleId}
       aria-describedby={descId}
-      className="m-auto w-[calc(100%-2rem)] max-w-2xl border border-border bg-card p-0 text-foreground shadow-2xl backdrop:bg-black/60 backdrop:backdrop-blur-xs open:flex open:flex-col"
+      className="m-auto w-[calc(100%-2rem)] max-w-2xl max-h-[calc(100dvh-2rem)] overscroll-contain border border-border bg-card p-0 text-foreground shadow-2xl backdrop:bg-black/60 backdrop:backdrop-blur-none open:flex open:flex-col"
     >
-      <div className="flex items-center justify-between border-b border-border px-6 py-5">
+      <div className="flex shrink-0 items-center justify-between border-b border-border px-6 py-5">
         <div className="flex items-center gap-3">
           <div className="flex size-9 items-center justify-center rounded-sm bg-primary/10 text-primary">
             <Sliders className="size-5" aria-hidden="true" />
@@ -124,13 +124,13 @@ export function CookieSettingsDialog({ isOpen, onClose }: CookieSettingsDialogPr
           type="button"
           onClick={handleCloseDialog}
           aria-label="Close cookie settings dialog"
-          className="inline-flex size-9 items-center justify-center rounded-sm border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          className="inline-flex size-11 items-center justify-center rounded-sm border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         >
           <X className="size-4" aria-hidden="true" />
         </button>
       </div>
 
-      <div className="max-h-[65vh] overflow-y-auto px-6 py-5 text-sm">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-5 text-sm">
         <p id={descId} className="leading-relaxed text-muted-foreground">
           AlumniKonneQt uses cookies and browser local storage to provide a secure and reliable experience.
           Customize your preferences below. Your choices are saved for this device and browser.
@@ -149,7 +149,7 @@ export function CookieSettingsDialog({ isOpen, onClose }: CookieSettingsDialogPr
                   Essential for Supabase authentication sessions, CSRF protection, secure form submissions, and remembering your privacy decisions. These cannot be disabled.
                 </p>
               </div>
-              <Badge tone="accent" className="shrink-0">
+              <Badge tone="neutral" className="shrink-0">
                 Always Active
               </Badge>
             </div>
@@ -207,7 +207,7 @@ export function CookieSettingsDialog({ isOpen, onClose }: CookieSettingsDialogPr
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-surface/50 px-6 py-4">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-border bg-card px-6 py-4">
         <Button
           type="button"
           variant="outline"
@@ -230,7 +230,7 @@ export function CookieSettingsDialog({ isOpen, onClose }: CookieSettingsDialogPr
             variant="default"
             size="sm"
             onClick={handleSave}
-            className="gap-1.5"
+            className="gap-1.5 bg-[var(--brand-red-deep)] hover:bg-[var(--brand-red-deep)]"
           >
             <Check className="size-4" aria-hidden="true" />
             Save Preferences

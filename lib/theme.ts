@@ -3,6 +3,7 @@
 // Persists explicit user choice in localStorage with cross-tab synchronization.
 
 import { useEffect, useSyncExternalStore } from "react";
+import { getCookieConsentSnapshot, subscribeToCookieConsent } from "./cookie-consent.ts";
 
 export type Theme = "light" | "dark";
 
@@ -18,6 +19,10 @@ export function parseTheme(value: unknown): Theme {
 export function getStoredTheme(): Theme {
   if (typeof window === "undefined") return "light";
   try {
+    if (!getCookieConsentSnapshot()?.preferences.functional) {
+      localStorage.removeItem(THEME_STORAGE_KEY);
+      return "light";
+    }
     return parseTheme(localStorage.getItem(THEME_STORAGE_KEY));
   } catch {
     return "light";
@@ -70,10 +75,13 @@ function ensureInitialized() {
   activeTheme = getStoredTheme();
   applyTheme(activeTheme);
 
+  subscribeToCookieConsent(persistThemePreference);
+
   // Listen to cross-tab storage changes
   const storageHandler = (e: StorageEvent) => {
-    if (e.key === THEME_STORAGE_KEY) {
-      activeTheme = parseTheme(e.newValue);
+    if (e.storageArea && e.storageArea !== localStorage) return;
+    if (e.key === THEME_STORAGE_KEY || e.key === null) {
+      activeTheme = getStoredTheme();
       applyTheme(activeTheme);
       notify();
     }
@@ -81,13 +89,23 @@ function ensureInitialized() {
   window.addEventListener("storage", storageHandler);
 }
 
-export function setAppTheme(newTheme: Theme): void {
-  activeTheme = parseTheme(newTheme);
+function persistThemePreference(): void {
+  if (typeof window === "undefined") return;
   try {
-    localStorage.setItem(THEME_STORAGE_KEY, activeTheme);
+    if (getCookieConsentSnapshot()?.preferences.functional) {
+      localStorage.setItem(THEME_STORAGE_KEY, activeTheme);
+    } else {
+      localStorage.removeItem(THEME_STORAGE_KEY);
+    }
   } catch {
-    // localStorage might be unavailable in restricted contexts
+    // Appearance still works for this session when storage is unavailable.
   }
+}
+
+export function setAppTheme(newTheme: Theme): void {
+  ensureInitialized();
+  activeTheme = parseTheme(newTheme);
+  persistThemePreference();
   applyTheme(activeTheme);
   notify();
 }

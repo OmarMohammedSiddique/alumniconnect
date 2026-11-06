@@ -1,3 +1,4 @@
+import { THEME_BOOTSTRAP_SCRIPT } from "@/lib/theme-bootstrap";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { CookieBanner } from "@/components/cookie-banner";
@@ -36,22 +37,7 @@ export default function RootLayout({
         <meta name="color-scheme" content="light" />
         <script
           dangerouslySetInnerHTML={{
-            __html: `
-              try {
-                var t = localStorage.getItem("alumnikonneqt-theme");
-                if (t === "dark") {
-                  document.documentElement.classList.add("dark");
-                  document.documentElement.classList.remove("light");
-                  var m = document.querySelector('meta[name="color-scheme"]');
-                  if (m) m.content = "dark";
-                } else {
-                  document.documentElement.classList.add("light");
-                  document.documentElement.classList.remove("dark");
-                  var m = document.querySelector('meta[name="color-scheme"]');
-                  if (m) m.content = "light";
-                }
-              } catch (_) {}
-            `,
+            __html: THEME_BOOTSTRAP_SCRIPT,
           }}
         />
       </head>
