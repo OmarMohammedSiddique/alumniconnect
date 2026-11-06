@@ -35,7 +35,7 @@ export default async function DashboardLayout({
             </Link>
             <CookieSettingsTrigger className="underline-offset-4 hover:underline" />
           </nav>
-          <PrototypeNotice />
+          <PrototypeNotice className="max-w-none basis-full" />
         </footer>
       </main>
     </div>

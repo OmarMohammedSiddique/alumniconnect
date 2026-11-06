@@ -28,7 +28,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <CookieSettingsTrigger className="underline-offset-4 hover:underline" />
           </nav>
           <div className="flex flex-col items-center justify-center gap-2">
-            <ThemeToggle variant="compact" menuPlacement="top" />
+            <ThemeToggle />
             <PrototypeNotice className="text-center" />
           </div>
         </footer>

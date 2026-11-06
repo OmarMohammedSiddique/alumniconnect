@@ -61,7 +61,7 @@ export function Brand({ className, imageClassName, tone = "auto" }: BrandProps) 
 
 export function PrototypeNotice({ className }: { className?: string }) {
   return (
-    <p className={cn("max-w-prose text-xs leading-relaxed text-muted-foreground", className)}>
+    <p className={cn("mx-auto max-w-prose text-center text-xs leading-relaxed text-muted-foreground", className)}>
       Independent academic prototype inspired by Kenya Airways. Not an official product or endorsed by the airline.
     </p>
   );

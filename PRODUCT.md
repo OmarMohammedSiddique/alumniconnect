@@ -47,4 +47,4 @@ Use the shared `solid-surface` class for utility panels and popup menus. Workspa
 
 ## Anti-patterns
 
-No official-endorsement language, proprietary fonts, fabricated data or functionality, airplane decoration, gradients, glass, glow, rounded containers, decorative translucency, nested cards, green as a competing primary color, red on every surface, or em dash characters. Keep copy specific and concise. Preserve routes, authentication, Supabase, ML logic, schemas, and unrelated research documentation.
+No official-endorsement language, proprietary fonts, fabricated data or functionality, airplane decoration beyond the requested static paper-plane cursor, gradients, glass, glow, rounded containers, decorative translucency, nested cards, green as a competing primary color, red on every surface, or em dash characters. Keep copy specific and concise. Preserve routes, authentication, Supabase, ML logic, schemas, and unrelated research documentation.
