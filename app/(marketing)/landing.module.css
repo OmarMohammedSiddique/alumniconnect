@@ -19,7 +19,11 @@
 .identityBar { background: var(--inverse); color: var(--inverse-foreground); font-size: 12px; }
 @media (hover: hover) and (pointer: fine) and (forced-colors: none) {
   .identityBar, .heroVisual, .community, .finalCta {
+    --hand-cursor: url("/cursors/hand-white.svg") 3 4, pointer;
     cursor: url("/cursors/paper-plane-white.svg") 3 4, auto;
+  }
+  .smallButton, .primaryButton {
+    --hand-cursor: url("/cursors/hand-white.svg") 3 4, pointer;
   }
 }
 .identityBar > div { min-height: 36px; display: flex; justify-content: center; align-items: center; gap: 20px; padding-block: 8px; }
@@ -87,6 +91,9 @@
 .faqSection > div > p { font-size: 13px; color: var(--muted); margin-top: 17px; }
 .faqs details { border-bottom: 1px solid var(--line); }
 .faqs summary { cursor: pointer; display: flex; justify-content: space-between; gap: 20px; padding-block: 20px; font-size: 13px; font-weight: 550; list-style: none; }
+@media (hover: hover) and (pointer: fine) and (forced-colors: none) {
+  .faqs summary { cursor: var(--hand-cursor); }
+}
 .faqs summary::-webkit-details-marker { display: none; }
 .faqs summary > span { color: var(--action); font-size: 20px; line-height: 1; }
 .faqs details[open] summary > span { transform: rotate(45deg); }
