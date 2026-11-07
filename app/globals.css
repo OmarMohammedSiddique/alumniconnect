@@ -49,6 +49,7 @@
 }
 
 :root {
+  --paper-plane-cursor: url("/cursors/paper-plane.svg") 3 5, auto;
   color-scheme: light;
   /* Approved palette. All supporting shades derive from these three colours. */
   --brand-red: #ED1C24;
@@ -122,6 +123,7 @@
 
 :root.dark,
 .dark {
+  --paper-plane-cursor: url("/cursors/paper-plane-white.svg") 3 5, auto;
   color-scheme: dark;
   --surface: color-mix(in srgb, var(--brand-white) 3%, var(--brand-ink));
   --success: var(--card);
@@ -252,8 +254,12 @@ dialog::backdrop {
 
 /* A static cursor needs no animation loop or pointer tracking. */
 @media (hover: hover) and (pointer: fine) and (forced-colors: none) {
-  body {
-    cursor: url("/cursors/paper-plane.svg") 3 3, auto;
+  body, .dark, .workspace-navigation {
+    cursor: var(--paper-plane-cursor);
+  }
+
+  .workspace-navigation {
+    --paper-plane-cursor: url("/cursors/paper-plane-white.svg") 3 5, auto;
   }
 
   a, button, summary, select, label[for], [role="button"],

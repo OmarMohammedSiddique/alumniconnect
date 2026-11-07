@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+  <defs>
+    <linearGradient id="paper" x1="3" y1="5" x2="20" y2="30" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F2F2F2"/>
+    </linearGradient>
+    <linearGradient id="fold" x1="22" y1="17" x2="27" y2="29" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B7B7B7"/>
+      <stop offset="1" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <filter id="shadow" x="0" y="0" width="40" height="40" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="2" stdDeviation="1.4" flood-color="#0D0D0D" flood-opacity=".25"/>
+    </filter>
+  </defs>
+  <g filter="url(#shadow)" stroke-linejoin="round">
+    <path d="M3 5 36 11.5 26 19 26.5 29 20.5 25 16.5 30Z" fill="#FFFFFF" stroke="#FFFFFF" stroke-width=".45"/>
+    <path d="M3 5 36 11.5 22 16.5Z" fill="#FFFFFF"/>
+    <path d="M3 5 22 16.5 16.5 30Z" fill="url(#paper)"/>
+    <path d="m22 16.5 14-5-10 7.5.5 10-6-4Z" fill="url(#fold)"/>
+    <path d="m22 16.5-1.5 8.5-4 5Z" fill="#DDDDDD"/>
+    <path d="M3 5 36 11.5 22 16.5Z" fill="none" stroke="#D4D4D4" stroke-opacity=".65" stroke-width=".55"/>
+    <path d="M3 5 22 16.5" stroke="#FFFFFF" stroke-width=".65"/>
+  </g>
+</svg>
