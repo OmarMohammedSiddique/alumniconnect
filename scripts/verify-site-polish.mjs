@@ -65,10 +65,10 @@ try {
   assert.equal((await page.request.get(`${appOrigin}/cursors/paper-plane.svg`)).status(), 200);
   assert.equal((await page.request.get(`${appOrigin}/cursors/paper-plane-white.svg`)).status(), 200);
   const cursorAt = locator => locator.evaluate(node => getComputedStyle(node).cursor);
-  for (const name of ['hand.svg', 'hand-white.svg']) {
+  for (const [name, size] of [['hand.svg', 20], ['hand-white.svg', 20], ['paper-plane.svg', 26], ['paper-plane-white.svg', 26]]) {
     const asset = await page.request.get(`${appOrigin}/cursors/${name}`);
     assert.equal(asset.status(), 200);
-    assert.match(await asset.text(), /width="34" height="34"/);
+    assert.ok((await asset.text()).includes(`width="${size}" height="${size}"`));
   }
   assert.match(await cursorAt(page.locator('summary').first()), /hand\.svg/);
   assert.match(await cursorAt(page.locator('[class*="communityLink"]').first()), /hand-white\.svg/);
@@ -85,7 +85,7 @@ try {
   assert.equal(await cursorAt(page.locator('#cursor-fixture textarea')), 'text');
   for (const button of await page.locator('#cursor-fixture button').all()) assert.equal(await cursorAt(button), 'not-allowed');
   await page.locator('#cursor-fixture').evaluate(node => node.remove());
-  assert.match(await cursorAt(page.locator('body')), /paper-plane\.svg.*3 4/);
+  assert.match(await cursorAt(page.locator('body')), /paper-plane\.svg.*2 3/);
   for (const selector of ['[class*="identityBar"]', '[class*="heroVisual"]', '[class*="community"]', '[class*="finalCta"]']) {
     assert.match(await cursorAt(page.locator(selector).first()), /paper-plane-white\.svg/);
   }

@@ -49,8 +49,8 @@
 }
 
 :root {
-  --paper-plane-cursor: url("/cursors/paper-plane.svg") 3 4, auto;
-  --hand-cursor: url("/cursors/hand.svg") 3 4, pointer;
+  --paper-plane-cursor: url("/cursors/paper-plane.svg") 2 3, auto;
+  --hand-cursor: url("/cursors/hand.svg") 2 3, pointer;
   color-scheme: light;
   /* Approved palette. All supporting shades derive from these three colours. */
   --brand-red: #ED1C24;
@@ -124,8 +124,8 @@
 
 :root.dark,
 .dark {
-  --paper-plane-cursor: url("/cursors/paper-plane-white.svg") 3 4, auto;
-  --hand-cursor: url("/cursors/hand-white.svg") 3 4, pointer;
+  --paper-plane-cursor: url("/cursors/paper-plane-white.svg") 2 3, auto;
+  --hand-cursor: url("/cursors/hand-white.svg") 2 3, pointer;
   color-scheme: dark;
   --surface: color-mix(in srgb, var(--brand-white) 3%, var(--brand-ink));
   --success: var(--card);
@@ -261,8 +261,8 @@ dialog::backdrop {
   }
 
   .workspace-navigation {
-    --paper-plane-cursor: url("/cursors/paper-plane-white.svg") 3 4, auto;
-    --hand-cursor: url("/cursors/hand-white.svg") 3 4, pointer;
+    --paper-plane-cursor: url("/cursors/paper-plane-white.svg") 2 3, auto;
+    --hand-cursor: url("/cursors/hand-white.svg") 2 3, pointer;
   }
 
   a, button, summary, select, label[for], [role="button"], .cursor-pointer,
