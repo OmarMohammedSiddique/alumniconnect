@@ -65,7 +65,7 @@ try {
   assert.equal((await page.request.get(`${appOrigin}/cursors/paper-plane.svg`)).status(), 200);
   assert.equal((await page.request.get(`${appOrigin}/cursors/paper-plane-white.svg`)).status(), 200);
   const cursorAt = locator => locator.evaluate(node => getComputedStyle(node).cursor);
-  assert.match(await cursorAt(page.locator('body')), /paper-plane\.svg.*3 5/);
+  assert.match(await cursorAt(page.locator('body')), /paper-plane\.svg.*3 4/);
   for (const selector of ['[class*="identityBar"]', '[class*="heroVisual"]', '[class*="community"]', '[class*="finalCta"]']) {
     assert.match(await cursorAt(page.locator(selector).first()), /paper-plane-white\.svg/);
   }
