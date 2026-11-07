@@ -63,8 +63,20 @@ try {
   assert.match(await page.locator('body').evaluate(node => getComputedStyle(node).cursor), /paper-plane/);
   assert.equal(await toggle().evaluate(node => getComputedStyle(node).cursor), 'pointer');
   assert.equal((await page.request.get(`${appOrigin}/cursors/paper-plane.svg`)).status(), 200);
+  assert.equal((await page.request.get(`${appOrigin}/cursors/paper-plane-white.svg`)).status(), 200);
+  const cursorAt = locator => locator.evaluate(node => getComputedStyle(node).cursor);
+  assert.match(await cursorAt(page.locator('body')), /paper-plane\.svg.*3 5/);
+  for (const selector of ['[class*="identityBar"]', '[class*="heroVisual"]', '[class*="community"]', '[class*="finalCta"]']) {
+    assert.match(await cursorAt(page.locator(selector).first()), /paper-plane-white\.svg/);
+  }
+  await page.emulateMedia({ forcedColors: 'active' });
+  assert.equal(await cursorAt(page.locator('body')), 'auto');
+  await page.emulateMedia({ forcedColors: 'none', reducedMotion: 'reduce' });
+  assert.match(await cursorAt(page.locator('body')), /paper-plane\.svg/);
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
   for (const dark of [false, true]) {
     if (dark) await toggle().click();
+    assert.match(await cursorAt(page.locator('body')), dark ? /paper-plane-white\.svg/ : /paper-plane\.svg/);
     await page.evaluate(() => Promise.all(document.getAnimations()
       .filter(animation => animation.effect?.getComputedTiming().endTime !== Infinity)
       .map(animation => animation.finished.catch(() => {}))));

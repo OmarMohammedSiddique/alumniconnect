@@ -17,6 +17,11 @@
 .skipLink { position: fixed; top: 12px; left: 12px; z-index: var(--z-skip); padding: 12px 20px; background: var(--card); transform: translateY(-160%); }
 .skipLink:focus { transform: translateY(0); }
 .identityBar { background: var(--inverse); color: var(--inverse-foreground); font-size: 12px; }
+@media (hover: hover) and (pointer: fine) and (forced-colors: none) {
+  .identityBar, .heroVisual, .community, .finalCta {
+    cursor: url("/cursors/paper-plane-white.svg") 3 5, auto;
+  }
+}
 .identityBar > div { min-height: 36px; display: flex; justify-content: center; align-items: center; gap: 20px; padding-block: 8px; }
 .identityBar span:last-child { color: var(--inverse-muted); }
 .header { position: sticky; top: 0; z-index: var(--z-navigation); border-width: 0 0 1px; background: var(--card); color: var(--ink); }
