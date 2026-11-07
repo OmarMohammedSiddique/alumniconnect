@@ -19,7 +19,7 @@
 .identityBar { background: var(--inverse); color: var(--inverse-foreground); font-size: 12px; }
 @media (hover: hover) and (pointer: fine) and (forced-colors: none) {
   .identityBar, .heroVisual, .community, .finalCta {
-    cursor: url("/cursors/paper-plane-white.svg") 3 5, auto;
+    cursor: url("/cursors/paper-plane-white.svg") 3 4, auto;
   }
 }
 .identityBar > div { min-height: 36px; display: flex; justify-content: center; align-items: center; gap: 20px; padding-block: 8px; }
