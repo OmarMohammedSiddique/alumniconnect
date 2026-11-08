@@ -1,0 +1,7 @@
+composition/.hyperframes/
+*.log
+check.json
+snapshots.json
+media-probe.json
+composition/.thumbnails/
+composition/.waveform-cache/
