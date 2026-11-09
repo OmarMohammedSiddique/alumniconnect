@@ -1,0 +1,485 @@
+# Complete project-owned and local-artifact file inventory
+
+Snapshot: 10 November 2026. Paths are relative to `/Users/omarsiddique/alumniconnect`. Includes tracked, untracked and ignored project/local files. Excludes only installed dependency trees, Git internals, build output, Python bytecode and virtual environments; those are separately enumerated in `ALL-FILES.tsv` in the transfer folder. Private files are named only, never reproduced. This is a file inventory, not authorization to publish or execute any file.
+
+- `.env.example` (tracked): Non-secret configuration template documenting public and server-only environment variable names.
+- `.env.hosted-demo-access.json` (local/untracked or ignored): PRIVATE generated hosted fictional-demo login details; access-bearing, do not publish or include in a general AI upload.
+- `.env.local` (local/untracked or ignored): PRIVATE local credentials and runtime configuration; transfer only through a secure secret channel, never copy into the brief.
+- `.github/ISSUE_TEMPLATE/bug_report.yml` (tracked): GitHub issue/PR template or automated CI/notification worker workflow: bug_report.yml.
+- `.github/ISSUE_TEMPLATE/feature_request.yml` (tracked): GitHub issue/PR template or automated CI/notification worker workflow: feature_request.yml.
+- `.github/PULL_REQUEST_TEMPLATE.md` (tracked): GitHub issue/PR template or automated CI/notification worker workflow: PULL_REQUEST_TEMPLATE.md.
+- `.github/workflows/ci.yml` (tracked): GitHub issue/PR template or automated CI/notification worker workflow: ci.yml.
+- `.github/workflows/notification-emails.yml` (tracked): GitHub issue/PR template or automated CI/notification worker workflow: notification-emails.yml.
+- `.gitignore` (tracked): Dependency/build/secret/private-ML ignore rules.
+- `.impeccable/hook.cache.json` (local/untracked or ignored): Local interface-design guidance/context: hook.cache.json.
+- `:memory:.ses` (local/untracked or ignored): Ignored local ONNX Runtime session/device artifact.
+- `AGENTS.md` (tracked): Mandatory contributor instructions: current Next.js guides, Gitmoji milestones, issue maintenance, punctuation and push boundaries.
+- `CONTRIBUTING.md` (tracked): Contributor workflow and pull-request verification guidance.
+- `PRODUCT.md` (tracked): Product identity, users, visual direction and behavior contracts; some visual rules are superseded by the November local-only design requests.
+- `README.md` (tracked): Repository introduction, setup, architecture, commands, CI and security summary, with some historical status text.
+- `SECURITY.md` (tracked): Vulnerability-reporting and security-boundary guidance.
+- `app/(auth)/account-email-actions.ts` (tracked; M): Server Actions for app/(auth) forms and authorized mutations.
+- `app/(auth)/actions.ts` (tracked; M): Server Actions for app/(auth) forms and authorized mutations.
+- `app/(auth)/arrival/arrival-screen.tsx` (local/untracked or ignored): Route-specific arrival screen interface, behavior or styling.
+- `app/(auth)/arrival/page.tsx` (local/untracked or ignored): Next.js route page for arrival.
+- `app/(auth)/auth-atmosphere.tsx` (local/untracked or ignored; ??): Route-specific auth atmosphere interface, behavior or styling.
+- `app/(auth)/forgot-password/page.tsx` (tracked; M): Next.js route page for forgot-password.
+- `app/(auth)/layout.tsx` (tracked; M): Shared route-group layout and access/visual shell for (auth).
+- `app/(auth)/login/code/actions.ts` (tracked; M): Server Actions for app/(auth)/login/code forms and authorized mutations.
+- `app/(auth)/login/code/code-form.tsx` (tracked; M): Route-specific code form interface, behavior or styling.
+- `app/(auth)/login/code/page.tsx` (tracked; M): Next.js route page for login/code.
+- `app/(auth)/login/google-sign-in.tsx` (tracked; M): Route-specific google sign in interface, behavior or styling.
+- `app/(auth)/login/login-form.tsx` (tracked; M): Route-specific login form interface, behavior or styling.
+- `app/(auth)/login/login-journey.tsx` (local/untracked or ignored; ??): Route-specific login journey interface, behavior or styling.
+- `app/(auth)/login/login-sky.module.css` (local/untracked or ignored; ??): Route-specific login sky.module interface, behavior or styling.
+- `app/(auth)/login/page.tsx` (tracked; M): Next.js route page for login.
+- `app/(auth)/privacy/page.tsx` (tracked; M): Next.js route page for privacy.
+- `app/(auth)/signup/page.tsx` (tracked; M): Next.js route page for signup.
+- `app/(auth)/signup/signup-form.tsx` (tracked; M): Route-specific signup form interface, behavior or styling.
+- `app/(auth)/verify-email/page.tsx` (tracked; M): Next.js route page for verify-email.
+- `app/(dashboard)/actions/safety.ts` (tracked): Route-specific safety interface, behavior or styling.
+- `app/(dashboard)/admin/actions.ts` (tracked): Server Actions for app/(dashboard)/admin forms and authorized mutations.
+- `app/(dashboard)/admin/admin-controls.tsx` (tracked; M): Route-specific admin controls interface, behavior or styling.
+- `app/(dashboard)/admin/page.tsx` (tracked; M): Next.js route page for admin.
+- `app/(dashboard)/dashboard-navigation.tsx` (tracked; M): Route-specific dashboard navigation interface, behavior or styling.
+- `app/(dashboard)/discover/discover-client.tsx` (tracked; M): Route-specific discover client interface, behavior or styling.
+- `app/(dashboard)/discover/mentor-card.tsx` (tracked; M): Route-specific mentor card interface, behavior or styling.
+- `app/(dashboard)/discover/model-comparison.tsx` (tracked; M): Route-specific model comparison interface, behavior or styling.
+- `app/(dashboard)/discover/page.tsx` (tracked): Next.js route page for discover.
+- `app/(dashboard)/discover/request-button.tsx` (tracked): Route-specific request button interface, behavior or styling.
+- `app/(dashboard)/error.tsx` (tracked; M): Route-specific error interface, behavior or styling.
+- `app/(dashboard)/layout.tsx` (tracked): Shared route-group layout and access/visual shell for (dashboard).
+- `app/(dashboard)/loading.tsx` (tracked): Route-specific loading interface, behavior or styling.
+- `app/(dashboard)/profile/actions.ts` (tracked): Server Actions for app/(dashboard)/profile forms and authorized mutations.
+- `app/(dashboard)/profile/availability-card.tsx` (tracked): Route-specific availability card interface, behavior or styling.
+- `app/(dashboard)/profile/email-preferences/actions.ts` (tracked): Server Actions for app/(dashboard)/profile/email-preferences forms and authorized mutations.
+- `app/(dashboard)/profile/email-preferences/page.tsx` (tracked; M): Next.js route page for profile/email-preferences.
+- `app/(dashboard)/profile/page.tsx` (tracked): Next.js route page for profile.
+- `app/(dashboard)/profile/photo/actions.ts` (tracked): Server Actions for app/(dashboard)/profile/photo forms and authorized mutations.
+- `app/(dashboard)/profile/photo/page.tsx` (tracked): Next.js route page for profile/photo.
+- `app/(dashboard)/profile/photo/photo-form.tsx` (tracked): Route-specific photo form interface, behavior or styling.
+- `app/(dashboard)/profile/privacy-settings-card.tsx` (tracked; M): Route-specific privacy settings card interface, behavior or styling.
+- `app/(dashboard)/profile/profile-form.tsx` (tracked; M): Route-specific profile form interface, behavior or styling.
+- `app/(dashboard)/profile/profile-setup.tsx` (tracked; M): Route-specific profile setup interface, behavior or styling.
+- `app/(dashboard)/requests/actions.ts` (tracked): Server Actions for app/(dashboard)/requests forms and authorized mutations.
+- `app/(dashboard)/requests/connection-card.tsx` (tracked): Route-specific connection card interface, behavior or styling.
+- `app/(dashboard)/requests/page.tsx` (tracked): Next.js route page for requests.
+- `app/(dashboard)/requests/request-actions.tsx` (tracked): Route-specific request actions interface, behavior or styling.
+- `app/(marketing)/about-developer/page.tsx` (tracked; M): Next.js route page for about-developer.
+- `app/(marketing)/about/page.tsx` (tracked): Next.js route page for about.
+- `app/(marketing)/landing.module.css` (tracked; M): Route-specific landing.module interface, behavior or styling.
+- `app/(marketing)/layout.tsx` (tracked): Shared route-group layout and access/visual shell for (marketing).
+- `app/(marketing)/page.tsx` (tracked; M): Next.js route page for (marketing).
+- `app/api/embed/route.ts` (tracked): Server HTTP handler for /api/embed.
+- `app/api/match/compare/route.ts` (tracked): Server HTTP handler for /api/match/compare.
+- `app/api/match/route.ts` (tracked): Server HTTP handler for /api/match.
+- `app/api/notifications/process/route.ts` (tracked): Server HTTP handler for /api/notifications/process.
+- `app/api/webhooks/resend/route.ts` (tracked): Server HTTP handler for /api/webhooks/resend.
+- `app/auth/callback/route.ts` (tracked; M): Server HTTP handler for /auth/callback.
+- `app/globals.css` (tracked; M): Route-specific globals interface, behavior or styling.
+- `app/icon.png` (tracked): Supplied original aK flight logo on a rounded white tile with transparent corners, used as the browser icon.
+- `app/layout.tsx` (tracked): Shared route-group layout and access/visual shell for ..
+- `brag-output/.gitignore` (tracked): Editable launch-film composition, production record or runtime asset: .gitignore.
+- `brag-output/README.md` (tracked): Documentation: AlumniKonneQt launch film.
+- `brag-output/audio-verification.log` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: audio-verification.log.
+- `brag-output/brag-plan.md` (tracked): Documentation: Brag Plan: AlumniKonneQt.
+- `brag-output/brag.jpg` (tracked): Launch-film image asset or verification frame: brag.jpg.
+- `brag-output/brag.mp4` (tracked): Rendered launch-film video or motion-verification clip: brag.mp4.
+- `brag-output/check.json` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: check.json.
+- `brag-output/check.log` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: check.log.
+- `brag-output/composition-brief.md` (tracked): Documentation: HyperFrames Composition Brief: AlumniKonneQt.
+- `brag-output/composition/.hyperframes/agent-handoff.json` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: agent-handoff.json.
+- `brag-output/composition/.hyperframes/artifacts/checks/254f3b05-fa00-464b-9f63-7ba270c65934.json` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: 254f3b05-fa00-464b-9f63-7ba270c65934.json.
+- `brag-output/composition/.hyperframes/artifacts/checks/29185e52-9ced-44f3-a59c-e0cbbc5e3730.json` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: 29185e52-9ced-44f3-a59c-e0cbbc5e3730.json.
+- `brag-output/composition/.hyperframes/artifacts/snapshots/07e51bbf-42f3-4ef2-b780-0d86be3bacf9/.capture-owner.json` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: .capture-owner.json.
+- `brag-output/composition/.hyperframes/artifacts/snapshots/07e51bbf-42f3-4ef2-b780-0d86be3bacf9/contact-sheet.jpg` (local/untracked or ignored): Launch-film image asset or verification frame: contact-sheet.jpg.
+- `brag-output/composition/.hyperframes/artifacts/snapshots/07e51bbf-42f3-4ef2-b780-0d86be3bacf9/frame-00-at-2s.png` (local/untracked or ignored): Launch-film image asset or verification frame: frame-00-at-2s.png.
+- `brag-output/composition/.hyperframes/artifacts/snapshots/07e51bbf-42f3-4ef2-b780-0d86be3bacf9/frame-01-at-6.5s.png` (local/untracked or ignored): Launch-film image asset or verification frame: frame-01-at-6.5s.png.
+- `brag-output/composition/.hyperframes/artifacts/snapshots/07e51bbf-42f3-4ef2-b780-0d86be3bacf9/frame-02-at-11s.png` (local/untracked or ignored): Launch-film image asset or verification frame: frame-02-at-11s.png.
+- `brag-output/composition/.hyperframes/artifacts/snapshots/07e51bbf-42f3-4ef2-b780-0d86be3bacf9/frame-03-at-18.5s.png` (local/untracked or ignored): Launch-film image asset or verification frame: frame-03-at-18.5s.png.
+- `brag-output/composition/.hyperframes/artifacts/snapshots/07e51bbf-42f3-4ef2-b780-0d86be3bacf9/frame-04-at-22s.png` (local/untracked or ignored): Launch-film image asset or verification frame: frame-04-at-22s.png.
+- `brag-output/composition/.hyperframes/artifacts/snapshots/07e51bbf-42f3-4ef2-b780-0d86be3bacf9/frame-05-at-23.75s.png` (local/untracked or ignored): Launch-film image asset or verification frame: frame-05-at-23.75s.png.
+- `brag-output/composition/.hyperframes/artifacts/snapshots/3f34ab63-c692-4ef6-99d1-45c729bbc7f9/.capture-owner.json` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: .capture-owner.json.
+- `brag-output/composition/.hyperframes/artifacts/snapshots/3f34ab63-c692-4ef6-99d1-45c729bbc7f9/contact-sheet.jpg` (local/untracked or ignored): Launch-film image asset or verification frame: contact-sheet.jpg.
+- `brag-output/composition/.hyperframes/desktop-cta.json` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: desktop-cta.json.
+- `brag-output/composition/.hyperframes/history-id` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: history-id.
+- `brag-output/composition/.hyperframes/preview/795fda84a572e3700eab0273e3e4a276.html` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: 795fda84a572e3700eab0273e3e4a276.html.
+- `brag-output/composition/.hyperframes/transcripts/2fa929138bc3a0f432696588f66eac94b8f6d463905ec8808c6461ce4b054292.json` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: 2fa929138bc3a0f432696588f66eac94b8f6d463905ec8808c6461ce4b054292.json.
+- `brag-output/composition/.hyperframes/transcripts/aa56ab1cdcbef6b05566c6a7c114323078580ccf6a740a9e6c6b6c4b40b4389f.json` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: aa56ab1cdcbef6b05566c6a7c114323078580ccf6a740a9e6c6b6c4b40b4389f.json.
+- `brag-output/composition/.hyperframes/transcripts/d21d0f0b782445db579d11e2506b24cd1ac9d664ee33aeaf807761aa7b6fd710.json` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: d21d0f0b782445db579d11e2506b24cd1ac9d664ee33aeaf807761aa7b6fd710.json.
+- `brag-output/composition/.hyperframes/video-state.json` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: video-state.json.
+- `brag-output/composition/.thumbnails/v5_18cff5bedb28e876_36e124e78fe1c629_jpeg_source_index.html_1920x1080_1920x1080_1794121424522_0.00.jpg` (local/untracked or ignored): Launch-film image asset or verification frame: v5_18cff5bedb28e876_36e124e78fe1c629_jpeg_source_index.html_1920x1080_1920x1080_1794121424522_0.00.jpg.
+- `brag-output/composition/.thumbnails/v5_566ffa80108cb91b_36e124e78fe1c629_jpeg_source_index.html_1920x1080_1920x1080_1794121424522_0.00.jpg` (local/untracked or ignored): Launch-film image asset or verification frame: v5_566ffa80108cb91b_36e124e78fe1c629_jpeg_source_index.html_1920x1080_1920x1080_1794121424522_0.00.jpg.
+- `brag-output/composition/.thumbnails/v5_v3_12cf982a7ee56530_8e9d92ad7906b763_jpeg_preview_compositions_discover.html_1920x1080_240x135_1794121424521_3.00.jpg` (local/untracked or ignored): Launch-film image asset or verification frame: v5_v3_12cf982a7ee56530_8e9d92ad7906b763_jpeg_preview_compositions_discover.html_1920x1080_240x135_1794121424521_3.00.jpg.
+- `brag-output/composition/.thumbnails/v5_v3_18cff5bedb28e876_36e124e78fe1c629_jpeg_preview_index.html_1920x1080_240x135_1794121424522_3.00.jpg` (local/untracked or ignored): Launch-film image asset or verification frame: v5_v3_18cff5bedb28e876_36e124e78fe1c629_jpeg_preview_index.html_1920x1080_240x135_1794121424522_3.00.jpg.
+- `brag-output/composition/.thumbnails/v5_v3_1c3150bf9cf7695d_03867f3ede789582_jpeg_preview_compositions_outro.html_1920x1080_240x135_1794121424521_3.00.jpg` (local/untracked or ignored): Launch-film image asset or verification frame: v5_v3_1c3150bf9cf7695d_03867f3ede789582_jpeg_preview_compositions_outro.html_1920x1080_240x135_1794121424521_3.00.jpg.
+- `brag-output/composition/.thumbnails/v5_v3_566ffa80108cb91b_36e124e78fe1c629_jpeg_preview_index.html_1920x1080_240x135_1794121424522_3.00.jpg` (local/untracked or ignored): Launch-film image asset or verification frame: v5_v3_566ffa80108cb91b_36e124e78fe1c629_jpeg_preview_index.html_1920x1080_240x135_1794121424522_3.00.jpg.
+- `brag-output/composition/.thumbnails/v5_v3_60e278c09bd3a000_b7e2ef5ce9ea3f16_jpeg_preview_compositions_profile.html_1920x1080_240x135_1794121424521_3.00.jpg` (local/untracked or ignored): Launch-film image asset or verification frame: v5_v3_60e278c09bd3a000_b7e2ef5ce9ea3f16_jpeg_preview_compositions_profile.html_1920x1080_240x135_1794121424521_3.00.jpg.
+- `brag-output/composition/.thumbnails/v5_v3_6b34bf10a63a02b0_1c5202e3aa71b282_jpeg_preview_compositions_request.html_1920x1080_240x135_1794121424521_3.00.jpg` (local/untracked or ignored): Launch-film image asset or verification frame: v5_v3_6b34bf10a63a02b0_1c5202e3aa71b282_jpeg_preview_compositions_request.html_1920x1080_240x135_1794121424521_3.00.jpg.
+- `brag-output/composition/.thumbnails/v5_v3_80959c7d9ec3f220_bab0235b27b83a4a_jpeg_preview_compositions_request.html_1920x1080_240x135_1794121479993_3.00.jpg` (local/untracked or ignored): Launch-film image asset or verification frame: v5_v3_80959c7d9ec3f220_bab0235b27b83a4a_jpeg_preview_compositions_request.html_1920x1080_240x135_1794121479993_3.00.jpg.
+- `brag-output/composition/.thumbnails/v5_v3_8b711f77d1414dcc_6b7cda6f41af8cd1_jpeg_preview_compositions_hook.html_1920x1080_240x135_1794121424521_3.00.jpg` (local/untracked or ignored): Launch-film image asset or verification frame: v5_v3_8b711f77d1414dcc_6b7cda6f41af8cd1_jpeg_preview_compositions_hook.html_1920x1080_240x135_1794121424521_3.00.jpg.
+- `brag-output/composition/.thumbnails/v5_v3_9b92590d8c42bca1_b7e2ef5ce9ea3f16_jpeg_preview_compositions_profile.html_1920x1080_240x135_1794121424521_3.00.jpg` (local/untracked or ignored): Launch-film image asset or verification frame: v5_v3_9b92590d8c42bca1_b7e2ef5ce9ea3f16_jpeg_preview_compositions_profile.html_1920x1080_240x135_1794121424521_3.00.jpg.
+- `brag-output/composition/.thumbnails/v5_v3_b8ce2fd587523f48_6b7cda6f41af8cd1_jpeg_preview_compositions_hook.html_1920x1080_240x135_1794121424521_3.00.jpg` (local/untracked or ignored): Launch-film image asset or verification frame: v5_v3_b8ce2fd587523f48_6b7cda6f41af8cd1_jpeg_preview_compositions_hook.html_1920x1080_240x135_1794121424521_3.00.jpg.
+- `brag-output/composition/.thumbnails/v5_v3_b97e4100b774410d_bab0235b27b83a4a_jpeg_preview_compositions_request.html_1920x1080_240x135_1794121479993_3.00.jpg` (local/untracked or ignored): Launch-film image asset or verification frame: v5_v3_b97e4100b774410d_bab0235b27b83a4a_jpeg_preview_compositions_request.html_1920x1080_240x135_1794121479993_3.00.jpg.
+- `brag-output/composition/.thumbnails/v5_v3_c72487e937d316ce_36e124e78fe1c629_jpeg_preview_index.html_1920x1080_240x135_1794121424522_3.00.jpg` (local/untracked or ignored): Launch-film image asset or verification frame: v5_v3_c72487e937d316ce_36e124e78fe1c629_jpeg_preview_index.html_1920x1080_240x135_1794121424522_3.00.jpg.
+- `brag-output/composition/.thumbnails/v5_v3_d3093975dc93bfe6_8e9d92ad7906b763_jpeg_preview_compositions_discover.html_1920x1080_240x135_1794121424521_3.00.jpg` (local/untracked or ignored): Launch-film image asset or verification frame: v5_v3_d3093975dc93bfe6_8e9d92ad7906b763_jpeg_preview_compositions_discover.html_1920x1080_240x135_1794121424521_3.00.jpg.
+- `brag-output/composition/.thumbnails/v5_v3_d820a9bb8fb09ab9_03867f3ede789582_jpeg_preview_compositions_outro.html_1920x1080_240x135_1794121424521_3.00.jpg` (local/untracked or ignored): Launch-film image asset or verification frame: v5_v3_d820a9bb8fb09ab9_03867f3ede789582_jpeg_preview_compositions_outro.html_1920x1080_240x135_1794121424521_3.00.jpg.
+- `brag-output/composition/.waveform-cache/peaks-v2_assets_music_bed.mp3_3936384-1794121239388.json` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: peaks-v2_assets_music_bed.mp3_3936384-1794121239388.json.
+- `brag-output/composition/.waveform-cache/peaks-v2_assets_sfx_card.ogg_4848-1794121239390.json` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: peaks-v2_assets_sfx_card.ogg_4848-1794121239390.json.
+- `brag-output/composition/.waveform-cache/peaks-v2_assets_sfx_click.ogg_4371-1794121239390.json` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: peaks-v2_assets_sfx_click.ogg_4371-1794121239390.json.
+- `brag-output/composition/.waveform-cache/v2_assets_music_bed.mp3_3936384-1794121239388.json` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: v2_assets_music_bed.mp3_3936384-1794121239388.json.
+- `brag-output/composition/.waveform-cache/v2_assets_sfx_card.ogg_4848-1794121239390.json` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: v2_assets_sfx_card.ogg_4848-1794121239390.json.
+- `brag-output/composition/assets/community-collaboration.webp` (tracked): Launch-film image asset or verification frame: community-collaboration.webp.
+- `brag-output/composition/assets/fonts/geist.woff2` (tracked): Editable launch-film composition, production record or runtime asset: geist.woff2.
+- `brag-output/composition/assets/gsap.min.js` (tracked): Editable launch-film composition, production record or runtime asset: gsap.min.js.
+- `brag-output/composition/assets/logo-light.png` (tracked): Launch-film image asset or verification frame: logo-light.png.
+- `brag-output/composition/assets/logo-white.png` (tracked): Launch-film image asset or verification frame: logo-white.png.
+- `brag-output/composition/assets/music/bed.mp3` (tracked): Launch-film music or sound-effect asset: bed.mp3; preserve attribution/licensing.
+- `brag-output/composition/assets/sfx/card.ogg` (tracked): Launch-film music or sound-effect asset: card.ogg; preserve attribution/licensing.
+- `brag-output/composition/assets/sfx/click.ogg` (tracked): Launch-film music or sound-effect asset: click.ogg; preserve attribution/licensing.
+- `brag-output/composition/compositions/discover.html` (tracked): Editable launch-film composition, production record or runtime asset: discover.html.
+- `brag-output/composition/compositions/hook.html` (tracked): Editable launch-film composition, production record or runtime asset: hook.html.
+- `brag-output/composition/compositions/outro.html` (tracked): Editable launch-film composition, production record or runtime asset: outro.html.
+- `brag-output/composition/compositions/profile.html` (tracked): Editable launch-film composition, production record or runtime asset: profile.html.
+- `brag-output/composition/compositions/request.html` (tracked): Editable launch-film composition, production record or runtime asset: request.html.
+- `brag-output/composition/hyperframes.json` (tracked): Editable launch-film composition, production record or runtime asset: hyperframes.json.
+- `brag-output/composition/index.html` (tracked): Editable launch-film composition, production record or runtime asset: index.html.
+- `brag-output/composition/meta.json` (tracked): Editable launch-film composition, production record or runtime asset: meta.json.
+- `brag-output/composition/package.json` (tracked): Editable launch-film composition, production record or runtime asset: package.json.
+- `brag-output/media-probe.json` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: media-probe.json.
+- `brag-output/render.log` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: render.log.
+- `brag-output/share-copy.txt` (tracked): Editable launch-film composition, production record or runtime asset: share-copy.txt.
+- `brag-output/snapshot.log` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: snapshot.log.
+- `brag-output/snapshots.json` (local/untracked or ignored): Editable launch-film composition, production record or runtime asset: snapshots.json.
+- `brag-output/verification.md` (tracked): Documentation: Local launch-film verification.
+- `components.json` (tracked): Shared UI generation aliases and styling configuration.
+- `components/account-email-form.tsx` (tracked): Reusable account email form interface component or scoped styling.
+- `components/analytics-wrapper.tsx` (tracked): Reusable analytics wrapper interface component or scoped styling.
+- `components/animations/stagger-reveal.tsx` (tracked): Reusable stagger reveal interface component or scoped styling.
+- `components/brand.tsx` (tracked): Reusable brand interface component or scoped styling.
+- `components/cookie-banner.tsx` (tracked; M): Reusable cookie banner interface component or scoped styling.
+- `components/cookie-settings-dialog.tsx` (tracked; M): Reusable cookie settings dialog interface component or scoped styling.
+- `components/cookie-settings-trigger.tsx` (tracked): Reusable cookie settings trigger interface component or scoped styling.
+- `components/profile-photo-picker.tsx` (tracked; M): Reusable profile photo picker interface component or scoped styling.
+- `components/quick-actions.tsx` (tracked; M): Reusable quick actions interface component or scoped styling.
+- `components/safety/block-dialog.tsx` (tracked): Reusable block dialog interface component or scoped styling.
+- `components/safety/report-dialog.tsx` (tracked): Reusable report dialog interface component or scoped styling.
+- `components/safety/safety-actions-menu.tsx` (tracked): Reusable safety actions menu interface component or scoped styling.
+- `components/theme-toggle.tsx` (tracked): Reusable theme toggle interface component or scoped styling.
+- `components/ui/badge.tsx` (tracked): Reusable badge interface component or scoped styling.
+- `components/ui/button.tsx` (tracked): Reusable button interface component or scoped styling.
+- `components/ui/card.tsx` (tracked; M): Reusable card interface component or scoped styling.
+- `components/ui/empty-state.tsx` (tracked; M): Reusable empty state interface component or scoped styling.
+- `components/ui/field-guidance.tsx` (tracked): Reusable field guidance interface component or scoped styling.
+- `components/ui/input.tsx` (tracked): Reusable input interface component or scoped styling.
+- `components/ui/label.tsx` (tracked): Reusable label interface component or scoped styling.
+- `components/ui/loading-state.tsx` (tracked): Reusable loading state interface component or scoped styling.
+- `components/ui/page-heading.tsx` (tracked): Reusable page heading interface component or scoped styling.
+- `components/ui/password-input.module.css` (local/untracked or ignored; ??): Reusable password input.module interface component or scoped styling.
+- `components/ui/password-input.tsx` (tracked; M): Reusable password input interface component or scoped styling.
+- `components/ui/status-message.tsx` (tracked): Reusable status message interface component or scoped styling.
+- `docs/chat-worklog-2026-10-29.md` (tracked): Documentation: AlumniKonneQt conversation worklog and handoff.
+- `docs/colab-training-workflow.md` (tracked): Documentation: AlumniKonneQt · local → GitHub → Colab → Drive.
+- `docs/cold-start-protocol.md` (tracked): Documentation: Cold-start verification protocol.
+- `docs/dependency-review-2026-11-04.md` (tracked): Documentation: Remaining dependency alerts and issue review.
+- `docs/environment-verification.md` (tracked): Documentation: Local environment verification · October 2026.
+- `docs/eval-results.md` (tracked): Documentation: Matching Engine Evaluation.
+- `docs/handover/CHAT-INDEX.md` (local/untracked or ignored): Transfer documentation: CHAT INDEX.
+- `docs/handover/FILES.md` (handover output): One-line descriptions and snapshot tracking state for every project-owned and local-artifact file.
+- `docs/handover/HANDOVER.md` (handover output): Detailed standalone nine-section continuation brief, with verified/historical/unresolved boundaries.
+- `docs/handover/ISSUE-REGISTER.md` (local/untracked or ignored): Transfer documentation: ISSUE REGISTER.
+- `docs/hosting-dns-decision.md` (tracked): Documentation: Hosting and DNS decision: Cloudflare (#35).
+- `docs/live-model-comparison.md` (tracked): Documentation: Live model comparison.
+- `docs/membership-verification-policy.md` (tracked): Documentation: Membership Eligibility and Affiliation Verification Policy.
+- `docs/ml-bundle-audit-2026-11-02.md` (tracked): Documentation: Independent synthetic pilot audit · 2 November 2026.
+- `docs/ml-data-audit.md` (tracked): Documentation: Synthetic source audit.
+- `docs/ml-delivery-plan.md` (tracked): Documentation: AlumniKonneQt · ML delivery plan.
+- `docs/ml-experiment-protocol.md` (tracked): Documentation: Mentorship relevance experiment protocol.
+- `docs/ml-machine-pilot-status.md` (tracked): Documentation: Machine-labelled pilot status · 2 November 2026.
+- `docs/ml-next-steps.md` (tracked): Documentation: What to do next · beginner's guide.
+- `docs/ml-pilot-bundle-audit.json` (tracked): Project tooling or build configuration: ml-pilot-bundle-audit.json.
+- `docs/ml-pilot-training.md` (tracked): Documentation: From-scratch pilot execution · 2 November 2026.
+- `docs/ml-source-intake.md` (tracked): Documentation: Gemini export · structural intake.
+- `docs/ml-system-guide.md` (tracked): Documentation: AlumniKonneQt ML system guide.
+- `docs/project-checklist.md` (tracked): Documentation: AlumniKonneQt Project Checklist.
+- `docs/proposal-traceability.md` (tracked): Documentation: Approved proposal to implementation traceability audit.
+- `docs/report-chapter-5.md` (tracked): Documentation: Chapter 5 System Implementation Testing and Evaluation.
+- `docs/scope-decision-jobs-cohorts-events.md` (tracked): Documentation: Scope amendment and decision record: jobs, cohorts, and events (#7).
+- `docs/scratch-model-requirements.md` (tracked): Documentation: Confirmed Scratch-Training and Live-Model Acceptance Requirements.
+- `docs/source-reconciliation-2026-11-04.md` (tracked): Documentation: Source reconciliation · 4 November 2026.
+- `docs/sprint-presentation-2026-11-05.md` (tracked): Documentation: AlumniKonneQt: Graded Sprint Review Presentation Runbook.
+- `docs/sprint-review-readiness.md` (tracked): Documentation: AlumniKonneQt · Sprint review board.
+- `docs/verification/account-email.md` (tracked): Documentation: Account confirmation and password recovery ,  issues #15 and #36.
+- `docs/verification/auth-discovery-recovery.md` (tracked): Documentation: Sign-in and discovery recovery ,  5 November 2026.
+- `docs/verification/cold-start.md` (tracked): Documentation: Cold-start engineering evidence.
+- `docs/verification/cold-start/2026-11-06-ci.json` (tracked): Project tooling or build configuration: 2026-11-06-ci.json.
+- `docs/verification/cold-start/2026-11-06-local-1.json` (tracked): Project tooling or build configuration: 2026-11-06-local-1.json.
+- `docs/verification/cold-start/2026-11-06-local-2.json` (tracked): Project tooling or build configuration: 2026-11-06-local-2.json.
+- `docs/verification/cold-start/2026-11-06-regression-before-fix.json` (tracked): Project tooling or build configuration: 2026-11-06-regression-before-fix.json.
+- `docs/verification/cold-start/2026-11-07-hosted.json` (tracked): Project tooling or build configuration: 2026-11-07-hosted.json.
+- `docs/verification/cookie-consent.md` (tracked): Documentation: Cookie consent acceptance, issue #75.
+- `docs/verification/email-otp.md` (tracked): Documentation: Email code sign-in (#32) and Resend setup (#34).
+- `docs/verification/evidence/issue17/after-edge-320.jpg` (tracked): Project tooling or build configuration: after-edge-320.jpg.
+- `docs/verification/evidence/issue17/after-edge-desktop.jpg` (tracked): Project tooling or build configuration: after-edge-desktop.jpg.
+- `docs/verification/evidence/issue17/after-edge-mobile-dark.jpg` (tracked): Project tooling or build configuration: after-edge-mobile-dark.jpg.
+- `docs/verification/evidence/issue17/before-desktop.jpg` (tracked): Project tooling or build configuration: before-desktop.jpg.
+- `docs/verification/evidence/issue17/before-edge-320.jpg` (tracked): Project tooling or build configuration: before-edge-320.jpg.
+- `docs/verification/evidence/issue17/before-keyword-mobile.jpg` (tracked): Project tooling or build configuration: before-keyword-mobile.jpg.
+- `docs/verification/evidence/issue17/before-mobile-dark.jpg` (tracked): Project tooling or build configuration: before-mobile-dark.jpg.
+- `docs/verification/google-sign-in.md` (tracked): Documentation: Google sign-in setup and verification.
+- `docs/verification/hosted-demo.md` (tracked): Documentation: Hosted fictional demo pool ,  5 November 2026.
+- `docs/verification/issue-36/signup-desktop.png` (tracked): Project tooling or build configuration: signup-desktop.png.
+- `docs/verification/issue-36/signup-mobile.png` (tracked): Project tooling or build configuration: signup-mobile.png.
+- `docs/verification/mentor-explanations.md` (tracked): Documentation: Mentor explanation acceptance, issue #17.
+- `docs/verification/registration-privacy-assessment.md` (tracked): Documentation: Registration layout and privacy-claim assessment.
+- `docs/verification/resend-delivery.md` (tracked): Documentation: Resend configuration, delivery architecture and operational runbook (#34).
+- `docs/verification/signup-profile-photos.md` (tracked): Documentation: Registration and private profile-photo acceptance (#36).
+- `eslint.config.mjs` (tracked): Project tooling or build configuration: eslint.config.mjs.
+- `lib/account-email.test.mjs` (tracked): Regression tests for account email.
+- `lib/account-email.ts` (tracked): Shared application logic for account email.
+- `lib/admin-profile-action.test.mjs` (tracked): Regression tests for admin profile action.
+- `lib/admin-profile-action.ts` (tracked): Shared application logic for admin profile action.
+- `lib/auth-arrival.test.mjs` (local/untracked or ignored; ??): Regression tests for auth arrival.
+- `lib/auth-redirect.test.mjs` (tracked): Regression tests for auth redirect.
+- `lib/auth-redirect.ts` (tracked): Shared application logic for auth redirect.
+- `lib/connection-kickstarter.test.mjs` (tracked): Regression tests for connection kickstarter.
+- `lib/connection-kickstarter.ts` (tracked): Shared application logic for connection kickstarter.
+- `lib/cookie-consent-lifecycle.test.mjs` (tracked): Regression tests for cookie consent lifecycle.
+- `lib/cookie-consent.test.mjs` (tracked): Regression tests for cookie consent.
+- `lib/cookie-consent.ts` (tracked): Shared application logic for cookie consent.
+- `lib/cookie-footer-acceptance.test.mjs` (tracked): Regression tests for cookie footer acceptance.
+- `lib/discovery-filters.test.mjs` (tracked): Regression tests for discovery filters.
+- `lib/discovery-filters.ts` (tracked): Shared application logic for discovery filters.
+- `lib/email-delivery.test.mjs` (tracked): Regression tests for email delivery.
+- `lib/email-delivery.ts` (tracked): Shared application logic for email delivery.
+- `lib/email-otp.test.mjs` (tracked): Regression tests for email otp.
+- `lib/email-otp.ts` (tracked): Shared application logic for email otp.
+- `lib/email-webhook.test.mjs` (tracked): Regression tests for email webhook.
+- `lib/email-webhook.ts` (tracked): Shared application logic for email webhook.
+- `lib/embedding/embed-guard.test.mjs` (tracked): Regression tests for embed guard.
+- `lib/embedding/embed-guard.ts` (tracked): Shared application logic for embed guard.
+- `lib/embedding/embed.ts` (tracked): Shared application logic for embed.
+- `lib/form-limits.ts` (tracked): Shared application logic for form limits.
+- `lib/google-auth.test.mjs` (tracked): Regression tests for google auth.
+- `lib/google-auth.ts` (tracked): Shared application logic for google auth.
+- `lib/mentor-explanation.test.mjs` (tracked): Regression tests for mentor explanation.
+- `lib/mentor-explanation.ts` (tracked): Shared application logic for mentor explanation.
+- `lib/mentorship-request.test.mjs` (tracked): Regression tests for mentorship request.
+- `lib/mentorship-request.ts` (tracked): Shared application logic for mentorship request.
+- `lib/model-comparison.ts` (tracked): Shared application logic for model comparison.
+- `lib/notification-dispatch.ts` (tracked): Shared application logic for notification dispatch.
+- `lib/notification-email.test.mjs` (tracked): Regression tests for notification email.
+- `lib/notification-email.ts` (tracked): Shared application logic for notification email.
+- `lib/notification-worker.ts` (tracked): Shared application logic for notification worker.
+- `lib/profile-draft.test.mjs` (tracked): Regression tests for profile draft.
+- `lib/profile-draft.ts` (tracked): Shared application logic for profile draft.
+- `lib/profile-match-update.test.mjs` (tracked): Regression tests for profile match update.
+- `lib/profile-match-update.ts` (tracked): Shared application logic for profile match update.
+- `lib/profile-name.test.mjs` (tracked): Regression tests for profile name.
+- `lib/profile-name.ts` (tracked): Shared application logic for profile name.
+- `lib/profile-photo.ts` (tracked): Shared application logic for profile photo.
+- `lib/profile-privacy.test.mjs` (tracked): Regression tests for profile privacy.
+- `lib/profile-privacy.ts` (tracked): Shared application logic for profile privacy.
+- `lib/profile-skills.test.mjs` (tracked): Regression tests for profile skills.
+- `lib/profile-skills.ts` (tracked): Shared application logic for profile skills.
+- `lib/registration-privacy.test.mjs` (tracked): Regression tests for registration privacy.
+- `lib/registration-privacy.ts` (tracked): Shared application logic for registration privacy.
+- `lib/request-deadline.test.mjs` (tracked): Regression tests for request deadline.
+- `lib/request-deadline.ts` (tracked): Shared application logic for request deadline.
+- `lib/scratch-model.test.mjs` (tracked): Regression tests for scratch model.
+- `lib/scratch-model.ts` (tracked): Shared application logic for scratch model.
+- `lib/signup-validation.test.mjs` (tracked): Regression tests for signup validation.
+- `lib/signup-validation.ts` (tracked): Shared application logic for signup validation.
+- `lib/supabase/admin.ts` (tracked): Supabase admin client/session/credential boundary helper.
+- `lib/supabase/auth-fetch.ts` (tracked): Supabase auth fetch client/session/credential boundary helper.
+- `lib/supabase/client.ts` (tracked): Supabase client client/session/credential boundary helper.
+- `lib/supabase/server.ts` (tracked): Supabase server client/session/credential boundary helper.
+- `lib/theme-bootstrap.ts` (tracked): Shared application logic for theme bootstrap.
+- `lib/theme.test.mjs` (tracked): Regression tests for theme.
+- `lib/theme.ts` (tracked): Shared application logic for theme.
+- `lib/utils.ts` (tracked): Shared application logic for utils.
+- `ml/.DS_Store` (local/untracked or ignored): ML audit, preparation, training or export implementation/configuration: .DS_Store.
+- `ml/README.md` (tracked): Documentation: ML experiment tooling.
+- `ml/artifacts/alumniconnect_engineering_pilot_2026-11-02.zip` (local/untracked or ignored): PRIVATE generated ML notebook, transfer bundle or artifact: alumniconnect_engineering_pilot_2026-11-02.zip.
+- `ml/artifacts/colab-success.jpg` (local/untracked or ignored): PRIVATE generated ML notebook, transfer bundle or artifact: colab-success.jpg.
+- `ml/artifacts/notebook-loss.png` (local/untracked or ignored): PRIVATE generated ML notebook, transfer bundle or artifact: notebook-loss.png.
+- `ml/artifacts/scratch_pilot.executed.ipynb` (local/untracked or ignored): PRIVATE generated ML notebook, transfer bundle or artifact: scratch_pilot.executed.ipynb.
+- `ml/artifacts/scratch_pilot.subprocess.executed.ipynb` (local/untracked or ignored): PRIVATE generated ML notebook, transfer bundle or artifact: scratch_pilot.subprocess.executed.ipynb.
+- `ml/audit_export.py` (tracked): ML audit, preparation, training or export implementation/configuration: audit_export.py.
+- `ml/audit_pilot_bundle.py` (tracked): ML audit, preparation, training or export implementation/configuration: audit_pilot_bundle.py.
+- `ml/data/pilot-machine-v1/README.md` (local/untracked or ignored): PRIVATE derived machine-labelled pilot input or manifest: README.md; not approved human-reviewed research data.
+- `ml/data/pilot-machine-v1/manifest.json` (local/untracked or ignored): PRIVATE derived machine-labelled pilot input or manifest: manifest.json; not approved human-reviewed research data.
+- `ml/data/pilot-machine-v1/review_flags.json` (local/untracked or ignored): PRIVATE derived machine-labelled pilot input or manifest: review_flags.json; not approved human-reviewed research data.
+- `ml/data/pilot-machine-v1/test_pairs.jsonl` (local/untracked or ignored): PRIVATE derived machine-labelled pilot input or manifest: test_pairs.jsonl; not approved human-reviewed research data.
+- `ml/data/pilot-machine-v1/test_profiles.jsonl` (local/untracked or ignored): PRIVATE derived machine-labelled pilot input or manifest: test_profiles.jsonl; not approved human-reviewed research data.
+- `ml/data/pilot-machine-v1/train_pairs.jsonl` (local/untracked or ignored): PRIVATE derived machine-labelled pilot input or manifest: train_pairs.jsonl; not approved human-reviewed research data.
+- `ml/data/pilot-machine-v1/train_profiles.jsonl` (local/untracked or ignored): PRIVATE derived machine-labelled pilot input or manifest: train_profiles.jsonl; not approved human-reviewed research data.
+- `ml/data/pilot-machine-v1/validation_pairs.jsonl` (local/untracked or ignored): PRIVATE derived machine-labelled pilot input or manifest: validation_pairs.jsonl; not approved human-reviewed research data.
+- `ml/data/pilot-machine-v1/validation_profiles.jsonl` (local/untracked or ignored): PRIVATE derived machine-labelled pilot input or manifest: validation_profiles.jsonl; not approved human-reviewed research data.
+- `ml/export_scratch_pilot.py` (tracked): ML audit, preparation, training or export implementation/configuration: export_scratch_pilot.py.
+- `ml/models/scratch-pilot-v1/encoder.onnx` (tracked): Committed scratch-pilot ONNX inference weights: encoder.onnx.
+- `ml/models/scratch-pilot-v1/manifest.json` (tracked): Committed scratch-pilot preprocessing/hash contract and parity evidence: manifest.json.
+- `ml/models/scratch-pilot-v1/parity.json` (tracked): Committed scratch-pilot preprocessing/hash contract and parity evidence: parity.json.
+- `ml/notebooks/scratch_pilot.ipynb` (tracked): Scratch-model training notebook with local and Colab/Drive execution paths.
+- `ml/prepare_machine_pilot.py` (tracked): ML audit, preparation, training or export implementation/configuration: prepare_machine_pilot.py.
+- `ml/requirements-export.txt` (tracked): ML audit, preparation, training or export implementation/configuration: requirements-export.txt.
+- `ml/requirements-pilot.txt` (tracked): ML audit, preparation, training or export implementation/configuration: requirements-pilot.txt.
+- `ml/runs/notebook-20261102T032355937070Z/baseline-validation.json` (local/untracked or ignored): PRIVATE saved experiment evidence: baseline-validation.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T032355937070Z/checkpoint-1.pt` (local/untracked or ignored): PRIVATE saved experiment evidence: checkpoint-1.pt; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T032355937070Z/checkpoint-3.pt` (local/untracked or ignored): PRIVATE saved experiment evidence: checkpoint-3.pt; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T032355937070Z/checkpoint-4.pt` (local/untracked or ignored): PRIVATE saved experiment evidence: checkpoint-4.pt; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T032355937070Z/history.json` (local/untracked or ignored): PRIVATE saved experiment evidence: history.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T032355937070Z/implementation.py` (local/untracked or ignored): PRIVATE saved experiment evidence: implementation.py; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T032355937070Z/loss.png` (local/untracked or ignored): PRIVATE saved experiment evidence: loss.png; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T032355937070Z/neural-validation.json` (local/untracked or ignored): PRIVATE saved experiment evidence: neural-validation.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T032355937070Z/requirements-resolved.txt` (local/untracked or ignored): PRIVATE saved experiment evidence: requirements-resolved.txt; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T032355937070Z/run.json` (local/untracked or ignored): PRIVATE saved experiment evidence: run.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T032355937070Z/vocabulary.json` (local/untracked or ignored): PRIVATE saved experiment evidence: vocabulary.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T032526871868Z/baseline-validation.json` (local/untracked or ignored): PRIVATE saved experiment evidence: baseline-validation.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T032526871868Z/checkpoint-1.pt` (local/untracked or ignored): PRIVATE saved experiment evidence: checkpoint-1.pt; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T032526871868Z/checkpoint-3.pt` (local/untracked or ignored): PRIVATE saved experiment evidence: checkpoint-3.pt; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T032526871868Z/checkpoint-4.pt` (local/untracked or ignored): PRIVATE saved experiment evidence: checkpoint-4.pt; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T032526871868Z/history.json` (local/untracked or ignored): PRIVATE saved experiment evidence: history.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T032526871868Z/implementation.py` (local/untracked or ignored): PRIVATE saved experiment evidence: implementation.py; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T032526871868Z/loss.png` (local/untracked or ignored): PRIVATE saved experiment evidence: loss.png; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T032526871868Z/neural-validation.json` (local/untracked or ignored): PRIVATE saved experiment evidence: neural-validation.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T032526871868Z/requirements-resolved.txt` (local/untracked or ignored): PRIVATE saved experiment evidence: requirements-resolved.txt; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T032526871868Z/run.json` (local/untracked or ignored): PRIVATE saved experiment evidence: run.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T032526871868Z/vocabulary.json` (local/untracked or ignored): PRIVATE saved experiment evidence: vocabulary.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T034601902421Z/baseline-validation.json` (local/untracked or ignored): PRIVATE saved experiment evidence: baseline-validation.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T034601902421Z/checkpoint-1.pt` (local/untracked or ignored): PRIVATE saved experiment evidence: checkpoint-1.pt; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T034601902421Z/checkpoint-3.pt` (local/untracked or ignored): PRIVATE saved experiment evidence: checkpoint-3.pt; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T034601902421Z/checkpoint-4.pt` (local/untracked or ignored): PRIVATE saved experiment evidence: checkpoint-4.pt; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T034601902421Z/history.json` (local/untracked or ignored): PRIVATE saved experiment evidence: history.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T034601902421Z/implementation.py` (local/untracked or ignored): PRIVATE saved experiment evidence: implementation.py; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T034601902421Z/loss.png` (local/untracked or ignored): PRIVATE saved experiment evidence: loss.png; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T034601902421Z/neural-validation.json` (local/untracked or ignored): PRIVATE saved experiment evidence: neural-validation.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T034601902421Z/requirements-resolved.txt` (local/untracked or ignored): PRIVATE saved experiment evidence: requirements-resolved.txt; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T034601902421Z/run.json` (local/untracked or ignored): PRIVATE saved experiment evidence: run.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/notebook-20261102T034601902421Z/vocabulary.json` (local/untracked or ignored): PRIVATE saved experiment evidence: vocabulary.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/scratch-pilot-2026-11-02/baseline-validation.json` (local/untracked or ignored): PRIVATE saved experiment evidence: baseline-validation.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/scratch-pilot-2026-11-02/checkpoint-1.pt` (local/untracked or ignored): PRIVATE saved experiment evidence: checkpoint-1.pt; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/scratch-pilot-2026-11-02/checkpoint-3.pt` (local/untracked or ignored): PRIVATE saved experiment evidence: checkpoint-3.pt; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/scratch-pilot-2026-11-02/checkpoint-4.pt` (local/untracked or ignored): PRIVATE saved experiment evidence: checkpoint-4.pt; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/scratch-pilot-2026-11-02/history.json` (local/untracked or ignored): PRIVATE saved experiment evidence: history.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/scratch-pilot-2026-11-02/loss.png` (local/untracked or ignored): PRIVATE saved experiment evidence: loss.png; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/scratch-pilot-2026-11-02/neural-validation.json` (local/untracked or ignored): PRIVATE saved experiment evidence: neural-validation.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/scratch-pilot-2026-11-02/requirements-resolved.txt` (local/untracked or ignored): PRIVATE saved experiment evidence: requirements-resolved.txt; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/scratch-pilot-2026-11-02/run.json` (local/untracked or ignored): PRIVATE saved experiment evidence: run.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/scratch-pilot-2026-11-02/vocabulary.json` (local/untracked or ignored): PRIVATE saved experiment evidence: vocabulary.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/scratch-verified-2026-11-02/baseline-validation.json` (local/untracked or ignored): PRIVATE saved experiment evidence: baseline-validation.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/scratch-verified-2026-11-02/checkpoint-1.pt` (local/untracked or ignored): PRIVATE saved experiment evidence: checkpoint-1.pt; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/scratch-verified-2026-11-02/checkpoint-3.pt` (local/untracked or ignored): PRIVATE saved experiment evidence: checkpoint-3.pt; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/scratch-verified-2026-11-02/checkpoint-4.pt` (local/untracked or ignored): PRIVATE saved experiment evidence: checkpoint-4.pt; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/scratch-verified-2026-11-02/history.json` (local/untracked or ignored): PRIVATE saved experiment evidence: history.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/scratch-verified-2026-11-02/implementation.py` (local/untracked or ignored): PRIVATE saved experiment evidence: implementation.py; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/scratch-verified-2026-11-02/loss.png` (local/untracked or ignored): PRIVATE saved experiment evidence: loss.png; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/scratch-verified-2026-11-02/neural-validation.json` (local/untracked or ignored): PRIVATE saved experiment evidence: neural-validation.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/scratch-verified-2026-11-02/requirements-resolved.txt` (local/untracked or ignored): PRIVATE saved experiment evidence: requirements-resolved.txt; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/scratch-verified-2026-11-02/run.json` (local/untracked or ignored): PRIVATE saved experiment evidence: run.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/runs/scratch-verified-2026-11-02/vocabulary.json` (local/untracked or ignored): PRIVATE saved experiment evidence: vocabulary.json; retains training, validation, checkpoint or reproducibility state.
+- `ml/test_audit_export.py` (tracked): Regression tests for audit export.
+- `ml/test_audit_pilot_bundle.py` (tracked): Regression tests for audit pilot bundle.
+- `ml/test_prepare_machine_pilot.py` (tracked): Regression tests for prepare machine pilot.
+- `ml/train_scratch_pilot.py` (tracked): ML audit, preparation, training or export implementation/configuration: train_scratch_pilot.py.
+- `ml/training_tests/test_export.py` (tracked): Regression tests for export.
+- `ml/training_tests/test_scratch.py` (tracked): Regression tests for scratch.
+- `next-env.d.ts` (local/untracked or ignored): Generated Next.js type declarations; regenerated by Next tooling.
+- `next.config.ts` (tracked): Native server dependencies, traced model files, dev origin allowance and callback-log redaction.
+- `package-lock.json` (tracked): Exact resolved npm dependency graph and integrity lock.
+- `package.json` (tracked): Application dependencies, exact Next/React/ONNX runtime versions and npm commands.
+- `postcss.config.mjs` (tracked): Project tooling or build configuration: postcss.config.mjs.
+- `previews/system-audit/ARRIVAL-REVIEW.md` (local/untracked or ignored): Documentation: Real arrivals and the night scene.
+- `previews/system-audit/AUDIT.md` (local/untracked or ignored): Documentation: AlumniKonneQt system design audit.
+- `previews/system-audit/LANDING-REVIEW.md` (local/untracked or ignored): Documentation: Landing-page local design pass.
+- `previews/system-audit/SYSTEM-REVIEW.md` (local/untracked or ignored): Documentation: Local system design pass.
+- `previews/system-audit/about-desktop.png` (local/untracked or ignored): Local design-review screenshot of about desktop.
+- `previews/system-audit/about-mobile.png` (local/untracked or ignored): Local design-review screenshot of about mobile.
+- `previews/system-audit/developer-desktop.png` (local/untracked or ignored): Local design-review screenshot of developer desktop.
+- `previews/system-audit/developer-mobile.png` (local/untracked or ignored): Local design-review screenshot of developer mobile.
+- `previews/system-audit/home-desktop.png` (local/untracked or ignored): Local design-review screenshot of home desktop.
+- `previews/system-audit/home-mobile.png` (local/untracked or ignored): Local design-review screenshot of home mobile.
+- `previews/system-audit/index.html` (local/untracked or ignored): Project tooling or build configuration: index.html.
+- `previews/system-audit/login-desktop.png` (local/untracked or ignored): Local design-review screenshot of login desktop.
+- `previews/system-audit/login-mobile.png` (local/untracked or ignored): Local design-review screenshot of login mobile.
+- `previews/system-audit/privacy-desktop.png` (local/untracked or ignored): Local design-review screenshot of privacy desktop.
+- `previews/system-audit/privacy-mobile.png` (local/untracked or ignored): Local design-review screenshot of privacy mobile.
+- `previews/system-audit/recovery-desktop.png` (local/untracked or ignored): Local design-review screenshot of recovery desktop.
+- `previews/system-audit/recovery-mobile.png` (local/untracked or ignored): Local design-review screenshot of recovery mobile.
+- `previews/system-audit/signup-desktop.png` (local/untracked or ignored): Local design-review screenshot of signup desktop.
+- `previews/system-audit/signup-mobile.png` (local/untracked or ignored): Local design-review screenshot of signup mobile.
+- `previews/window-seat/ALUMNI-INTEGRATION.md` (local/untracked or ignored): Documentation: AlumniKonneQt local integration review.
+- `previews/window-seat/README.md` (local/untracked or ignored): Documentation: Window Seat local study.
+- `previews/window-seat/app.js` (local/untracked or ignored): Local standalone Window Seat study asset or implementation: app.js.
+- `previews/window-seat/build.mjs` (local/untracked or ignored): Local standalone Window Seat study asset or implementation: build.mjs.
+- `previews/window-seat/clouds.png` (local/untracked or ignored): Local standalone Window Seat study asset or implementation: clouds.png.
+- `previews/window-seat/index.html` (local/untracked or ignored): Local standalone Window Seat study asset or implementation: index.html.
+- `previews/window-seat/styles.css` (local/untracked or ignored): Local standalone Window Seat study asset or implementation: styles.css.
+- `previews/window-seat/tailwind.css` (local/untracked or ignored): Local standalone Window Seat study asset or implementation: tailwind.css.
+- `previews/window-seat/tailwind.input.css` (local/untracked or ignored): Local standalone Window Seat study asset or implementation: tailwind.input.css.
+- `proxy.ts` (tracked): Next.js session-refresh and protected-route request boundary.
+- `public/cursors/hand-white.svg` (tracked): Publicly served brand, cursor, photographic or generated visual asset: hand-white.svg.
+- `public/cursors/hand.svg` (tracked): Publicly served brand, cursor, photographic or generated visual asset: hand.svg.
+- `public/cursors/paper-plane-white.svg` (tracked): Publicly served brand, cursor, photographic or generated visual asset: paper-plane-white.svg.
+- `public/cursors/paper-plane.svg` (tracked): Publicly served brand, cursor, photographic or generated visual asset: paper-plane.svg.
+- `public/google-g.png` (tracked): Publicly served brand, cursor, photographic or generated visual asset: google-g.png.
+- `public/images/README.md` (tracked): Documentation: Community photography.
+- `public/images/alumniconnect-demo.gif` (tracked): Publicly served brand, cursor, photographic or generated visual asset: alumniconnect-demo.gif.
+- `public/images/auth/clouds.webp` (local/untracked or ignored): Publicly served brand, cursor, photographic or generated visual asset: clouds.webp.
+- `public/images/auth/night-sky.webp` (local/untracked or ignored): Publicly served brand, cursor, photographic or generated visual asset: night-sky.webp.
+- `public/images/community-collaboration.webp` (tracked): Publicly served brand, cursor, photographic or generated visual asset: community-collaboration.webp.
+- `public/images/landing-preview.jpg` (tracked): Publicly served brand, cursor, photographic or generated visual asset: landing-preview.jpg.
+- `public/images/logo-dark.png` (tracked): Publicly served brand, cursor, photographic or generated visual asset: logo-dark.png.
+- `public/images/logo-light.png` (tracked): Publicly served brand, cursor, photographic or generated visual asset: logo-light.png.
+- `public/images/logo-white.png` (tracked): Publicly served brand, cursor, photographic or generated visual asset: logo-white.png.
+- `scripts/check-google-auth.mjs` (tracked): Executable check google auth verification, setup or evaluation utility; inspect target guards before use.
+- `scripts/embed-poc.mjs` (tracked): Executable embed poc verification, setup or evaluation utility; inspect target guards before use.
+- `scripts/eval/dataset.mjs` (tracked): Executable dataset verification, setup or evaluation utility; inspect target guards before use.
+- `scripts/eval/run-eval.mjs` (tracked): Executable run eval verification, setup or evaluation utility; inspect target guards before use.
+- `scripts/hosted-demo.mjs` (tracked): Executable hosted demo verification, setup or evaluation utility; inspect target guards before use.
+- `scripts/ml-walkthrough.mjs` (tracked): Executable ml walkthrough verification, setup or evaluation utility; inspect target guards before use.
+- `scripts/registration-test-stack.mjs` (tracked): Executable registration test stack verification, setup or evaluation utility; inspect target guards before use.
+- `scripts/run-cold-start.mjs` (tracked): Executable run cold start verification, setup or evaluation utility; inspect target guards before use.
+- `scripts/seed-dev.mjs` (tracked): Executable seed dev verification, setup or evaluation utility; inspect target guards before use.
+- `scripts/smoke-local.mjs` (tracked): Executable smoke local verification, setup or evaluation utility; inspect target guards before use.
+- `scripts/sprint1-e2e.mjs` (tracked): Executable sprint1 e2e verification, setup or evaluation utility; inspect target guards before use.
+- `scripts/verify-account-email.mjs` (tracked): Executable verify account email verification, setup or evaluation utility; inspect target guards before use.
+- `scripts/verify-cold-start.mjs` (tracked): Executable verify cold start verification, setup or evaluation utility; inspect target guards before use.
+- `scripts/verify-cookie-consent.mjs` (tracked): Executable verify cookie consent verification, setup or evaluation utility; inspect target guards before use.
+- `scripts/verify-email-otp.mjs` (tracked): Executable verify email otp verification, setup or evaluation utility; inspect target guards before use.
+- `scripts/verify-model-comparison.mjs` (tracked): Executable verify model comparison verification, setup or evaluation utility; inspect target guards before use.
+- `scripts/verify-notification-preferences.mjs` (tracked): Executable verify notification preferences verification, setup or evaluation utility; inspect target guards before use.
+- `scripts/verify-registration.mjs` (tracked): Executable verify registration verification, setup or evaluation utility; inspect target guards before use.
+- `scripts/verify-site-polish.mjs` (tracked): Executable verify site polish verification, setup or evaluation utility; inspect target guards before use.
+- `supabase/.branches/_current_branch` (local/untracked or ignored): Supabase service configuration or account-email template: _current_branch.
+- `supabase/.gitignore` (tracked): Supabase service configuration or account-email template: .gitignore.
+- `supabase/.temp/cli-latest` (local/untracked or ignored): Ignored generated local Supabase CLI metadata: cli-latest.
+- `supabase/.temp/linked-project.json` (local/untracked or ignored): Ignored generated local Supabase CLI metadata: linked-project.json.
+- `supabase/.temp/pgdelta/catalog-local-migrations-8ea1924204156e006757e0b6da5e13a581ebec8ba81783d3c1db6eb5e7b9e580-1793810648566.json` (local/untracked or ignored): Ignored generated local Supabase CLI metadata: catalog-local-migrations-8ea1924204156e006757e0b6da5e13a581ebec8ba81783d3c1db6eb5e7b9e580-1793810648566.json.
+- `supabase/.temp/pgdelta/catalog-local-migrations-920a417d2b6986cf7ccfecbcb4539aceebe04a28282c83403c5412b9cc103844-1783272657470.json` (local/untracked or ignored): Ignored generated local Supabase CLI metadata: catalog-local-migrations-920a417d2b6986cf7ccfecbcb4539aceebe04a28282c83403c5412b9cc103844-1783272657470.json.
+- `supabase/config.toml` (tracked): Supabase service configuration or account-email template: config.toml.
+- `supabase/migrations/20260705000001_initial_schema.sql` (tracked): Ordered schema, policy or function migration for initial schema.
+- `supabase/migrations/20260705000002_match_explainability.sql` (tracked): Ordered schema, policy or function migration for match explainability.
+- `supabase/migrations/20260705000003_keyword_search.sql` (tracked): Ordered schema, policy or function migration for keyword search.
+- `supabase/migrations/20261028000001_request_response_auth.sql` (tracked): Ordered schema, policy or function migration for request response auth.
+- `supabase/migrations/20261103160655_harden_public_rpc_functions.sql` (tracked): Ordered schema, policy or function migration for harden public rpc functions.
+- `supabase/migrations/20261104150232_signup_profile_photos.sql` (tracked): Ordered schema, policy or function migration for signup profile photos.
+- `supabase/migrations/20261104164202_restrict_google_signup.sql` (tracked): Ordered schema, policy or function migration for restrict google signup.
+- `supabase/migrations/20261105000001_profile_privacy_reporting_blocking.sql` (tracked): Ordered schema, policy or function migration for profile privacy reporting blocking.
+- `supabase/migrations/20261105000002_mentor_availability.sql` (tracked): Ordered schema, policy or function migration for mentor availability.
+- `supabase/migrations/20261105000003_system_hardening_and_indexes.sql` (tracked): Ordered schema, policy or function migration for system hardening and indexes.
+- `supabase/migrations/20261105074456_mentorship_email_notifications.sql` (tracked): Ordered schema, policy or function migration for mentorship email notifications.
+- `supabase/migrations/20261106150414_consent_based_request_reminders.sql` (tracked): Ordered schema, policy or function migration for consent based request reminders.
+- `supabase/migrations/20261106165316_invalidate_stale_profile_embeddings.sql` (tracked): Ordered schema, policy or function migration for invalidate stale profile embeddings.
+- `supabase/templates/confirmation.html` (tracked): Supabase service configuration or account-email template: confirmation.html.
+- `supabase/templates/magic_link.html` (tracked): Supabase service configuration or account-email template: magic_link.html.
+- `supabase/templates/recovery.html` (tracked): Supabase service configuration or account-email template: recovery.html.
+- `supabase/tests/cold_start_embeddings.sql` (tracked): Rollback-oriented SQL assertions for cold start embeddings.
+- `supabase/tests/email_notifications.sql` (tracked): Rollback-oriented SQL assertions for email notifications.
+- `supabase/tests/google_signup_policy.sql` (tracked): Rollback-oriented SQL assertions for google signup policy.
+- `supabase/tests/request_reminders.sql` (tracked): Rollback-oriented SQL assertions for request reminders.
+- `supabase/tests/rls_tests.sql` (tracked): Rollback-oriented SQL assertions for rls tests.
+- `tsconfig.json` (tracked): TypeScript compiler configuration and import aliases.
+- `tsconfig.tsbuildinfo` (local/untracked or ignored): Generated incremental TypeScript compiler cache.
+
+Project/local file rows: 479.
