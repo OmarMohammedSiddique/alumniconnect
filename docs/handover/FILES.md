@@ -14,6 +14,7 @@ Snapshot: 10 November 2026. Paths are relative to `/Users/omarsiddique/alumnicon
 - `.impeccable/hook.cache.json` (local/untracked or ignored): Local interface-design guidance/context: hook.cache.json.
 - `:memory:.ses` (local/untracked or ignored): Ignored local ONNX Runtime session/device artifact.
 - `AGENTS.md` (tracked): Mandatory contributor instructions: current Next.js guides, Gitmoji milestones, issue maintenance, punctuation and push boundaries.
+- `CLAUDE.md` (local/untracked, appeared during packaging): Contributor attribution rule prohibiting Co-Authored-By, Claude-Session links and generated-by or other AI attribution in commits, PR titles and PR descriptions.
 - `CONTRIBUTING.md` (tracked): Contributor workflow and pull-request verification guidance.
 - `PRODUCT.md` (tracked): Product identity, users, visual direction and behavior contracts; some visual rules are superseded by the November local-only design requests.
 - `README.md` (tracked): Repository introduction, setup, architecture, commands, CI and security summary, with some historical status text.
@@ -482,4 +483,4 @@ Snapshot: 10 November 2026. Paths are relative to `/Users/omarsiddique/alumnicon
 - `tsconfig.json` (tracked): TypeScript compiler configuration and import aliases.
 - `tsconfig.tsbuildinfo` (local/untracked or ignored): Generated incremental TypeScript compiler cache.
 
-Project/local file rows: 479.
+Project/local file rows: 480.

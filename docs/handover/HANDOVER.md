@@ -367,6 +367,8 @@ For substantial project work, inspect live relevant open and closed issues first
 
 Use focused Gitmoji-prefixed conventional commits, for example `✨ feat: ...`, `🐛 fix: ...`, `♻️ refactor: ...`, `📝 docs: ...`. Commit completed verified logical milestones, stage explicit relevant files, inspect the staged diff, preserve unrelated work and do not pad history, backdate, fabricate activity, create empty commits or rewrite history. **Do not push unless the current task explicitly authorizes it.** The pending visual experiment has a more specific no-commit restriction that overrides ordinary milestone committing for that work.
 
+A new untracked `CLAUDE.md` appeared during packaging and was read without modification. It additionally prohibits Claude-Session links and generated-by footers or other AI attribution in commit messages, PR titles and PR descriptions. Preserve this file as user-owned work.
+
 Use the configured human author. Do not add AI/Codex/Claude attribution or Co-Authored-By trailers to Omar's commits or teammate prompts. Academic declarations must still disclose material assistance accurately when required by the assessment; commit-attribution preferences do not authorize false declarations.
 
 No em dash or double-hyphen punctuation in prose, UI text, docs, commits, PRs or issue comments. Preserve required syntax such as CSS custom properties, command flags and SQL comments. Do not introduce speculative warnings, invented approvals or unnecessary confirmation flows.
