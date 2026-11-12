@@ -7,6 +7,7 @@ import { fetchAuthWithDeadline } from "@/lib/supabase/auth-fetch";
 import { normalizeOtpEmail } from "@/lib/email-otp";
 import { getPasswordError } from "@/lib/signup-validation";
 import { getSafeSignInRedirect } from "@/lib/auth-redirect";
+import { readCaptchaToken } from "@/lib/turnstile";
 import { ACCOUNT_EMAIL_FLOW, ACCOUNT_EMAIL_SECONDS, ACCOUNT_EMAIL_INVALID_CODE, accountEmailError, accountEmailRetrySeconds, readAccountEmailChallenge, requestAccountEmail, verifyAccountEmail, type AccountEmailPurpose, type AccountEmailState } from "@/lib/account-email";
 
 export async function accountEmailAction(purpose: AccountEmailPurpose, _previous: AccountEmailState, form: FormData): Promise<AccountEmailState> {
@@ -29,7 +30,7 @@ export async function accountEmailAction(purpose: AccountEmailPurpose, _previous
       if (error) return fail(error, error === "Passwords do not match." ? "confirm_password" : "password");
     }
     const supabase = await createClient(fetchAuthWithDeadline);
-    const error = await verifyAccountEmail(supabase.auth, purpose, challenge.email, token);
+    const error = await verifyAccountEmail(supabase.auth, purpose, challenge.email, token, readCaptchaToken(form));
     if (error) return fail(error, error === ACCOUNT_EMAIL_INVALID_CODE ? "token" : undefined);
     if (purpose === "signup") { clear(); redirect(getSafeSignInRedirect(challenge.next)); }
     // A normal session or forged cookie can never reach this update without a
@@ -57,7 +58,8 @@ export async function accountEmailAction(purpose: AccountEmailPurpose, _previous
   if (accountEmailRetrySeconds(challenge) > 0) return fail("Wait one minute between code requests.");
   const fresh = { email: target, purpose, requestedAt: Date.now(), next: purpose === "signup" ? challenge?.next ?? "/profile" : "/login" };
   const supabase = await createClient(fetchAuthWithDeadline);
-  await requestAccountEmail(supabase.auth, purpose, target);
+  const captchaError = await requestAccountEmail(supabase.auth, purpose, target, readCaptchaToken(form));
+  if (captchaError) return fail(captchaError);
   jar.set(flow.cookie, JSON.stringify(fresh), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: flow.path, maxAge: ACCOUNT_EMAIL_SECONDS });
   return { error: null, message: flow.message, challenge: fresh, email: target };
 }

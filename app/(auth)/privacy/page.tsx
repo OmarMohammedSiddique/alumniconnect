@@ -11,6 +11,7 @@ export default function PrivacyPage() {
       <h2 className="text-lg font-semibold">Account and profile information</h2>
       <p>Registration sends your name, email address, password and chosen mentorship role to Supabase Auth. Supabase manages account authentication. Profile information supports mentorship discovery and connections; optional profile pictures are stored in Supabase Storage and can be accessed by signed-in members.</p>
       <p>If you choose Google sign-in, Google and Supabase handle authentication and provide basic account identity details. The app requests only identity, email and profile scopes; it does not request Gmail or Google Drive access.</p>
+      <p>Sign-up, sign-in and password-reset forms use Cloudflare Turnstile to block automated abuse. Turnstile evaluates browser and connection signals, such as your IP address, to confirm that a person is submitting the form. It is not used for advertising or cross-site tracking.</p>
       <p>Please use test details for prototype evaluation. Do not enter national ID, passport or staff identification numbers in your profile, biography, skills or other free-text fields, or upload identity-document photographs.</p>
     </section>
     <section className="grid gap-2">

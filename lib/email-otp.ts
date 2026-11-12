@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { CAPTCHA_FAILED_MESSAGE, captchaOption, isCaptchaError } from "./turnstile.ts";
 
 type Auth = SupabaseClient["auth"];
 export const OTP_COOKIE = "alumnikonneqt-email-otp";
@@ -35,17 +36,22 @@ export function otpRetrySeconds(challenge: OtpChallenge | null, now = Date.now()
   return challenge ? Math.max(0, Math.ceil((challenge.requestedAt + OTP_COOLDOWN_SECONDS * 1000 - now) / 1000)) : 0;
 }
 
-export async function requestEmailOtp(auth: Pick<Auth, "signInWithOtp">, email: string): Promise<void> {
+export async function requestEmailOtp(auth: Pick<Auth, "signInWithOtp">, email: string, captchaToken?: string): Promise<string | null> {
   // Never expose provider errors here: unknown accounts can produce a distinct
   // provider response. The same UI and cooldown apply to every valid address.
-  try { await auth.signInWithOtp({ email, options: { shouldCreateUser: false } }); }
-  catch { /* Generic response also covers transport/delivery failures. */ }
+  // A failed bot check is reported because it happens before any account lookup.
+  try {
+    const { error } = await auth.signInWithOtp({ email, options: { shouldCreateUser: false, ...captchaOption(captchaToken) } });
+    if (isCaptchaError(error)) return CAPTCHA_FAILED_MESSAGE;
+  } catch { /* Generic response also covers transport/delivery failures. */ }
+  return null;
 }
 
-export async function verifyEmailOtp(auth: Pick<Auth, "verifyOtp">, email: string, token: string): Promise<string | null> {
+export async function verifyEmailOtp(auth: Pick<Auth, "verifyOtp">, email: string, token: string, captchaToken?: string): Promise<string | null> {
   if (!/^\d{6,10}$/.test(token)) return "Enter the 6–10 digit code from your email.";
   try {
-    const { data, error } = await auth.verifyOtp({ email, token, type: "email" });
+    const { data, error } = await auth.verifyOtp({ email, token, type: "email", ...(captchaToken ? { options: { captchaToken } } : {}) });
+    if (isCaptchaError(error)) return CAPTCHA_FAILED_MESSAGE;
     if (error?.status === 429) return "Too many attempts. Wait a few minutes before trying again.";
     if (error && (!error.status || error.status >= 500)) return "The sign-in service is temporarily unavailable. Keep this page open and try again shortly.";
     if (error || !data.session || !data.user) return OTP_INVALID_MESSAGE;

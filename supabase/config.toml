@@ -211,10 +211,15 @@ token_verifications = 30
 web3 = 30
 
 # Configure one of the supported captcha providers: `hcaptcha`, `turnstile`.
+# Hosted auth uses Cloudflare Turnstile (secret stored only in the Supabase
+# dashboard). To exercise it locally, uncomment this block and set
+# NEXT_PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA in .env.local; these are
+# Cloudflare's public always-pass test keys. Leave it disabled for HTTP smoke
+# scripts that post auth forms without a browser.
 # [auth.captcha]
 # enabled = true
-# provider = "hcaptcha"
-# secret = ""
+# provider = "turnstile"
+# secret = "1x0000000000000000000000000000000AA"
 
 [auth.email]
 # Allow/disallow new user signups via email to your project.

@@ -77,3 +77,17 @@ Before recommending Option D, run these isolated tests on a throwaway Worker and
 - Resend: [Managing domains](https://resend.com/docs/dashboard/domains/introduction) and [Cloudflare DNS setup](https://resend.com/docs/knowledge-base/cloudflare)
 
 Plan limits and prices change. Check them again on the day of purchase or configuration, and record what you saw.
+
+## 8. Addendum (12 November 2026): Cloudflare Turnstile on auth forms
+
+The owner asked to adopt Cloudflare where it gives a real, explainable security benefit. Sections 3 and 4 still apply unchanged: **no proxying and no Workers migration**, and DNS stays at Porkbun.
+
+The one gap that Cloudflare fills without touching hosting is **bot protection on the public auth forms**. Sign-up, password sign-in, email-code sign-in, confirmation-code resend and password-reset requests were limited only by Supabase's own rate limits. Scripts could use them for credential stuffing, mass fake sign-ups, or making the app send unwanted mail (OTP/recovery spam).
+
+**Decision:** adopt **Cloudflare Turnstile**, verified by **Supabase Auth's built-in CAPTCHA protection**.
+- The browser widget (`components/turnstile-widget.tsx`) gets a single-use token. Each auth server action forwards it to Supabase as `captchaToken` (`lib/turnstile.ts`).
+- Supabase checks the token with Cloudflare before it creates a user, checks a password or sends mail. The secret key lives only in the Supabase dashboard, never in this app or Vercel.
+- Google OAuth sign-in isn't affected. Session refresh and the PKCE callback don't need tokens.
+- The widget uses `interaction-only` appearance, so most visitors never see a challenge.
+
+Operational steps and the verification record are in `docs/verification/turnstile.md`.
