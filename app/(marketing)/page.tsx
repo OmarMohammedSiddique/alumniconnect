@@ -14,6 +14,7 @@ import {
   Compass,
   Users,
 } from "lucide-react";
+import { LandingIntro } from "@/components/cabin-intro/landing-intro";
 import styles from "./landing.module.css";
 
 const STEPS = [
@@ -44,6 +45,7 @@ export default async function LandingPage() {
   const workspaceHref = member ? "/discover" : "/signup";
   return (
     <div className={styles.page}>
+      <LandingIntro />
       <a className={styles.skipLink} href="#main">Skip to content</a>
       <div className={styles.identityBar} role="region" aria-label="Academic prototype notice"><div className={styles.container}><span>An independent academic prototype</span></div></div>
       <header className={`solid-surface ${styles.header}`}>
