@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { StatusMessage } from "@/components/ui/status-message";
+import { CaptchaTokenInput, TurnstileWidget } from "@/components/turnstile-widget";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 const initialState: AuthState = { error: null };
@@ -27,6 +28,7 @@ export function SignupForm() {
   const [confirmation, setConfirmation] = useState("");
   const [clientError, setClientError] = useState<string | null>(null);
   const [confirmationTouched, setConfirmationTouched] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState("");
   const mismatch = confirmationTouched && password !== confirmation;
   const [state, formAction, pending] = useActionState(async (previous: AuthState, data: FormData) => {
     const result = await signUp(previous, data);
@@ -66,6 +68,7 @@ export function SignupForm() {
           (event.currentTarget.elements.namedItem(field) as HTMLInputElement).focus();
         }
       }}>
+        <CaptchaTokenInput token={captchaToken} />
         <CardContent className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)_minmax(0,0.9fr)] lg:gap-6 xl:gap-8">
           <fieldset disabled={pending} className="grid min-w-0 content-start gap-3">
             <legend className="mb-3 text-base font-semibold">Account details</legend>
@@ -141,6 +144,7 @@ export function SignupForm() {
               <p id="role-help" className="mt-2 text-xs text-muted-foreground">Choose one mentorship role for your account.</p>
             </fieldset>
           </div>
+          <div className="lg:col-span-3"><TurnstileWidget action="signup" onToken={setCaptchaToken} resetKey={state} /></div>
           {(clientError || state.error) && <div className="lg:col-span-3"><StatusMessage tone="error">{clientError || state.error}</StatusMessage></div>}
         </CardContent>
         <CardFooter className="mt-4 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-between">

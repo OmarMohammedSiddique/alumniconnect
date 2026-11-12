@@ -9,10 +9,12 @@ import { StatusMessage } from "@/components/ui/status-message";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { OTP_REQUEST_MESSAGE, otpRetrySeconds, type OtpChallenge } from "@/lib/email-otp";
 import { emailOtpAction } from "./actions";
+import { CaptchaTokenInput, TurnstileWidget } from "@/components/turnstile-widget";
 
 export function CodeForm({ initialChallenge, next }: { initialChallenge: OtpChallenge | null; next: string }) {
   const [state, action, pending] = useActionState(emailOtpAction, { error: null, challenge: initialChallenge, message: initialChallenge ? OTP_REQUEST_MESSAGE : null });
   const [seconds, setSeconds] = useState(0);
+  const [captchaToken, setCaptchaToken] = useState("");
   const tokenRef = useRef<HTMLInputElement>(null);
   const challenge = state.challenge;
   useEffect(() => {
@@ -37,6 +39,7 @@ export function CodeForm({ initialChallenge, next }: { initialChallenge: OtpChal
         <p className="break-words text-sm">Email: <strong>{challenge.email}</strong></p>
         <form action={action} aria-busy={pending} className="grid gap-4">
           <input type="hidden" name="intent" value="verify" />
+          <CaptchaTokenInput token={captchaToken} />
           <input type="hidden" name="email" value={challenge.email} />
           <input type="hidden" name="requestedAt" value={challenge.requestedAt} />
           <div className="grid gap-2">
@@ -49,6 +52,7 @@ export function CodeForm({ initialChallenge, next }: { initialChallenge: OtpChal
         <div className="flex flex-wrap gap-3">
           <form action={action}>
             <input type="hidden" name="intent" value="resend" />
+            <CaptchaTokenInput token={captchaToken} />
             <Button type="submit" variant="outline" disabled={pending || seconds > 0}>{seconds > 0 ? `Resend in ${seconds}s` : "Resend code"}</Button>
           </form>
           <form action={action}>
@@ -58,6 +62,7 @@ export function CodeForm({ initialChallenge, next }: { initialChallenge: OtpChal
         </div>
       </> : <form action={action} aria-busy={pending} className="grid gap-4">
         <input type="hidden" name="intent" value="request" />
+        <CaptchaTokenInput token={captchaToken} />
         <input type="hidden" name="next" value={next} />
         <div className="grid gap-2">
           <Label htmlFor="otp-email">Registered email</Label>
@@ -65,6 +70,7 @@ export function CodeForm({ initialChallenge, next }: { initialChallenge: OtpChal
         </div>
         <Button type="submit" disabled={pending}>{pending ? "Requesting code…" : "Send sign-in code"}</Button>
       </form>}
+      <TurnstileWidget action="email-code" onToken={setCaptchaToken} resetKey={state} />
       <Link href={next ? `/login?next=${encodeURIComponent(next)}` : "/login"} className="inline-flex min-h-11 items-center text-sm underline underline-offset-4">Use password or Google instead</Link>
     </CardContent>
   </Card>;

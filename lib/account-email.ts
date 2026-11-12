@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { CAPTCHA_FAILED_MESSAGE, captchaOption, isCaptchaError } from "./turnstile.ts";
 
 type Auth = SupabaseClient["auth"];
 export type AccountEmailPurpose = "signup" | "recovery";
@@ -34,17 +35,22 @@ export function accountEmailError(status?: number): string {
   return ACCOUNT_EMAIL_INVALID_CODE;
 }
 
-export async function requestAccountEmail(auth: Pick<Auth, "resend" | "resetPasswordForEmail">, purpose: AccountEmailPurpose, email: string): Promise<void> {
+export async function requestAccountEmail(auth: Pick<Auth, "resend" | "resetPasswordForEmail">, purpose: AccountEmailPurpose, email: string, captchaToken?: string): Promise<string | null> {
   try {
-    if (purpose === "signup") await auth.resend({ type: "signup", email });
-    else await auth.resetPasswordForEmail(email);
+    const { error } = purpose === "signup"
+      ? await auth.resend({ type: "signup", email, ...(captchaToken ? { options: { captchaToken } } : {}) })
+      : await auth.resetPasswordForEmail(email, captchaOption(captchaToken));
+    // A failed bot check happens before any account lookup, so it is safe to report.
+    if (isCaptchaError(error)) return CAPTCHA_FAILED_MESSAGE;
   } catch { /* All valid addresses receive the same non-enumerating response. */ }
+  return null;
 }
 
-export async function verifyAccountEmail(auth: Pick<Auth, "verifyOtp">, purpose: AccountEmailPurpose, email: string, token: string): Promise<string | null> {
+export async function verifyAccountEmail(auth: Pick<Auth, "verifyOtp">, purpose: AccountEmailPurpose, email: string, token: string, captchaToken?: string): Promise<string | null> {
   if (!/^\d{6,10}$/.test(token)) return "Enter the 6–10 digit code from your email.";
   try {
-    const { data, error } = await auth.verifyOtp({ email, token, type: purpose });
+    const { data, error } = await auth.verifyOtp({ email, token, type: purpose, ...(captchaToken ? { options: { captchaToken } } : {}) });
+    if (isCaptchaError(error)) return CAPTCHA_FAILED_MESSAGE;
     if (error) return accountEmailError(error.status);
     return data.user && data.session ? null : "The code could not establish a session. Request another code.";
   } catch { return accountEmailError(); }
