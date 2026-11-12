@@ -4,6 +4,7 @@ import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { DashboardNavigation } from "./dashboard-navigation";
 import { CookieSettingsTrigger } from "@/components/cookie-settings-trigger";
 import { PrototypeNotice } from "@/components/brand";
+import { ClockStrip } from "@/components/nairobi-clock";
 
 export default async function DashboardLayout({
   children,
@@ -23,7 +24,9 @@ export default async function DashboardLayout({
     <div className="flex min-h-svh flex-col bg-surface md:flex-row">
       <a href="#workspace" className="product-skip">Skip to workspace</a>
       <DashboardNavigation name={profile?.full_name ?? "Your account"} role={profile?.role ?? ""} />
-      <main id="workspace" className="flex min-w-0 flex-1 flex-col justify-between px-4 py-7 sm:px-6 sm:py-9 lg:px-10">
+      <main id="workspace" className="flex min-w-0 flex-1 flex-col">
+        <ClockStrip className="bg-card" />
+        <div className="flex flex-1 flex-col justify-between px-4 py-7 sm:px-6 sm:py-9 lg:px-10">
         <div className="product-page">{children}</div>
         <footer className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6 pb-2 text-xs text-muted-foreground">
           <nav aria-label="Dashboard footer navigation" className="flex flex-wrap items-center gap-4">
@@ -37,6 +40,7 @@ export default async function DashboardLayout({
           </nav>
           <PrototypeNotice className="max-w-none basis-full" />
         </footer>
+        </div>
       </main>
     </div>
   );
