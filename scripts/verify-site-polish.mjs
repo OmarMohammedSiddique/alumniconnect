@@ -60,46 +60,39 @@ try {
   assert.equal(await page.getByRole('menuitemradio').count(), 0);
   const notices = page.getByText('Independent academic prototype inspired by Kenya Airways.', { exact: false });
   for (const notice of await notices.all()) assert.equal(await notice.evaluate(node => getComputedStyle(node).textAlign), 'center');
-  assert.match(await page.locator('body').evaluate(node => getComputedStyle(node).cursor), /paper-plane/);
-  assert.match(await toggle().evaluate(node => getComputedStyle(node).cursor), /hand\.svg/);
-  assert.equal((await page.request.get(`${appOrigin}/cursors/paper-plane.svg`)).status(), 200);
-  assert.equal((await page.request.get(`${appOrigin}/cursors/paper-plane-white.svg`)).status(), 200);
   const cursorAt = locator => locator.evaluate(node => getComputedStyle(node).cursor);
-  for (const [name, size] of [['hand.svg', 20], ['hand-white.svg', 20], ['paper-plane.svg', 26], ['paper-plane-white.svg', 26]]) {
-    const asset = await page.request.get(`${appOrigin}/cursors/${name}`);
-    assert.equal(asset.status(), 200);
-    assert.ok((await asset.text()).includes(`width="${size}" height="${size}"`));
-  }
-  assert.match(await cursorAt(page.locator('summary').first()), /hand\.svg/);
-  assert.match(await cursorAt(page.locator('[class*="communityLink"]').first()), /hand-white\.svg/);
-  assert.match(await cursorAt(page.locator('[class*="primaryButton"]').first()), /hand-white\.svg/);
+  assert.equal(await cursorAt(page.locator('body')), 'auto');
+  assert.equal(await cursorAt(toggle()), 'pointer');
+  assert.equal(await cursorAt(page.locator('summary').first()), 'pointer');
+  assert.equal(await cursorAt(page.locator('[class*="communityLink"]').first()), 'pointer');
+  assert.equal(await cursorAt(page.locator('[class*="primaryButton"]').first()), 'pointer');
   await page.evaluate(() => {
     const fixture = document.createElement('div');
     fixture.id = 'cursor-fixture';
     fixture.innerHTML = '<span class="cursor-pointer">Clickable</span><input type="checkbox"><textarea></textarea><button disabled>Disabled</button><button aria-disabled="true">Unavailable</button><a href="#"><span>Nested link</span></a>';
     document.body.append(fixture);
   });
-  assert.match(await cursorAt(page.locator('#cursor-fixture .cursor-pointer')), /hand\.svg/);
-  assert.match(await cursorAt(page.locator('#cursor-fixture input')), /hand\.svg/);
-  assert.match(await cursorAt(page.locator('#cursor-fixture a span')), /hand\.svg/);
+  assert.equal(await cursorAt(page.locator('#cursor-fixture .cursor-pointer')), 'pointer');
+  assert.equal(await cursorAt(page.locator('#cursor-fixture input')), 'pointer');
+  assert.equal(await cursorAt(page.locator('#cursor-fixture a span')), 'pointer');
   assert.equal(await cursorAt(page.locator('#cursor-fixture textarea')), 'text');
   for (const button of await page.locator('#cursor-fixture button').all()) assert.equal(await cursorAt(button), 'not-allowed');
   await page.locator('#cursor-fixture').evaluate(node => node.remove());
-  assert.match(await cursorAt(page.locator('body')), /paper-plane\.svg.*2 3/);
+  assert.equal(await cursorAt(page.locator('body')), 'auto');
   for (const selector of ['[class*="identityBar"]', '[class*="heroVisual"]', '[class*="community"]', '[class*="finalCta"]']) {
-    assert.match(await cursorAt(page.locator(selector).first()), /paper-plane-white\.svg/);
+    assert.equal(await cursorAt(page.locator(selector).first()), 'auto');
   }
   await page.emulateMedia({ forcedColors: 'active' });
   assert.equal(await cursorAt(page.locator('body')), 'auto');
   assert.equal(await cursorAt(toggle()), 'default');
   assert.equal(await cursorAt(page.locator('summary').first()), 'pointer');
   await page.emulateMedia({ forcedColors: 'none', reducedMotion: 'reduce' });
-  assert.match(await cursorAt(page.locator('body')), /paper-plane\.svg/);
+  assert.equal(await cursorAt(page.locator('body')), 'auto');
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   for (const dark of [false, true]) {
     if (dark) await toggle().click();
-    assert.match(await cursorAt(page.locator('body')), dark ? /paper-plane-white\.svg/ : /paper-plane\.svg/);
-    assert.match(await cursorAt(toggle()), dark ? /hand-white\.svg/ : /hand\.svg/);
+    assert.equal(await cursorAt(page.locator('body')), 'auto');
+    assert.equal(await cursorAt(toggle()), 'pointer');
     await page.evaluate(() => Promise.all(document.getAnimations()
       .filter(animation => animation.effect?.getComputedTiming().endTime !== Infinity)
       .map(animation => animation.finished.catch(() => {}))));

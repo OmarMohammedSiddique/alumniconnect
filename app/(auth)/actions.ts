@@ -12,6 +12,7 @@ import { getIdentityCollectionError } from "@/lib/registration-privacy";
 import { getPasswordError } from "@/lib/signup-validation";
 import { saveProfilePhoto, validateProfilePhoto } from "@/lib/profile-photo";
 import { getSafeSignInRedirect } from "@/lib/auth-redirect";
+import { CAPTCHA_FAILED_MESSAGE, captchaOption, isCaptchaError, readCaptchaToken } from "@/lib/turnstile";
 
 export interface AuthState {
   error: string | null;
@@ -64,8 +65,9 @@ export async function signUp(
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName, first_name: firstName, last_name: lastName, role } },
+      options: { data: { full_name: fullName, first_name: firstName, last_name: lastName, role }, ...captchaOption(readCaptchaToken(formData)) },
     });
+    if (isCaptchaError(error)) return { error: CAPTCHA_FAILED_MESSAGE };
     if (error) return { error: error.status === 429 ? "Too many registration attempts. Wait a few minutes and try again." : "Registration could not complete. Try signing in or resetting your password, or try again later." };
     if (!data.session) {
       const confirmationCodeEnabled = process.env.ACCOUNT_EMAIL_ENABLED === "true";
@@ -99,7 +101,8 @@ export async function signIn(
 
   const supabase = await createClient();
   try {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({ email, password, options: captchaOption(readCaptchaToken(formData)) });
+    if (isCaptchaError(error)) return { error: CAPTCHA_FAILED_MESSAGE };
     if (error) return { error: "Invalid email or password." };
   } catch {
     return {
