@@ -19,9 +19,10 @@ export interface AuthState {
   confirmationRequired?: boolean;
   confirmationEmail?: string;
   confirmationCodeEnabled?: boolean;
+  redirectTo?: string;
 }
 
-export async function signUp(
+async function registerAccount(
   _prev: AuthState,
   formData: FormData,
 ): Promise<AuthState> {
@@ -88,10 +89,10 @@ export async function signUp(
     };
   }
 
-  redirect(photoFailed ? "/profile/photo?retry=1" : "/profile");
+  return { error: null, redirectTo: photoFailed ? "/profile/photo?retry=1" : "/profile" };
 }
 
-export async function signIn(
+async function authenticatePassword(
   _prev: AuthState,
   formData: FormData,
 ): Promise<AuthState> {
@@ -110,7 +111,29 @@ export async function signIn(
     };
   }
 
-  redirect(next);
+  return { error: null, redirectTo: next };
+}
+
+// Existing callers retain their immediate redirect contract.
+export async function signUp(previous: AuthState, formData: FormData): Promise<AuthState> {
+  const result = await registerAccount(previous, formData);
+  if (result.redirectTo) redirect(result.redirectTo);
+  return result;
+}
+
+export async function signIn(previous: AuthState, formData: FormData): Promise<AuthState> {
+  const result = await authenticatePassword(previous, formData);
+  if (result.redirectTo) redirect(result.redirectTo);
+  return result;
+}
+
+// Cookies and provider validation complete before the client plays its arrival.
+export async function signUpWithArrival(previous: AuthState, formData: FormData): Promise<AuthState> {
+  return registerAccount(previous, formData);
+}
+
+export async function signInWithArrival(previous: AuthState, formData: FormData): Promise<AuthState> {
+  return authenticatePassword(previous, formData);
 }
 
 export async function signOut() {
