@@ -64,7 +64,7 @@ export function MentorCard({
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex min-w-0 items-start gap-3">
             <span
-              className="grid size-11 shrink-0 place-items-center rounded-lg border bg-surface font-semibold"
+              className="grid size-11 shrink-0 place-items-center rounded-lg border bg-surface font-medium"
               aria-hidden="true"
             >
               {mentor.full_name.trim().slice(0, 1).toUpperCase()}
@@ -125,7 +125,7 @@ export function MentorCard({
           {mentor.skills.map((skill) => (
             <Badge
               key={skill}
-              className={`max-w-full [overflow-wrap:anywhere] ${shared.has(skill.trim().toLowerCase()) ? "font-semibold" : ""}`}
+              className={`max-w-full [overflow-wrap:anywhere] ${shared.has(skill.trim().toLowerCase()) ? "font-medium" : ""}`}
               tone={shared.has(skill.trim().toLowerCase()) ? "info" : "neutral"}
             >
               {skill}

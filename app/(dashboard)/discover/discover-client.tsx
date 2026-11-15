@@ -2,11 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { GalleryHorizontal, LayoutList } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { MentorCard, type Mentor } from "./mentor-card";
+import { MentorFan } from "./mentor-fan";
 import { ModelComparison } from "./model-comparison";
-import { StaggerReveal } from "@/components/animations/stagger-reveal";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LoadingState } from "@/components/ui/loading-state";
@@ -21,6 +22,7 @@ import {
 } from "@/lib/discovery-filters";
 
 type Mode = "semantic" | "keyword" | "compare";
+export type ResultView = "passes" | "list";
 
 export function DiscoverClient({
   canRequest,
@@ -32,6 +34,7 @@ export function DiscoverClient({
   initialRequestMap?: Record<string, MentorRequestState>;
 }) {
   const [mode, setMode] = useState<Mode>("compare");
+  const [view, setView] = useState<ResultView>("passes");
   const [query, setQuery] = useState("");
   const [mentors, setMentors] = useState<Mentor[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -189,6 +192,7 @@ export function DiscoverClient({
   }
 
   const modeSelector = (
+    <div className="flex flex-wrap items-center justify-between gap-3">
     <div
       role="group"
       aria-label="Mentor discovery mode"
@@ -236,14 +240,28 @@ export function DiscoverClient({
       >
         Keyword search
       </Button>
-
+    </div>
+    <div
+      role="group"
+      aria-label="Result layout"
+      className="flex w-fit gap-1 rounded-lg border bg-surface p-1"
+    >
+      <Button type="button" size="sm" aria-pressed={view === "passes"}
+        variant={view === "passes" ? "secondary" : "ghost"} onClick={() => setView("passes")}>
+        <GalleryHorizontal aria-hidden="true" /> Passes
+      </Button>
+      <Button type="button" size="sm" aria-pressed={view === "list"}
+        variant={view === "list" ? "secondary" : "ghost"} onClick={() => setView("list")}>
+        <LayoutList aria-hidden="true" /> List
+      </Button>
+    </div>
     </div>
   );
 
   if (mode === "compare") return (
     <div className="grid gap-6">
       {modeSelector}
-      <ModelComparison canRequest={canRequest} requestMap={requestMap}
+      <ModelComparison view={view} canRequest={canRequest} requestMap={requestMap}
         onRequestSent={handleRequestSent} onBlocked={handleMentorBlocked} />
     </div>
   );
@@ -279,13 +297,9 @@ export function DiscoverClient({
                 Filter Discovery Results
               </span>
               {hasActiveFilters && (
-                <button
-                  type="button"
-                  onClick={resetFilters}
-                  className="text-xs font-medium text-primary underline underline-offset-2 hover:opacity-80"
-                >
+                <Button type="button" size="xs" variant="outline" onClick={resetFilters}>
                   Reset all filters
-                </button>
+                </Button>
               )}
             </div>
 
@@ -300,7 +314,7 @@ export function DiscoverClient({
                     id="filter-industry"
                     value={selectedIndustry}
                     onChange={(e) => setSelectedIndustry(e.target.value)}
-                    className="h-8 rounded-md border border-input bg-background px-2.5 py-1 text-xs shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                    className="h-11 rounded-lg border border-input bg-background px-3 text-sm"
                   >
                     <option value="all">All Industries ({industries.length})</option>
                     {industries.map((ind) => (
@@ -322,7 +336,7 @@ export function DiscoverClient({
                     id="filter-cohort"
                     value={selectedGraduationYear}
                     onChange={(e) => setSelectedGraduationYear(e.target.value)}
-                    className="h-8 rounded-md border border-input bg-background px-2.5 py-1 text-xs shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                    className="h-11 rounded-lg border border-input bg-background px-3 text-sm"
                   >
                     <option value="all">All Cohorts ({graduationYears.length})</option>
                     {graduationYears.map((yr) => (
@@ -339,10 +353,10 @@ export function DiscoverClient({
                 type="button"
                 onClick={() => setOnlyAccepting((prev) => !prev)}
                 aria-pressed={onlyAccepting}
-                className={`inline-flex h-8 items-center gap-1.5 rounded-md border px-2.5 text-xs transition-colors ${
+                className={`inline-flex min-h-11 items-center gap-1.5 rounded-lg border px-3 text-sm font-medium transition-colors ${
                   onlyAccepting
-                    ? "border-primary bg-primary text-primary-foreground font-medium"
-                    : "border-input bg-background text-muted-foreground hover:bg-surface"
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-input bg-background text-foreground hover:bg-muted"
                 }`}
               >
                 Accepting new requests
@@ -369,10 +383,10 @@ export function DiscoverClient({
                         key={skill}
                         type="button"
                         onClick={() => toggleSkillFilter(skill)}
-                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs transition-colors ${
+                        className={`inline-flex min-h-9 items-center gap-1 rounded-full border px-3 text-xs font-medium transition-colors ${
                           isSelected
-                            ? "bg-primary text-primary-foreground font-medium"
-                            : "bg-surface border text-muted-foreground hover:bg-surface-hover"
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-input bg-background text-foreground hover:bg-muted"
                         }`}
                         aria-pressed={isSelected}
                       >
@@ -396,7 +410,7 @@ export function DiscoverClient({
           action={
             <Link
               href="/profile"
-              className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4"
+              className={buttonVariants({ size: "sm" })}
             >
               Set up your profile
             </Link>
@@ -450,7 +464,7 @@ export function DiscoverClient({
           action={
             <Link
               href="/profile"
-              className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4"
+              className={buttonVariants({ size: "sm" })}
             >
               Review your profile
             </Link>
@@ -476,8 +490,26 @@ export function DiscoverClient({
       )}
 
       {/* Render Mentor Cards */}
-      {!loading && filteredMentors.length > 0 && (
-        <StaggerReveal className="grid gap-4 lg:grid-cols-2">
+      {!loading && filteredMentors.length > 0 && view === "passes" && (
+        <MentorFan
+          mentors={filteredMentors}
+          label={mode === "semantic" ? "Recommended Mentors" : "Mentor search results"}
+          positionLabel={mode === "semantic" ? "Rank" : "Result"}
+          getStatus={(id) => getActiveRelationshipStatus(id, requestMap)}
+          renderActive={(m) => (
+            <MentorCard
+              mentor={m}
+              mode={mode}
+              canRequest={canRequest}
+              requestStatus={getActiveRelationshipStatus(m.id, requestMap)}
+              onRequestSent={handleRequestSent}
+              onBlocked={handleMentorBlocked}
+            />
+          )}
+        />
+      )}
+      {!loading && filteredMentors.length > 0 && view === "list" && (
+        <div className="grid gap-4 lg:grid-cols-2">
           {filteredMentors.map((m) => (
             <MentorCard
               key={m.id}
@@ -489,7 +521,7 @@ export function DiscoverClient({
               onBlocked={handleMentorBlocked}
             />
           ))}
-        </StaggerReveal>
+        </div>
       )}
     </div>
   );
