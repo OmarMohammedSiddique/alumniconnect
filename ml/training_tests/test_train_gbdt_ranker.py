@@ -9,8 +9,9 @@ import unittest
 ML_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ML_DIR))
 import train_gbdt_ranker
-from train_gbdt_ranker import (FOLDS, GRID, cross_validate, fit_ranker, grid_candidates, group_sizes,
-                               grouped_folds, mean_ndcg5, ordered, run)
+from train_gbdt_ranker import (FOLDS, GRID, RANDOM_BASELINE_SEEDS, cross_validate, fit_ranker, grid_candidates,
+                               group_sizes, grouped_folds, matches_recorded, mean_ndcg5, ordered, random_baseline, run,
+                               tfidf_scores)
 
 TOPICS = [
     ('Pricing', 'Insurance', 'actuarial pricing models and reserving'),
@@ -245,6 +246,152 @@ sys.addaudithook(hook)
 train_gbdt_ranker.run(sys.argv[2], sys.argv[3], runs_root=sys.argv[4])
 print(json.dumps(sorted(opened)))
 """
+
+
+class BaselineTests(TemporaryRunCase):
+    def load(self, name):
+        return [json.loads(line) for line in (self.data / name).read_text(encoding='utf-8').splitlines()]
+
+    def validation(self):
+        return self.load('validation_profiles.jsonl'), self.load('validation_pairs.jsonl')
+
+    def test_run_reports_random_and_tfidf_next_to_the_ranker_on_the_same_pools(self):
+        summary = run(self.data, self.runs / 'baselines', runs_root=self.runs)
+        outputs = read_outputs(self.runs / 'baselines')
+        metrics, validation = outputs['metrics.json'], outputs['metrics.json']['validation']
+        self.assertEqual(sorted(validation), ['gbdt_ranker', 'random', 'tfidf'])
+        pools = lambda rows: sorted((row['query_id'], row['mentor_id'], row['grade']) for row in rows)
+        self.assertEqual(pools(metrics['tfidf_predictions']), pools(metrics['gbdt_ranker_predictions']))
+        self.assertEqual(len(metrics['tfidf_predictions']), 9)
+        self.assertEqual([row['query_id'] for row in validation['tfidf']['per_query']],
+                         [row['query_id'] for row in validation['gbdt_ranker']['per_query']])
+        self.assertEqual(validation['random']['seeds'], list(range(100)))
+        self.assertEqual(outputs['config.json']['baselines']['random_seeds'], list(range(100)))
+        self.assertEqual(summary['baselines'], {'tfidf': validation['tfidf']['aggregate'],
+                                                'random_mean_of_100_seeds': validation['random']['aggregate']})
+        # The written figures are the ones the two baseline functions produce for these pools.
+        profiles, pairs = self.validation()
+        vectoriser = train_gbdt_ranker.fit_vectoriser(self.load('train_profiles.jsonl'))
+        expected = train_gbdt_ranker.evaluate(profiles, pairs, tfidf_scores(profiles, vectoriser))
+        self.assertEqual(validation['tfidf']['aggregate'], expected['aggregate'])
+        self.assertEqual(metrics['tfidf_predictions'], expected['predictions'])
+        self.assertEqual(validation['random'], random_baseline(profiles, pairs))
+
+    def test_tfidf_baseline_is_the_from_scratch_pilot_computation_fitted_on_training_text(self):
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        from train_scratch_pilot import evaluate, text
+        run(self.data, self.runs / 'tfidf', runs_root=self.runs)
+        profiles, pairs = self.validation()
+        # Restated from train_scratch_pilot.run, which cannot be called without also training the neural model.
+        vectoriser = TfidfVectorizer(analyzer='char', ngram_range=(3, 5), lowercase=True)
+        vectoriser.fit([text(profile) for profile in self.load('train_profiles.jsonl')])
+        by_id = lambda role: sorted((p for p in profiles if p['role'] == role), key=lambda p: p['person_id'])
+        scores = (vectoriser.transform([text(p) for p in by_id('mentee')])
+                  @ vectoriser.transform([text(p) for p in by_id('mentor')]).T).toarray()
+        expected = evaluate(profiles, pairs, scores)
+        metrics = read_outputs(self.runs / 'tfidf')['metrics.json']
+        self.assertEqual(metrics['validation']['tfidf']['aggregate'], expected['aggregate'])
+        self.assertEqual(metrics['validation']['tfidf']['per_query'], expected['per_query'])
+        self.assertEqual(metrics['tfidf_predictions'], expected['predictions'])
+        # The on-topic mentor shares the mentee's wording, so the lexical baseline ranks it first.
+        self.assertEqual(expected['aggregate']['ndcg5'], 1.0)
+
+    def test_tfidf_scores_ignore_forbidden_fields_and_validation_vocabulary(self):
+        profiles, _ = self.validation()
+        vectoriser = train_gbdt_ranker.fit_vectoriser(self.load('train_profiles.jsonl'))
+        vocabulary = dict(vectoriser.vocabulary_)
+        before = tfidf_scores(profiles, vectoriser)
+        noisy = [{**profile, 'rationale': 'zzqx actuarial pricing', 'relevance_score': 3, 'notes': 'Insurance'}
+                 for profile in reversed(profiles)]
+        self.assertEqual(tfidf_scores(noisy, vectoriser).tolist(), before.tolist())
+        self.assertEqual(vectoriser.vocabulary_, vocabulary)
+        self.assertEqual(before.shape, (3, 3))
+
+    def test_random_baseline_is_the_mean_over_one_hundred_fixed_seeds(self):
+        import numpy as np
+        profiles, pairs = self.validation()
+        self.assertEqual(RANDOM_BASELINE_SEEDS, tuple(range(100)))
+        result = random_baseline(profiles, pairs)
+        self.assertEqual(result, random_baseline(profiles, pairs))
+        self.assertEqual(result['seeds'], list(range(100)))
+        per_seed = [train_gbdt_ranker.evaluate(profiles, pairs, np.random.default_rng(seed).random((3, 3)))['aggregate']
+                    for seed in range(100)]
+        for key in ('ndcg5', 'p1', 'p3', 'p5', 'mrr5', 'hit5'):
+            self.assertAlmostEqual(result['aggregate'][key], sum(row[key] for row in per_seed) / 100, places=12)
+            self.assertAlmostEqual(result['std_over_seeds'][key], float(np.std([row[key] for row in per_seed])), places=12)
+        # One relevant mentor in a pool of three: a random ranking puts it first a third of the time.
+        self.assertGreater(result['aggregate']['p1'], 0.2)
+        self.assertLess(result['aggregate']['p1'], 0.47)
+        self.assertLess(result['aggregate']['ndcg5'], 1.0)
+        self.assertNotEqual(result['aggregate'], random_baseline(profiles, pairs, seeds=(0,))['aggregate'])
+
+    def test_random_baseline_scores_do_not_depend_on_the_labels(self):
+        profiles, pairs = self.validation()
+        seen = []
+        original = train_gbdt_ranker.evaluate
+        self.addCleanup(setattr, train_gbdt_ranker, 'evaluate', original)
+
+        def recording(profiles, pairs, scores):
+            seen.append(scores.tolist())
+            return original(profiles, pairs, scores)
+
+        train_gbdt_ranker.evaluate = recording
+        random_baseline(profiles, pairs)
+        first, seen[:] = list(seen), []
+        random_baseline(profiles, [{**pair, 'relevance_score': 3 - pair['relevance_score']} for pair in pairs])
+        self.assertEqual(first, seen)
+        self.assertEqual(len(first), 100)
+        self.assertEqual(len({json.dumps(scores) for scores in first}), 100)
+
+    def test_tfidf_figures_are_not_the_rankers_when_the_two_disagree(self):
+        # The ranker is replaced by one that ranks in the opposite order to TF-IDF, so the two must differ.
+        original = train_gbdt_ranker.score_pools
+        self.addCleanup(setattr, train_gbdt_ranker, 'score_pools', original)
+        train_gbdt_ranker.score_pools = lambda model, profiles, vectoriser: -tfidf_scores(profiles, vectoriser)
+        summary = run(self.data, self.runs / 'disagree', runs_root=self.runs)
+        metrics = read_outputs(self.runs / 'disagree')['metrics.json']
+        tfidf, ranker = metrics['validation']['tfidf'], metrics['validation']['gbdt_ranker']
+        self.assertEqual(tfidf['aggregate']['ndcg5'], 1.0)
+        self.assertTrue(all(row['ndcg5'] == 1.0 for row in tfidf['per_query']))
+        self.assertLess(ranker['aggregate']['ndcg5'], 1.0)
+        self.assertTrue(all(row['ndcg5'] < 1.0 for row in ranker['per_query']))
+        self.assertEqual(summary['baselines']['tfidf'], tfidf['aggregate'])
+        self.assertEqual(summary['validation'], ranker['aggregate'])
+        first = lambda rows: {row['query_id']: row['mentor_id'] for row in rows if row['rank'] == 1}
+        self.assertTrue(all(first(metrics['tfidf_predictions'])[query] != mentor
+                            for query, mentor in first(metrics['gbdt_ranker_predictions']).items()))
+
+    def test_matches_recorded_rounds_to_exactly_six_decimals(self):
+        self.assertTrue(matches_recorded(0.8539321651209489))
+        self.assertTrue(matches_recorded(0.8539324))
+        self.assertTrue(matches_recorded(0.8539316))
+        self.assertFalse(matches_recorded(0.8539326))
+        self.assertFalse(matches_recorded(0.8539314))
+        self.assertFalse(matches_recorded(0.8541))
+        self.assertFalse(matches_recorded(1.0, 0.999999))
+        self.assertFalse(matches_recorded(1.0, 1.000001))
+        self.assertTrue(matches_recorded(1.0, 1.0))
+
+    def test_recorded_tfidf_check_compares_to_six_decimals(self):
+        self.assertEqual(train_gbdt_ranker.RECORDED_TFIDF_NDCG5, 0.853932)
+        self.addCleanup(setattr, train_gbdt_ranker, 'RECORDED_TFIDF_NDCG5', train_gbdt_ranker.RECORDED_TFIDF_NDCG5)
+        for near_miss in (0.999999, 1.000001):
+            train_gbdt_ranker.RECORDED_TFIDF_NDCG5 = near_miss
+            summary = run(self.data, self.runs / f'near-{near_miss}', runs_root=self.runs)
+            self.assertIs(summary['tfidf_ndcg5_matches_recorded'], False)
+        train_gbdt_ranker.RECORDED_TFIDF_NDCG5 = 0.853932
+        run(self.data, self.runs / 'recorded', runs_root=self.runs)
+        check = read_outputs(self.runs / 'recorded')['metrics.json']['recorded_tfidf_check']
+        self.assertEqual(check['recorded_ndcg5'], 0.853932)
+        # The invented fixture scores 1.0, so it must not be reported as matching the recorded pilot figure.
+        self.assertIs(check['matches_to_six_decimals'], False)
+        original = train_gbdt_ranker.RECORDED_TFIDF_NDCG5
+        self.addCleanup(setattr, train_gbdt_ranker, 'RECORDED_TFIDF_NDCG5', original)
+        train_gbdt_ranker.RECORDED_TFIDF_NDCG5 = 1.0
+        summary = run(self.data, self.runs / 'recorded-match', runs_root=self.runs)
+        self.assertIs(summary['tfidf_ndcg5_matches_recorded'], True)
+        self.assertIs(read_outputs(self.runs / 'recorded-match')['metrics.json']['recorded_tfidf_check']
+                      ['matches_to_six_decimals'], True)
 
 
 class TestSplitIsolationTests(TemporaryRunCase):

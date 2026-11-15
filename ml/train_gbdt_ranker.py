@@ -17,12 +17,16 @@ import lightgbm
 import numpy as np
 import sklearn
 
-from ranker_features import FEATURE_NAMES, build_features, fit_vectoriser, load_jsonl
-from train_scratch_pilot import evaluate, ranking_metrics
+from ranker_features import FEATURE_NAMES, build_features, fit_vectoriser, load_jsonl, whitelisted
+from train_scratch_pilot import evaluate, ranking_metrics, text
 
 RUNS_ROOT = Path(__file__).resolve().parent / 'runs'
 DATA_FILES = ('train_profiles.jsonl', 'train_pairs.jsonl', 'validation_profiles.jsonl', 'validation_pairs.jsonl')
 FOLDS = 5
+# Fixed in advance; the random baseline is the mean over exactly these seeds.
+RANDOM_BASELINE_SEEDS = tuple(range(100))
+# TF-IDF validation nDCG@5 recorded for pilot-machine-v1 in docs/ml-pilot-training.md.
+RECORDED_TFIDF_NDCG5 = 0.853932
 # Ordered so that simpler models come first: ties in the cross-validation score
 # go to the earliest entry.
 GRID = {
@@ -121,10 +125,37 @@ def cross_validate(features, pairs, seed, folds=FOLDS):
 
 def score_pools(model, profiles, vectoriser):
     """Score every mentee and mentor combination; labels are not read here."""
-    mentees = sorted(profile['person_id'] for profile in profiles if profile['role'] == 'mentee')
-    mentors = sorted(profile['person_id'] for profile in profiles if profile['role'] == 'mentor')
+    mentees, mentors = pool_ids(profiles, 'mentee'), pool_ids(profiles, 'mentor')
     grid = [{'mentee_id': mentee, 'mentor_id': mentor} for mentee in mentees for mentor in mentors]
     return model.predict(build_features(profiles, grid, vectoriser)).reshape(len(mentees), len(mentors))
+
+
+def pool_ids(profiles, role):
+    return sorted(profile['person_id'] for profile in profiles if profile['role'] == role)
+
+
+def matches_recorded(value, recorded=None):
+    """True when `value` equals the recorded figure once rounded to six decimal places."""
+    return round(value, 6) == (RECORDED_TFIDF_NDCG5 if recorded is None else recorded)
+
+
+def tfidf_scores(profiles, vectoriser):
+    """Lexical baseline: TF-IDF cosine for every mentee and mentor, computed as in the from-scratch pilot."""
+    lookup = {profile['person_id']: profile for profile in profiles}
+    texts = lambda role: [text(whitelisted(lookup[person_id])) for person_id in pool_ids(profiles, role)]
+    return (vectoriser.transform(texts('mentee')) @ vectoriser.transform(texts('mentor')).T).toarray()
+
+
+def random_baseline(profiles, pairs, seeds=RANDOM_BASELINE_SEEDS):
+    """Mean metrics of uniformly random scores over fixed seeds, on the same pools and labels."""
+    shape = (len(pool_ids(profiles, 'mentee')), len(pool_ids(profiles, 'mentor')))
+    aggregates = [evaluate(profiles, pairs, np.random.default_rng(seed).random(shape))['aggregate'] for seed in seeds]
+    keys = list(aggregates[0])
+    return {
+        'aggregate': {key: float(np.mean([aggregate[key] for aggregate in aggregates])) for key in keys},
+        'std_over_seeds': {key: float(np.std([aggregate[key] for aggregate in aggregates])) for key in keys},
+        'seeds': list(seeds),
+    }
 
 
 def run(data_dir, output_dir, seed=42, runs_root=RUNS_ROOT):
@@ -150,6 +181,9 @@ def run(data_dir, output_dir, seed=42, runs_root=RUNS_ROOT):
 
     # The validation split is used from here on only, for the final comparison.
     validation = evaluate(val_profiles, val_pairs, score_pools(model, val_profiles, vectoriser))
+    # Baselines on the same pools and labels. Neither one is fitted to, or chosen by, validation labels.
+    tfidf = evaluate(val_profiles, val_pairs, tfidf_scores(val_profiles, vectoriser))
+    random_scores = random_baseline(val_profiles, val_pairs)
     booster = model.booster_
     gain = booster.feature_importance(importance_type='gain')
     splits = booster.feature_importance(importance_type='split')
@@ -160,8 +194,17 @@ def run(data_dir, output_dir, seed=42, runs_root=RUNS_ROOT):
         'engineering_pilot_only': True, 'human_reviewed': False, 'test_performance_accessed': False,
         'validation_queries': len({pair['mentee_id'] for pair in val_pairs}), 'validation_pairs': len(val_pairs),
         'cross_validation': {'metric': 'ndcg5', 'mean_ndcg5': best['mean_ndcg5'], 'fold_ndcg5': best['fold_ndcg5']},
-        'validation': {'gbdt_ranker': {'aggregate': validation['aggregate'], 'per_query': validation['per_query']}},
+        'validation': {
+            'gbdt_ranker': {'aggregate': validation['aggregate'], 'per_query': validation['per_query']},
+            'tfidf': {'aggregate': tfidf['aggregate'], 'per_query': tfidf['per_query']},
+            'random': random_scores,
+        },
+        # Only meaningful when the data directory is pilot-machine-v1, which the recorded figure refers to.
+        'recorded_tfidf_check': {'source': 'docs/ml-pilot-training.md', 'dataset': 'pilot-machine-v1',
+                                 'recorded_ndcg5': RECORDED_TFIDF_NDCG5,
+                                 'matches_to_six_decimals': matches_recorded(tfidf['aggregate']['ndcg5'])},
         'gbdt_ranker_predictions': validation['predictions'],
+        'tfidf_predictions': tfidf['predictions'],
     }
     try:
         commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True, cwd=Path(__file__).parent).strip()
@@ -178,6 +221,9 @@ def run(data_dir, output_dir, seed=42, runs_root=RUNS_ROOT):
                              'selection': 'highest mean nDCG@5 over folds; ties go to the earlier grid entry',
                              'held_out_mentees': held_out_folds, 'results': cv_results},
         'chosen_params': best['params'],
+        'baselines': {'tfidf': 'cosine of the char 3 to 5 gram TF-IDF vectors fitted on train profiles',
+                      'random': 'uniform random scores per pool, mean over the listed seeds (numpy default_rng)',
+                      'random_seeds': random_scores['seeds']},
         'train_queries': len({pair['mentee_id'] for pair in train_pairs}), 'train_pairs': len(train_pairs),
         'data_sha256': {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in DATA_FILES},
         'implementation_sha256': {name: hashlib.sha256((here / name).read_bytes()).hexdigest()
@@ -190,7 +236,10 @@ def run(data_dir, output_dir, seed=42, runs_root=RUNS_ROOT):
     for name, value in (('metrics.json', metrics), ('feature_importance.json', importance), ('config.json', config)):
         (output / name).write_text(json.dumps(value, indent=2) + '\n', encoding='utf-8')
     return {'output_dir': str(output), 'chosen_params': best['params'],
-            'cross_validation_ndcg5': best['mean_ndcg5'], 'validation': validation['aggregate']}
+            'cross_validation_ndcg5': best['mean_ndcg5'], 'validation': validation['aggregate'],
+            'baselines': {'tfidf': tfidf['aggregate'], 'random_mean_of_%d_seeds' % len(random_scores['seeds']):
+                          random_scores['aggregate']},
+            'tfidf_ndcg5_matches_recorded': metrics['recorded_tfidf_check']['matches_to_six_decimals']}
 
 
 if __name__ == '__main__':
