@@ -51,3 +51,11 @@ __pycache__/
 
 # ONNX Runtime's local device identifier for models loaded from memory.
 /:memory:.ses
+
+# Claude Code local files and overnight loop state
+.claude/settings.local.json
+.claude/launch.json
+.claude/worktrees/
+.claude/loop/SPEC.md
+.claude/loop/PROGRESS.md
+.claude/loop/loop.log
