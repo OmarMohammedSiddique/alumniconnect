@@ -5,7 +5,6 @@ import {
   ExternalLink,
   Globe,
   GraduationCap,
-  Sparkles,
   Code2,
   BrainCircuit,
   Shield,
@@ -45,18 +44,17 @@ export default function AboutDeveloperPage() {
 
       <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
         {/* Hero Section */}
-        <div className="border border-border bg-card p-6 sm:p-10">
+        <div className="rounded-[32px] bg-card p-6 sm:p-10">
           <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
             <div className="grid gap-3">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge tone="accent" className="font-semibold">
-                  <Sparkles className="size-3 text-primary" aria-hidden="true" />
+                <Badge tone="accent" className="font-medium">
                   Lead Developer &amp; Researcher
                 </Badge>
                 <Badge tone="neutral">Strathmore University Capstone</Badge>
               </div>
 
-              <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+              <h1 className="text-3xl font-medium tracking-tight text-foreground sm:text-4xl">
                 Omar Siddique
               </h1>
               <p className="text-base text-muted-foreground sm:text-lg">
@@ -70,7 +68,7 @@ export default function AboutDeveloperPage() {
                 href="https://omarsiddique.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-[color-mix(in_oklch,var(--primary),var(--foreground)_12%)] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ring"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-[color-mix(in_oklch,var(--primary),var(--foreground)_12%)] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ring"
               >
                 <Globe className="size-4" aria-hidden="true" />
                 Visit omarsiddique.com
@@ -94,7 +92,7 @@ export default function AboutDeveloperPage() {
           </div>
 
           <div className="mt-8 border-t border-border pt-8 leading-relaxed text-muted-foreground">
-            <h2 className="text-xl font-bold tracking-tight text-foreground">
+            <h2 className="text-xl font-medium tracking-tight text-foreground">
               About the Developer
             </h2>
             <div className="mt-4 grid gap-4 text-sm sm:text-base">
@@ -124,7 +122,7 @@ export default function AboutDeveloperPage() {
               <div className="flex size-9 items-center justify-center rounded-sm bg-primary/10 text-primary">
                 <BrainCircuit className="size-5" aria-hidden="true" />
               </div>
-              <h3 id="architecture-heading" className="text-lg font-bold text-foreground">
+              <h3 id="architecture-heading" className="text-lg font-medium text-foreground">
                 Semantic Matching &amp; AI
               </h3>
             </div>
@@ -140,7 +138,7 @@ export default function AboutDeveloperPage() {
               <div className="flex size-9 items-center justify-center rounded-sm bg-primary/10 text-primary">
                 <Code2 className="size-5" aria-hidden="true" />
               </div>
-              <h3 className="text-lg font-bold text-foreground">
+              <h3 className="text-lg font-medium text-foreground">
                 Modern Full-Stack Stack
               </h3>
             </div>
@@ -156,7 +154,7 @@ export default function AboutDeveloperPage() {
               <div className="flex size-9 items-center justify-center rounded-sm bg-primary/10 text-primary">
                 <Shield className="size-5" aria-hidden="true" />
               </div>
-              <h3 className="text-lg font-bold text-foreground">
+              <h3 className="text-lg font-medium text-foreground">
                 Privacy &amp; Security Engineering
               </h3>
             </div>
@@ -171,7 +169,7 @@ export default function AboutDeveloperPage() {
               <div className="flex size-9 items-center justify-center rounded-sm bg-primary/10 text-primary">
                 <GraduationCap className="size-5" aria-hidden="true" />
               </div>
-              <h3 className="text-lg font-bold text-foreground">
+              <h3 className="text-lg font-medium text-foreground">
                 Academic Rigor &amp; Evaluation
               </h3>
             </div>
@@ -186,7 +184,7 @@ export default function AboutDeveloperPage() {
         <div className="mt-10 border border-primary/40 bg-card p-6 sm:p-8">
           <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
             <div className="grid gap-2">
-              <h3 className="text-xl font-bold tracking-tight text-foreground">
+              <h3 className="text-xl font-medium tracking-tight text-foreground">
                 Want to connect or explore more work?
               </h3>
               <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
@@ -197,7 +195,7 @@ export default function AboutDeveloperPage() {
               href="https://omarsiddique.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-[color-mix(in_oklch,var(--primary),var(--foreground)_12%)] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ring"
+              className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-[color-mix(in_oklch,var(--primary),var(--foreground)_12%)] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ring"
             >
               omarsiddique.com
               <ExternalLink className="size-4" aria-hidden="true" />
