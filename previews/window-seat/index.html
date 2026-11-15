@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Window Seat | A local flight of fancy</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="tailwind.css"><link rel="stylesheet" href="styles.css">
+</head>
+<body class="min-h-screen antialiased">
+  <div class="sky" aria-hidden="true"></div>
+  <header class="flex items-center justify-between gap-4">
+    <a class="brand flex items-center gap-3" href="./" aria-label="Window Seat home"><span class="mini-window" aria-hidden="true"></span><span>Window Seat</span></a>
+    <span class="preview-label">An interaction study <span class="preview-dot">/</span> Local preview</span>
+  </header>
+  <main class="flex flex-col items-center justify-center">
+    <nav class="switcher flex items-center" aria-label="Preview state">
+      <button type="button" id="login-tab" aria-pressed="true">01 <span>Log in</span></button>
+      <button type="button" id="pass-tab" aria-pressed="false">02 <span>Boarding pass</span></button>
+    </nav>
+    <div class="stage" id="stage" data-state="login">
+      <section class="login-card" id="login-card" aria-labelledby="login-title">
+        <div class="window-mark" aria-hidden="true"><div class="window-view"><div class="window-clouds"><span></span><span></span><span></span><span></span></div><div class="shade"></div></div></div>
+        <h2 id="login-title">Log in to Window Seat</h2>
+        <form id="login-form" class="flex flex-col" novalidate>
+          <div class="field"><label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="off" placeholder="you@example.com" aria-describedby="form-note" required></div>
+          <div class="field"><label for="password">Password</label><div class="password-wrap"><svg class="password-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="lock-shackle" d="M7.5 10V7a4.5 4.5 0 0 1 9 0v3"/><rect x="4.5" y="10" width="15" height="11" rx="3"/><path d="M12 14v3"/></svg><input id="password" name="password" type="password" autocomplete="off" placeholder="Enter your password" aria-describedby="form-note" required minlength="4"><button type="button" id="password-toggle" aria-label="Show password" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg></button></div></div>
+          <button class="login-button flex items-center justify-between" id="login-button" type="submit"><span>Log in</span><span aria-hidden="true">↗</span></button>
+          <p id="form-note" class="form-note" aria-live="polite">Demo only. Use made-up details.</p>
+        </form>
+      </section>
+      <section class="ticket" id="ticket" aria-labelledby="ticket-title" hidden tabindex="-1">
+        <div class="ticket-main">
+          <div class="ticket-header flex items-center justify-between"><div class="flex items-center gap-2"><span class="mini-window" aria-hidden="true"></span><h2 id="ticket-title">Window Seat</h2></div><span class="ticket-type">Boarding pass</span></div>
+          <div class="route flex items-center justify-between"><div><span class="airport">San Francisco</span><p class="airport-code">SFO</p></div><div class="route-line" aria-hidden="true"><span></span><svg viewBox="0 0 24 24" fill="currentColor"><path d="m21 11-7-3V3.5a1.5 1.5 0 0 0-3 0V8l-7 3v2l7-1v5l-3 2v1l4.5-1L17 20v-1l-3-2v-5l7 1Z"/></svg></div><div class="text-right"><span class="airport">New York</span><p class="airport-code">JFK</p></div></div>
+          <div class="flight-times flex items-center justify-between"><div><span class="detail-label">Departure · PST</span><p>08:40</p></div><span class="duration">5h 35m</span><div class="text-right"><span class="detail-label">Arrival · EST</span><p>17:15</p></div></div>
+          <div class="flight-meta grid grid-cols-3"><div><span class="detail-label">Flight</span><p>WS 204</p></div><div><span class="detail-label">Date</span><p>08 Nov 2026</p></div><div><span class="detail-label">Gate / boarding</span><p>B12 / 08:00</p></div></div>
+          <div class="ticket-bottom flex items-center justify-between"><span>Economy · Group 03</span><span>Fictional flight</span></div>
+        </div>
+        <div class="ticket-stub flex flex-col items-center justify-between"><span class="stub-route">SFO → JFK</span><div class="seat"><span class="detail-label">Window seat</span><p>23A</p></div><div class="barcode" aria-hidden="true"></div><span class="stub-caption">Sample pass</span></div>
+      </section>
+    </div>
+    <div class="scene-caption text-center"><p id="scene-title">A little closer to the sky.</p><span id="scene-detail">Your next journey starts here</span></div>
+    <p class="sr-only" id="state-announcement" role="status"></p>
+  </main>
+  <footer class="flex items-center justify-between gap-4"><span>Window Seat / Design exploration</span><span>No account or booking is created</span></footer>
+  <script src="app.js"></script>
+</body>
+</html>
