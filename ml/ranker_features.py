@@ -28,7 +28,7 @@ def load_jsonl(path):
     for name in {path.name, path.resolve().name}:
         if 'test_' in name.casefold():
             raise ValueError('Refusing to open a test split file: ' + name)
-    return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+    return [json.loads(line) for line in path.read_text(encoding='utf-8').splitlines() if line.strip()]
 
 
 def whitelisted(profile):
