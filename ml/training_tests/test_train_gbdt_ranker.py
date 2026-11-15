@@ -514,5 +514,25 @@ class CrossValidationTests(unittest.TestCase):
         self.assertEqual(mean_ndcg5(pairs, [0.5, 0.5]), mean_ndcg5(pairs, [0.9, 0.1]))
 
 
+class DependencyPinTests(unittest.TestCase):
+    """CI installs ml/requirements-export.txt, which must bring in the pinned LightGBM."""
+
+    def requirements(self, name):
+        lines = (ML_DIR / name).read_text(encoding='utf-8').splitlines()
+        return [line.strip() for line in lines if line.strip() and not line.strip().startswith('#')]
+
+    def test_pilot_requirements_pin_lightgbm_exactly_once(self):
+        pins = [line for line in self.requirements('requirements-pilot.txt')
+                if line.lower().startswith('lightgbm')]
+        self.assertEqual(pins, ['lightgbm==4.7.0'])
+
+    def test_installed_lightgbm_matches_the_pin(self):
+        import lightgbm
+        self.assertIn('lightgbm==' + lightgbm.__version__, self.requirements('requirements-pilot.txt'))
+
+    def test_ci_requirements_include_the_pilot_file(self):
+        self.assertIn('-r requirements-pilot.txt', self.requirements('requirements-export.txt'))
+
+
 if __name__ == '__main__':
     unittest.main()
