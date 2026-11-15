@@ -19,7 +19,7 @@ export function ProfileSetup({ isMentor, status, saving, unsaved }: {
 
   return (
     <section id="profile-setup" aria-labelledby="profile-setup-title" className="border bg-card p-5 sm:p-6">
-      <h2 id="profile-setup-title" className="text-lg font-semibold tracking-tight">
+      <h2 id="profile-setup-title" className="text-lg font-medium tracking-tight">
         {ready ? "Your match profile is ready" : isMentor ? "Build your Mentor profile" : "Find your first Mentor"}
       </h2>
       <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground">
@@ -32,7 +32,7 @@ export function ProfileSetup({ isMentor, status, saving, unsaved }: {
           const complete = index === 0 || (index === 1 && ready);
           const current = index === (ready ? 2 : 1);
           return (
-            <li key={step} aria-current={current ? "step" : undefined} className={`border-t pt-3 text-sm ${current ? "font-semibold" : "text-muted-foreground"}`}>
+            <li key={step} aria-current={current ? "step" : undefined} className={`border-t pt-3 text-sm ${current ? "font-medium" : "text-muted-foreground"}`}>
               <span className="mb-2 flex items-center gap-2 text-xs tabular-nums">
                 Step {index + 1}
                 {complete && <><Check className="size-4 text-success-foreground" aria-hidden="true" /><span className="sr-only">Complete.</span></>}

@@ -75,7 +75,7 @@ export function RoleForm({ userId, name, role }: { userId: string; name: string;
           variant="outline"
           disabled={pending || selected === role}
           focusableWhenDisabled
-          aria-label={`Set role for ${name}`}
+          aria-label={`${pending ? "Saving" : "Set"} role for ${name}`}
         >
           {pending ? "Saving..." : "Set"}
         </Button>
@@ -110,9 +110,9 @@ export function ReportReviewForm({
           size="xs"
           variant="destructive"
           disabled={pending}
-          aria-label={`Hide profile for ${reportedName}`}
+          aria-label={`${pending ? "Reviewing" : "Hide profile and resolve report"} for ${reportedName}`}
         >
-          {pending ? "Reviewing..." : "Hide profile & action"}
+          {pending ? "Reviewing..." : "Hide profile and resolve report"}
         </Button>
         <Button
           type="submit"
@@ -121,7 +121,7 @@ export function ReportReviewForm({
           size="xs"
           variant="outline"
           disabled={pending}
-          aria-label={`Dismiss report for ${reportedName}`}
+          aria-label={`${pending ? "Reviewing" : "Dismiss"} report for ${reportedName}`}
         >
           {pending ? "Reviewing..." : "Dismiss"}
         </Button>
@@ -148,11 +148,11 @@ export function VisibilityForm({ userId, name, visible }: { userId: string; name
         variant="outline"
         disabled={pending}
         focusableWhenDisabled
-        aria-label={`${visible ? "Hide" : "Show"} ${name}'s profile`}
+        aria-label={`${pending ? (visible ? "Hiding" : "Showing") : (visible ? "Hide" : "Show")} profile for ${name}`}
         aria-describedby={showFeedback ? feedbackId : undefined}
         className="justify-self-start"
       >
-        {pending ? (visible ? "Hiding..." : "Showing...") : visible ? "Visible - hide" : "Hidden - show"}
+        {pending ? (visible ? "Hiding..." : "Showing...") : visible ? "Hide profile" : "Show profile"}
       </Button>
       <span role="status" className="sr-only">
         {pending ? `${visible ? "Hiding" : "Showing"} ${name}'s profile. Please wait.` : ""}

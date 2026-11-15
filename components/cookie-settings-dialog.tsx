@@ -109,14 +109,14 @@ export function CookieSettingsDialog({ isOpen, onClose }: CookieSettingsDialogPr
       {...({ closedby: "any" } as Record<string, string>)}
       aria-labelledby={titleId}
       aria-describedby={descId}
-      className="m-auto w-[calc(100%-2rem)] max-w-2xl max-h-[calc(100dvh-2rem)] overscroll-contain border border-border bg-card p-0 text-foreground shadow-2xl backdrop:bg-black/60 backdrop:backdrop-blur-none open:flex open:flex-col"
+      className="m-auto w-[calc(100%-2rem)] max-w-2xl max-h-[calc(100dvh-2rem)] overscroll-contain rounded-[32px] bg-card p-0 text-foreground shadow-2xl backdrop:bg-black/60 backdrop:backdrop-blur-none open:flex open:flex-col"
     >
-      <div className="flex shrink-0 items-center justify-between border-b border-border px-6 py-5">
+      <div className="flex shrink-0 items-center justify-between gap-4 px-6 py-6">
         <div className="flex items-center gap-3">
           <div className="flex size-9 items-center justify-center rounded-sm bg-primary/10 text-primary">
             <Sliders className="size-5" aria-hidden="true" />
           </div>
-          <h2 id={titleId} className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
+          <h2 id={titleId} className="text-lg font-medium tracking-tight text-foreground sm:text-xl">
             Cookie &amp; Storage Preferences
           </h2>
         </div>

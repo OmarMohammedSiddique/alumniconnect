@@ -24,7 +24,7 @@ export default async function EmailPreferencesPage({ searchParams }: {
       {(error || params.error) && <StatusMessage tone="error">We couldn’t load or save your preferences. Please try again.</StatusMessage>}
       <form action={saveEmailPreferences} className="space-y-6">
         <fieldset disabled={Boolean(error)} className="space-y-5">
-          <legend className="mb-4 font-semibold">Optional activity emails</legend>
+          <legend className="mb-4 font-medium">Optional activity emails</legend>
           {([
             ["requests", "Mentorship requests", "New requests and declined-request updates."],
             ["connections", "Successful connections", "Confirmation when a mentorship request is accepted."],

@@ -77,9 +77,9 @@ export default async function AdminPage() {
     ]);
 
   return (
-    <div className="grid max-w-4xl gap-10">
+    <div className="grid min-w-0 w-full max-w-4xl gap-10 [&>section]:min-w-0">
       <section>
-        <h1 className="mb-1 text-2xl font-semibold">User management</h1>
+        <h1 className="mb-1 text-2xl font-medium">User management</h1>
         <p className="mb-4 text-sm text-muted-foreground">
           {isAdmin
             ? "Assign roles and moderate profile visibility."
@@ -133,7 +133,7 @@ export default async function AdminPage() {
       </section>
 
       <section>
-        <h2 className="mb-1 text-xl font-semibold">Safety & Member Reports</h2>
+        <h2 className="mb-1 text-xl font-medium">Safety & Member Reports</h2>
         <p className="mb-4 text-sm text-muted-foreground">
           Pending member reports requiring moderation review.
         </p>
@@ -199,7 +199,7 @@ export default async function AdminPage() {
       </section>
 
       <section>
-        <h2 className="mb-1 text-xl font-semibold">Audit log</h2>
+        <h2 className="mb-1 text-xl font-medium">Audit log</h2>
         <p className="mb-4 text-sm text-muted-foreground">
           Most recent 50 platform events, written by database triggers.
         </p>

@@ -100,7 +100,7 @@ export function PrivacySettingsCard({
             <div className="flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-amber-800 dark:text-amber-200 text-sm">
               <ShieldAlert className="size-5 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
               <div className="space-y-1">
-                <p className="font-semibold">Profile restricted by staff moderation</p>
+                <p className="font-medium">Profile restricted by staff moderation</p>
                 <p className="text-xs leading-relaxed opacity-90">
                   Your profile has been placed on private status by our moderation team and cannot be discovered by the community. Member visibility preferences cannot override a staff moderation restriction.
                 </p>

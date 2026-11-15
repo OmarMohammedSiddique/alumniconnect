@@ -226,7 +226,7 @@ export function ProfileForm({
         <details open={!showSetup} className="mt-5 border-t pt-3">
           <summary className="flex min-h-11 cursor-pointer flex-wrap items-center justify-between gap-2 text-sm">
             <span id="profile-completeness" className="font-medium">Profile completeness</span>
-            <span className="flex items-center gap-2 text-sm font-semibold tabular-nums">{percent}%<ChevronDown className="size-4" aria-hidden="true" /></span>
+            <span className="flex items-center gap-2 text-sm font-medium tabular-nums">{percent}%<ChevronDown className="size-4" aria-hidden="true" /></span>
           </summary>
           <section aria-labelledby="profile-completeness">
           <progress

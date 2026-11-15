@@ -52,14 +52,14 @@
   --paper-plane-cursor: auto;
   --hand-cursor: pointer;
   color-scheme: light;
-  /* Approved palette. All supporting shades derive from these three colours. */
+  /* Original brand identity with quiet ink-tinted surfaces for the workspace. */
   --brand-red: #ED1C24;
   --brand-ink: #0D0D0D;
   --brand-white: #FFFFFF;
   /* Pure Crimson/White is 4.38:1; this derived shade supports small text. */
   --brand-red-deep: color-mix(in srgb, var(--brand-red), var(--brand-ink) 12%);
-  --brand-surface: color-mix(in srgb, var(--brand-white), var(--brand-ink) 3%);
-  --brand-gray: color-mix(in srgb, var(--brand-ink), var(--brand-white) 28%);
+  --brand-surface: #f5f7fa;
+  --brand-gray: #526572;
   --brand-gray-light: color-mix(in srgb, var(--brand-white), var(--brand-ink) 8%);
   --surface: var(--brand-surface);
   --success: var(--card);
@@ -98,9 +98,9 @@
   --z-popover: 30;
   --z-skip: 40;
   --background: var(--brand-white);
-  --foreground: var(--brand-ink);
+  --foreground: #172630;
   --card: var(--brand-white);
-  --card-foreground: var(--brand-ink);
+  --card-foreground: #172630;
   --popover: var(--brand-white);
   --popover-foreground: var(--brand-ink);
   --primary: var(--brand-red-deep);
@@ -112,10 +112,10 @@
   --accent: var(--brand-ink);
   --accent-foreground: var(--brand-white);
   --destructive: var(--brand-red-deep);
-  --border: color-mix(in srgb, var(--brand-white) 59%, var(--brand-ink));
-  --input: color-mix(in srgb, var(--brand-white) 20%, var(--brand-ink));
+  --border: #dce4ea;
+  --input: #a8b8c5;
   --ring: var(--brand-red-deep);
-  --radius: 0rem;
+  --radius: 0.5rem;
 }
 
 :root.light {
@@ -140,15 +140,15 @@
   --card-foreground: var(--brand-white);
   --popover: color-mix(in srgb, var(--brand-white) 5%, var(--brand-ink));
   --popover-foreground: var(--brand-white);
-  --primary: var(--brand-red);
-  --primary-foreground: var(--brand-white);
+  --primary: #f13a41;
+  --primary-foreground: #0d0d0d;
   --secondary: color-mix(in srgb, var(--brand-white) 12%, var(--brand-ink));
   --secondary-foreground: var(--brand-white);
   --muted: color-mix(in srgb, var(--brand-white) 7%, var(--brand-ink));
-  --muted-foreground: color-mix(in srgb, var(--brand-white) 72%, var(--brand-ink));
-  --accent: var(--brand-red);
-  --accent-foreground: var(--brand-white);
-  --destructive: var(--brand-red);
+  --muted-foreground: #b1bfcc;
+  --accent: #f13a41;
+  --accent-foreground: #0d0d0d;
+  --destructive: #ff9ca1;
   --border: color-mix(in srgb, var(--brand-white) 16%, var(--brand-ink));
   --input: color-mix(in srgb, var(--brand-white) 22%, var(--brand-ink));
   --ring: var(--brand-red);
@@ -180,9 +180,9 @@
 @layer components {
   .product-page { width: 100%; max-width: var(--content-width); margin-inline: auto; }
   .page-heading { margin-bottom: 2rem; }
-  .page-heading h1 { font-size: var(--text-title); line-height: var(--leading-heading); font-weight: 750; letter-spacing: var(--tracking-heading); }
+  .page-heading h1 { font-size: var(--text-title); line-height: var(--leading-heading); font-weight: 500; letter-spacing: var(--tracking-heading); }
   .page-heading p { max-width: 65ch; margin-top: 0.75rem; color: var(--muted-foreground); font-size: var(--text-label); }
-  .section-heading { font-size: var(--text-section); font-weight: 700; letter-spacing: -0.02em; }
+  .section-heading { font-size: var(--text-section); font-weight: 500; letter-spacing: -0.02em; }
   .form-control { min-height: var(--control-height); width: 100%; border: 1px solid var(--input); border-radius: var(--radius); background: var(--background); padding: 0.625rem 0.875rem; font-size: 1rem; line-height: 1.5; }
   .form-control::placeholder { color: var(--muted-foreground); }
   .form-control:focus-visible { border-color: var(--ring); }
@@ -208,12 +208,12 @@
 }
 
 .workspace-navigation {
-  --background: var(--brand-ink);
+  --background: #172630;
   --foreground: var(--inverse-foreground);
-  --card: var(--brand-ink);
+  --card: #172630;
   --muted: color-mix(in srgb, var(--brand-white) 2%, var(--brand-ink));
   --muted-foreground: var(--inverse-muted);
-  --border: var(--inverse-border);
+  --border: #344958;
   --accent: var(--brand-red-deep);
   --accent-foreground: var(--inverse-foreground);
   --primary: var(--brand-red-deep);
@@ -221,20 +221,6 @@
   --ring: var(--inverse-foreground);
   color: var(--foreground);
   background: var(--background);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  @keyframes stagger-rise {
-    from {
-      transform: translateY(8px);
-    }
-    to {
-      transform: translateY(0);
-    }
-  }
-  .stagger-reveal > * {
-    animation: stagger-rise var(--motion-standard) var(--ease-out) both;
-  }
 }
 
 @media (max-width: 767px) {
@@ -277,4 +263,22 @@ dialog::backdrop {
   :disabled, [aria-disabled="true"] {
     cursor: not-allowed;
   }
+}
+
+/* A shared hierarchy for sustained reading and member workflows. */
+@layer components {
+  .workspace-panel { --panel-radius:24px; --panel-padding:16px; border-radius:var(--panel-radius); }
+  .workspace-shortcuts { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:32px; }
+  .workspace-shortcut { display:inline-flex; align-items:center; gap:8px; min-height:44px; padding:8px 12px; border-radius:8px; font-size:12px; color:var(--muted-foreground); }
+  .workspace-shortcut:hover { background:var(--muted); color:var(--foreground); }
+  .empty-state { padding:32px 24px; border-radius:24px; background:var(--card); }
+  .empty-state h2,.empty-state h3 { font-size:18px; font-weight:500; }
+  .empty-state p { max-width:60ch; margin-top:8px; font-size:14px; color:var(--muted-foreground); line-height:1.7; }
+  .empty-state-action { margin-top:20px; }
+  #workspace h1 { font-weight:500; letter-spacing:-.025em; }
+  #workspace h2,#workspace h3 { font-weight:500; }
+  #workspace table { background:var(--card); }
+  #workspace th { padding:16px; font-weight:500; }
+  #workspace td { padding:16px; }
+  #workspace select { min-height:44px; border-radius:8px; }
 }

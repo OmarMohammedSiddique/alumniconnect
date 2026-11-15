@@ -28,7 +28,7 @@ export function CookieBanner() {
                 <Cookie className="size-4" aria-hidden="true" />
               </div>
               <div className="grid gap-1 text-xs sm:text-sm">
-                <p className="font-semibold text-foreground">
+                <p className="font-medium text-foreground">
                   Cookie &amp; Local Storage Preferences
                 </p>
                 <p className="leading-relaxed text-muted-foreground">
@@ -68,7 +68,7 @@ export function CookieBanner() {
                 variant="default"
                 size="sm"
                 onClick={acceptAll}
-                className="gap-1.5 bg-[var(--brand-red-deep)] hover:bg-[var(--brand-red-deep)]"
+                className="gap-1.5 text-white bg-[var(--brand-red-deep)] hover:bg-[var(--brand-red-deep)]"
               >
                 <ShieldCheck className="size-3.5" aria-hidden="true" />
                 Accept All
