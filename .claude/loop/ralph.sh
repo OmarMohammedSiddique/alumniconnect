@@ -20,6 +20,10 @@ if [ "$(uname)" = "Darwin" ] && [ -z "${LOOP_CAFFEINATED:-}" ] && command -v caf
   exec caffeinate -i "$0" "$@"
 fi
 
+# Terminal tabs and launchd jobs may not have ~/.local/bin on PATH.
+CLAUDE_BIN=${CLAUDE_BIN:-$(command -v claude || echo "$HOME/.local/bin/claude")}
+[ -x "$CLAUDE_BIN" ] || { echo "Cannot find the claude CLI. Set CLAUDE_BIN to its path."; exit 1; }
+
 [ -f "$DIR/SPEC.md" ] || { echo "No $DIR/SPEC.md found. Run /autopilot <issue> in Claude Code first."; exit 1; }
 
 branch=$(git branch --show-current)
@@ -37,7 +41,7 @@ fi
 
 for i in $(seq 1 "$MAX"); do
   echo "=== Pass $i of $MAX on $branch ($(date '+%Y-%m-%d %H:%M')) ===" | tee -a "$DIR/loop.log"
-  claude -p "$(cat "$DIR/PROMPT.md")" \
+  "$CLAUDE_BIN" -p "$(cat "$DIR/PROMPT.md")" \
     --settings "$DIR/settings.json" \
     --permission-mode auto \
     --permission-prompts none \
@@ -45,6 +49,9 @@ for i in $(seq 1 "$MAX"); do
     --max-budget-usd "$BUDGET" 2>&1 | tee -a "$DIR/loop.log"
   status=${PIPESTATUS[0]}
   [ "$status" -eq 0 ] || echo "Pass $i exited with status $status." | tee -a "$DIR/loop.log"
+  if [ "$status" -eq 126 ] || [ "$status" -eq 127 ]; then
+    echo "The claude CLI could not be run. Stopping." | tee -a "$DIR/loop.log"; exit 1
+  fi
 
   last=$(grep -v '^[[:space:]]*$' "$DIR/PROGRESS.md" | tail -n 1)
   case "$last" in
