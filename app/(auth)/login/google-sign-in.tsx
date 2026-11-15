@@ -8,7 +8,7 @@ import { getGoogleAuthMessage } from "@/lib/google-auth";
 import { Button } from "@/components/ui/button";
 import { StatusMessage } from "@/components/ui/status-message";
 
-export function GoogleSignIn({ next }: { next: string }) {
+export function GoogleSignIn({ next, compact = false }: { next: string; compact?: boolean }) {
   const [state, action, pending] = useActionState(signInWithGoogle, { error: null } as AuthState);
   const callbackMessage = getGoogleAuthMessage(useSearchParams().get("oauth_error"));
   return <div className="grid gap-3">
@@ -21,6 +21,6 @@ export function GoogleSignIn({ next }: { next: string }) {
     </form>
     {(state.error || callbackMessage) && <StatusMessage tone="error">{state.error || callbackMessage}</StatusMessage>}
     <p className="text-xs leading-relaxed text-muted-foreground">Register first, then use Google with the same email address. Existing accounts keep their mentorship role. Google sign-in does not verify alumni affiliation.</p>
-    <div className="flex items-center gap-3 text-xs text-muted-foreground"><span className="h-px flex-1 bg-border" />or sign in with email<span className="h-px flex-1 bg-border" /></div>
+    {!compact && <div className="flex items-center gap-3 text-xs text-muted-foreground"><span className="h-px flex-1 bg-border" />or sign in with email<span className="h-px flex-1 bg-border" /></div>}
   </div>;
 }

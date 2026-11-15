@@ -29,7 +29,7 @@ export function CodeForm({ initialChallenge, next }: { initialChallenge: OtpChal
 
   return <Card className="mx-auto w-full max-w-lg">
     <CardHeader>
-      <CardTitle><h1 className="text-2xl font-semibold tracking-tight">Sign in with an email code</h1></CardTitle>
+      <CardTitle><h1 className="text-2xl font-medium tracking-tight">Sign in with an email code</h1></CardTitle>
       <CardDescription>Use the email you registered with. New here? <Link href="/signup" className="underline underline-offset-4">Create an account first.</Link></CardDescription>
     </CardHeader>
     <CardContent className="grid gap-5">

@@ -1,11 +1,11 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState, type ReactNode, type Ref } from "react";
 import Link from "next/link";
-import { ShieldCheck, BadgeCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { ProfilePhotoPicker } from "@/components/profile-photo-picker";
 import { PASSWORD_RULES, getPasswordError } from "@/lib/signup-validation";
-import { signUp, type AuthState } from "../actions";
+import { signUpWithArrival, type AuthState } from "../actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -14,13 +14,21 @@ import { StatusMessage } from "@/components/ui/status-message";
 import { CaptchaTokenInput, TurnstileWidget } from "@/components/turnstile-widget";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
+import { LoginJourney, WindowMark, type AuthJourneyHandle } from "../login/login-journey";
+import styles from "../login/login-sky.module.css";
+
+function SignupSurface({ children, compact = false, journey, previewEnabled }: { children: ReactNode; compact?: boolean; journey: Ref<AuthJourneyHandle>; previewEnabled?: boolean }) {
+  return <LoginJourney ref={journey} surface="signup" previewEnabled={previewEnabled}><div className={styles.signupPage}><Card className={`${styles.signupCard} ${compact ? styles.confirmationCard : ""}`}><WindowMark />{children}</Card></div></LoginJourney>;
+}
+
 const initialState: AuthState = { error: null };
 const ROLES = [
   { value: "mentee", label: "Mentee", description: "Find career guidance." },
   { value: "mentor", label: "Mentor", description: "Share your experience." },
 ] as const;
 
-export function SignupForm() {
+export function SignupForm({ previewEnabled = false }: { previewEnabled?: boolean }) {
+  const journey = useRef<AuthJourneyHandle>(null);
   const [editingConfirmation, setEditingConfirmation] = useState(false);
   const [role, setRole] = useState<"mentee" | "mentor">("mentee");
   const [details, setDetails] = useState({ first_name: "", last_name: "", email: "" });
@@ -31,15 +39,20 @@ export function SignupForm() {
   const [captchaToken, setCaptchaToken] = useState("");
   const mismatch = confirmationTouched && password !== confirmation;
   const [state, formAction, pending] = useActionState(async (previous: AuthState, data: FormData) => {
-    const result = await signUp(previous, data);
+    const result = await signUpWithArrival(previous, data);
+    if (!result.error && result.confirmationRequired) {
+      await journey.current?.play({ kind: "confirmation", onContinue: () => journey.current?.reset() });
+    } else if (!result.error && result.redirectTo) {
+      await journey.current?.play({ kind: "registered", destination: result.redirectTo });
+    }
     if (result.confirmationRequired) { setEditingConfirmation(false); setPassword(""); setConfirmation(""); }
     return result;
   }, initialState);
 
   if (state.confirmationRequired && !editingConfirmation) return (
-    <Card className="mx-auto max-w-xl">
+    <SignupSurface compact journey={journey}>
       <CardHeader>
-        <CardTitle><h1 className="text-2xl font-semibold">Check your email</h1></CardTitle>
+        <CardTitle><h1 className="text-2xl font-medium">Check your email</h1></CardTitle>
         <CardDescription>{state.confirmationCodeEnabled ? "Enter the code from your registration email to continue." : "Follow the confirmation link in your email, then sign in to continue."}</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
@@ -48,13 +61,13 @@ export function SignupForm() {
         {state.confirmationCodeEnabled ? <Link href="/verify-email" className="inline-flex min-h-11 items-center font-medium text-primary underline">Enter confirmation code</Link> : <Link href="/login?next=/profile/photo" className="inline-flex min-h-11 items-center font-medium text-primary underline">Continue to sign in</Link>}
         <Button type="button" variant="outline" onClick={() => setEditingConfirmation(true)}>Correct registration details</Button>
       </CardContent>
-    </Card>
+    </SignupSurface>
   );
 
   return (
-    <Card className="gap-4 [--card-spacing:--spacing(4)] lg:[--card-spacing:--spacing(5)]">
+    <SignupSurface journey={journey} previewEnabled={previewEnabled && !pending}>
       <CardHeader>
-        <CardTitle><h1 className="text-2xl font-semibold tracking-tight">Create your account</h1></CardTitle>
+        <CardTitle><h1 className="text-2xl font-medium tracking-tight">Create your account</h1></CardTitle>
         <CardDescription>Connect with Kenya Airways alumni and eligible participants. Registration does not verify employment or airline affiliation.</CardDescription>
       </CardHeader>
       {state.confirmationRequired && editingConfirmation && <CardContent><Button type="button" variant="outline" onClick={() => setEditingConfirmation(false)}>Return to pending confirmation</Button></CardContent>}
@@ -69,9 +82,9 @@ export function SignupForm() {
         }
       }}>
         <CaptchaTokenInput token={captchaToken} />
-        <CardContent className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)_minmax(0,0.9fr)] lg:gap-6 xl:gap-8">
+        <CardContent className={styles.signupGrid}>
           <fieldset disabled={pending} className="grid min-w-0 content-start gap-3">
-            <legend className="mb-3 text-base font-semibold">Account details</legend>
+            <legend className="mb-3 text-base font-medium">Account details</legend>
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="grid min-w-0 gap-1.5">
                 <Label htmlFor="first_name">First name</Label>
@@ -102,11 +115,8 @@ export function SignupForm() {
             </div>
           </fieldset>
 
-          <section aria-labelledby="identity-title" className="grid min-w-0 gap-3 border-t pt-5 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-6 xl:pl-8">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <h2 id="identity-title" className="inline-flex items-center gap-2 text-base font-semibold"><BadgeCheck className="size-4" aria-hidden="true" />Membership details</h2>
-              <span className="border px-2 py-1 text-xs font-medium text-muted-foreground">Preview</span>
-            </div>
+          <details className={styles.identityPreview}>
+            <summary id="identity-title">Membership verification preview <span>Not active</span></summary>
             <p id="identity-help" className="text-xs leading-relaxed text-muted-foreground">Real ID collection is not enabled. These fields preview membership verification; please do not enter real identifiers.</p>
             <fieldset disabled aria-describedby="identity-help" className="grid min-w-0 gap-3">
               <legend className="sr-only">Identity details preview</legend>
@@ -127,37 +137,37 @@ export function SignupForm() {
               </div>
             </fieldset>
             <p className="text-xs leading-relaxed text-muted-foreground">Self-declared details do not establish employment or identity.</p>
-          </section>
+          </details>
 
-          <div className="grid min-w-0 content-start gap-4 border-t pt-5 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-6 xl:pl-8">
+          <div className={styles.signupExtras}>
             <ProfilePhotoPicker disabled={pending} />
             <fieldset className="min-w-0" aria-describedby="role-help" disabled={pending}>
-              <legend className="mb-2 text-sm font-semibold">How would you like to take part?</legend>
+              <legend className="mb-2 text-sm font-medium">How would you like to take part?</legend>
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
                 {ROLES.map((option) => (
                   <label key={option.value} className={`flex min-h-11 cursor-pointer items-center gap-3 border px-3 py-2 ${role === option.value ? "border-primary bg-surface" : "border-border bg-card"}`}>
                     <input type="radio" name="role" value={option.value} checked={role === option.value} onChange={() => setRole(option.value)} className="size-4 shrink-0 accent-primary" />
-                    <span className="min-w-0"><span className="block text-sm font-semibold">{option.label}</span><span className="block text-xs text-muted-foreground">{option.description}</span></span>
+                    <span className="min-w-0"><span className="block text-sm font-medium">{option.label}</span><span className="block text-xs text-muted-foreground">{option.description}</span></span>
                   </label>
                 ))}
               </div>
               <p id="role-help" className="mt-2 text-xs text-muted-foreground">Choose one mentorship role for your account.</p>
             </fieldset>
           </div>
-          <div className="lg:col-span-3"><TurnstileWidget action="signup" onToken={setCaptchaToken} resetKey={state} /></div>
-          {(clientError || state.error) && <div className="lg:col-span-3"><StatusMessage tone="error">{clientError || state.error}</StatusMessage></div>}
+          <div className={styles.signupError}><TurnstileWidget action="signup" onToken={setCaptchaToken} resetKey={state} /></div>
+          {(clientError || state.error) && <div className={styles.signupError}><StatusMessage tone="error">{clientError || state.error}</StatusMessage></div>}
         </CardContent>
-        <CardFooter className="mt-4 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <CardFooter className={styles.signupFooter}>
           <div className="flex max-w-3xl items-start gap-2">
             <ShieldCheck className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-            <p className="text-xs leading-relaxed text-muted-foreground"><span className="font-semibold text-foreground">Proposed association privacy notice: </span>“Your information is protected under the Data Protection Act and will only be used for alumni association purposes.” <Link href="/privacy" className="font-medium text-primary underline underline-offset-4">Read the current prototype privacy position</Link>.</p>
+            <p className="text-xs leading-relaxed text-muted-foreground"><span className="font-medium text-foreground">Proposed association privacy notice: </span>“Your information is protected under the Data Protection Act and will only be used for alumni association purposes.” <Link href="/privacy" className="font-medium text-primary underline underline-offset-4">Read the current prototype privacy position</Link>.</p>
           </div>
-          <div className="grid shrink-0 gap-1 sm:min-w-48">
-            <Button type="submit" disabled={pending}>{pending ? "Creating account…" : "Create account"}</Button>
+          <div className={styles.signupSubmit}>
+            <Button type="submit" data-login-primary className={styles.primary} disabled={pending}>{pending ? "Creating account…" : "Create account"}</Button>
             <p className="text-center text-xs text-muted-foreground">Already registered? <Link href="/login" className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4">Sign in</Link></p>
           </div>
         </CardFooter>
       </form>
-    </Card>
+    </SignupSurface>
   );
 }

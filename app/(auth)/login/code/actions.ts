@@ -27,7 +27,7 @@ export async function emailOtpAction(_previous: OtpState, form: FormData): Promi
     const error = await verifyEmailOtp(supabase.auth, challenge.email, String(form.get("token") ?? "").trim(), readCaptchaToken(form));
     if (error) return fail(error);
     jar.set(OTP_COOKIE, "", { path: "/login/code", maxAge: 0 });
-    redirect(getSafeSignInRedirect(challenge.next));
+    redirect(`/arrival?next=${encodeURIComponent(getSafeSignInRedirect(challenge.next))}`);
   }
   if (intent !== "request" && intent !== "resend") return fail("Choose a sign-in action and try again.");
   const email = intent === "resend" ? challenge?.email : normalizeOtpEmail(form.get("email"));

@@ -32,7 +32,7 @@ export async function accountEmailAction(purpose: AccountEmailPurpose, _previous
     const supabase = await createClient(fetchAuthWithDeadline);
     const error = await verifyAccountEmail(supabase.auth, purpose, challenge.email, token, readCaptchaToken(form));
     if (error) return fail(error, error === ACCOUNT_EMAIL_INVALID_CODE ? "token" : undefined);
-    if (purpose === "signup") { clear(); redirect(getSafeSignInRedirect(challenge.next)); }
+    if (purpose === "signup") { clear(); redirect(`/arrival?next=${encodeURIComponent(getSafeSignInRedirect(challenge.next))}`); }
     // A normal session or forged cookie can never reach this update without a
     // fresh recovery-code verification above. Do not trust client session flags.
     try {

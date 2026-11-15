@@ -1,0 +1,81 @@
+.authLayout:has([data-sky-login], [data-sky-account]){isolation:isolate;background:transparent;border-top:0;padding:28px 40px;color:#172630}
+.authLayout:has([data-sky-login], [data-sky-account])>main{max-width:1440px}
+.authLayout:has([data-sky-login], [data-sky-account])>main>header{margin-bottom:28px}
+.authLayout:has([data-sky-login], [data-sky-account])>main>footer{margin-top:36px;color:#344e60}
+.authLayout:has([data-sky-login], [data-sky-account])>main>footer p{color:#344e60}
+.journey{--ink:#172630;--secondary:#405969;--card-radius:48px;--card-padding:32px;--control-radius:calc(var(--card-radius) - var(--card-padding));color:var(--ink);position:relative}
+.sky{position:fixed;inset:0;z-index:-1;background:#b9d7e8 url('/images/auth/clouds.webp') center/cover no-repeat}
+.sky:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,#dceef74d,#e8f3f733 50%,#edf5f9b3)}
+.stage{display:grid;grid-template-columns:minmax(0,1fr);align-items:center;justify-items:center;min-height:640px}
+.stage>*{grid-area:1/1;min-width:0}
+.card{width:440px;max-width:100%;padding:var(--card-padding);border-radius:var(--card-radius);background:#ffffffb3;backdrop-filter:blur(24px);box-shadow:0 2px 4px -1px rgb(118 174 215 / 22%),0 12px 24px -8px rgb(81 142 193 / 24%),0 32px 64px -20px rgb(49 104 162 / 26%),0 56px 96px -36px rgb(118 174 215 / 20%)}
+.card[hidden],.ticket[hidden]{display:none}
+.windowMark{--window-radius:28px;--window-padding:5px;width:56px;height:72px;border-radius:var(--window-radius);padding:var(--window-padding);background:#f7fafb;box-shadow:0 2px 4px #76aed738,0 4px 8px #3168a224;margin:0 auto 20px}
+.windowView{overflow:hidden;height:100%;border-radius:calc(var(--window-radius) - var(--window-padding));background:#89b9d7;position:relative}
+.cloudStrip{position:absolute;inset:0 auto 0 0;width:400%;display:flex;animation:cloudDrift 24s linear infinite}
+.cloudStrip span{flex:0 0 25%;height:100%;background:url('/images/auth/clouds.webp') center 65%/auto 100% no-repeat}
+.cloudStrip span:nth-child(even){transform:scaleX(-1)}
+@keyframes cloudDrift{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.shade{position:absolute;inset:0;background:#eff4f6;transform:translateY(-87%);border-radius:0 0 14px 14px;transition:transform .5s cubic-bezier(.22,1,.36,1)}
+.card:focus-within .shade,.card:hover .shade{transform:translateY(-100%)}
+.heading{text-align:center;margin-bottom:24px}.heading h1{font-size:24px;line-height:1.25;font-weight:500;letter-spacing:-.7px;margin:0}.heading p{font-size:13px;color:var(--secondary);margin:8px 0 0}
+.form{display:grid;gap:16px}.field{display:grid;gap:8px}.field label{font-size:12px;font-weight:500;color:var(--ink)}
+.field input{height:48px;min-height:48px;border-radius:var(--control-radius);background:#f8fbfbc4;border:1px solid #4f738430;color:var(--ink);padding:0 16px;outline-offset:2px;outline-color:#326c8b;font-size:14px}
+.field input::placeholder{color:#526774}.field input:focus{background:#fff;border-color:#3c6a84}
+.passwordLabel{display:flex;align-items:center;justify-content:space-between;gap:12px}.passwordLabel a{font-size:11px;color:var(--secondary);text-decoration:underline;text-underline-offset:3px;min-height:28px;display:inline-flex;align-items:center}
+.passwordWrap{position:relative}.passwordWrap input{padding-left:44px;padding-right:48px}
+.passwordLock{position:absolute;left:16px;top:14px;width:20px;height:20px;color:#526774;pointer-events:none;z-index:1}.shackle{transform-origin:16px 10px;transition:transform .24s cubic-bezier(.22,1,.36,1)}
+.passwordWrap:has(input:focus) .passwordLock{color:#235d7d}.passwordWrap:has(input:focus) .shackle{animation:unlock .48s cubic-bezier(.22,1,.36,1) both}
+@keyframes unlock{0%{transform:translateY(0) rotate(0)}35%{transform:translateY(-3px) rotate(0)}100%{transform:translateY(-2px) rotate(32deg)}}
+.passwordToggle{position:absolute;right:4px;top:2px;width:44px;height:44px;display:grid;place-items:center;background:transparent;border:0;border-radius:calc(var(--control-radius) - 4px) / calc(var(--control-radius) - 2px);color:#526774;cursor:pointer}
+.card .primary{width:100%;height:48px;border:0;border-radius:var(--control-radius);background:#101415;color:#fff;justify-content:space-between;padding:0 18px}.card .primary:hover{background:#293b44}.card .primary:disabled{background:#405969;color:#fff}
+.codeLink{font-size:12px;text-align:center;color:var(--secondary);text-decoration:underline;text-underline-offset:4px;min-height:32px;display:grid;place-items:center}
+.google{margin-top:20px}.google button{border-radius:var(--control-radius);min-height:48px}.google p{font-size:11px;line-height:1.5;color:var(--secondary)}
+.signup{margin:20px 0 0;font-size:12px;color:var(--secondary);text-align:center}.signup a{color:var(--ink);font-weight:500;text-decoration:underline;text-underline-offset:4px;display:inline-flex;min-height:32px;align-items:center}
+.previewButton{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;column-gap:8px;width:fit-content;margin:24px auto 0;padding:8px 16px;min-height:48px;font-size:12px;color:var(--secondary);cursor:pointer;background:#ffffff80;border:0;border-radius:12px}.previewButton span{flex-basis:100%;font-size:10px;color:var(--secondary);text-align:center;margin-top:4px}.previewButton:disabled{cursor:wait}
+.journey button:focus-visible,.journey a:focus-visible{outline:2px solid #235d7d;outline-offset:4px}
+.ticket{display:grid;grid-template-columns:minmax(0,1fr) 160px;width:min(720px,100%);transform-origin:top left;position:relative;z-index:1;filter:drop-shadow(0 4px 6px #76aed729) drop-shadow(0 24px 28px #3168a233)}
+.ticketMain,.ticketStub{background:#fcfdfb}.ticketMain{padding:28px 32px;border-radius:20px 0 0 20px;mask:radial-gradient(circle 12px at 100% 0,transparent 98%,#000) top,radial-gradient(circle 12px at 100% 100%,transparent 98%,#000) bottom;mask-size:100% 51%;mask-repeat:no-repeat}
+.ticketStub{border-radius:0 20px 20px 0;padding:32px 20px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:24px;text-align:center;mask:radial-gradient(circle 12px at 0 0,transparent 98%,#000) top,radial-gradient(circle 12px at 0 100%,transparent 98%,#000) bottom;mask-size:100% 51%;mask-repeat:no-repeat}
+.ticketStub:before{content:'';position:absolute;left:0;top:20px;bottom:20px;border-left:2px dotted #bdcdd8}.ticketHeading{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:16px}.ticketHeading>span:last-child{font-size:10px;color:var(--secondary)}
+.route{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:36px 0}.route>div{display:grid;gap:8px}.route>div:last-child{text-align:right}.route span,.ticketInfo span,.ticketStub span{font-size:11px;color:var(--secondary)}.route strong{font-size:48px;font-weight:400;letter-spacing:-2px;line-height:1}.route svg{color:#6a8ea5;width:28px;transform:rotate(45deg)}
+.ticketInfo{display:grid;grid-template-columns:1fr 1fr;gap:24px}.ticketInfo p{font-size:13px;margin:4px 0 0}.ticketNote{font-size:12px;line-height:1.6;color:var(--secondary);margin:24px 0}.ticketActions{border-top:1px solid #e2e7e8;padding-top:16px}.ticketActions p{font-size:11px;color:var(--secondary);margin:0 0 8px}.ticketActions button{display:inline-flex;align-items:center;gap:12px;min-height:44px;background:transparent;border:0;padding:0;font-size:13px;color:var(--ink);text-decoration:underline;text-underline-offset:4px;cursor:pointer}.ticketStub strong{display:block;margin-top:8px;font-size:24px;font-weight:400;letter-spacing:-1px}.barcode{width:100%;height:48px;background:repeating-linear-gradient(90deg,#172630 0 2px,transparent 2px 4px,#172630 4px 5px,transparent 5px 8px,#172630 8px 12px,transparent 12px 14px,#172630 14px 15px,transparent 15px 19px)}
+.flightViewport{position:fixed;inset:0;z-index:60;overflow:hidden;pointer-events:none}.flyingWindow{position:absolute;margin:0;transform-origin:center;will-change:transform}.flyingWindow .shade{display:none}.flyingWindow .cloudStrip{animation-duration:4s}
+@media(max-width:600px){.authLayout:has([data-sky-login], [data-sky-account]){padding:20px 20px 28px}.authLayout:has([data-sky-login], [data-sky-account])>main>header{margin-bottom:24px}.journey{--card-radius:40px;--card-padding:24px}.heading h1{font-size:21px}.stage{min-height:600px}.ticket{grid-template-columns:minmax(0,1fr) 80px}.ticketMain{padding:24px 16px}.ticketStub{padding:24px 10px}.ticketHeading{font-size:13px}.ticketHeading>span:last-child{font-size:9px}.route{gap:8px;margin:28px 0}.route strong{font-size:32px}.route span{font-size:10px}.route svg{width:20px;flex-shrink:0}.ticketInfo{grid-template-columns:1fr;gap:16px}.ticketInfo p{font-size:12px}.ticketStub strong{font-size:17px;letter-spacing:-.6px}.ticketStub span{font-size:9px}.ticketNote{font-size:11px}.ticketActions p{font-size:10px}}
+:global(.dark) .sky:after{background:linear-gradient(180deg,#0d2338b3,#142e45a6 50%,#18354bb3)}
+:global(.dark) .authLayout:has([data-sky-login], [data-sky-account])>main>footer,:global(.dark) .authLayout:has([data-sky-login], [data-sky-account])>main>footer p{color:#d5e4ef}
+:global(.dark) .authLayout:has([data-sky-login], [data-sky-account])>main>header a{color:#e4eef5}
+@media(prefers-reduced-motion:reduce){.journey *,.journey *:before{animation:none!important;transition:none!important}.passwordWrap:has(input:focus) .shackle{transform:translateY(-2px) rotate(32deg)}}
+
+/* Registration shares the arrival material and control geometry with login. */
+.signupPage{--card-radius:48px;--card-padding:32px;--control-radius:calc(var(--card-radius) - var(--card-padding));position:relative;color:#172630}
+.signupPage .signupCard{--muted-foreground:#344958;--muted:#eaf0f5;--ring:#326c8b;--destructive:#a11924;--foreground:#172630;--card-foreground:#172630;--surface:#edf4f8;--card:#fff;--background:#f8fbfb;--input:#a8b8c5;--primary:var(--brand-red-deep);--card-spacing:0px;width:min(880px,100%);margin-inline:auto;gap:0;padding:var(--card-padding);border-radius:var(--card-radius);background:#ffffffb3;color:#172630;backdrop-filter:blur(24px);box-shadow:0 2px 4px -1px rgb(118 174 215 / 22%),0 12px 24px -8px rgb(81 142 193 / 24%),0 32px 64px -20px rgb(49 104 162 / 26%),0 56px 96px -36px rgb(118 174 215 / 20%)}
+.signupCard>[data-slot=card-header]{padding:0;text-align:center;margin-bottom:28px;gap:8px}.signupCard h1{font-size:24px;font-weight:500;letter-spacing:-.6px}.signupCard [data-slot=card-description]{max-width:60ch;margin-inline:auto;color:#344958;font-size:12px}.signupCard [data-slot=card-content]{padding:0}.signupCard label,.signupCard legend{color:#172630}.signupCard p,.signupCard li{color:#344958}.signupCard a{color:#172630}
+.signupCard input:not([type=radio]):not([type=file]),.signupCard select{min-height:48px;border-radius:var(--control-radius);background:#f8fbfbc4;color:#172630;border-color:#a8b8c5}.signupCard input::placeholder{color:#526774}.signupCard input:focus{background:#fff}.signupCard [role=alert],.signupCard [aria-invalid=true]~p{color:var(--destructive)}
+.signupCard .signupGrid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:28px 40px;align-items:start}.signupExtras{display:grid;gap:24px;grid-column:2;grid-row:1;min-width:0}.signupExtras label:has(input[type=radio]){border-radius:var(--control-radius);background:#f8fbfb80;padding:12px}.signupExtras label:has(input[type=radio]:checked){border-color:#326c8b;background:#eaf3f9}.signupExtras label:has(input[type=file]){border-radius:var(--control-radius);min-height:144px;background:#f8fbfb80}.signupExtras label:has(input[type=file]) span{color:#405969}.signupExtras label:has(input[type=file])>svg{color:#526774}
+.identityPreview{grid-column:1/-1;min-width:0;border-radius:var(--control-radius);background:#f8fbfb80;padding:16px;display:grid;gap:16px}.identityPreview summary{cursor:pointer;min-height:28px;font-size:13px;list-style:revert}.identityPreview summary>span{font-size:11px;color:#526774;margin-left:12px}.identityPreview p{font-size:12px;margin-top:12px}.identityPreview fieldset{margin-top:16px;grid-template-columns:repeat(3,minmax(0,1fr))}.identityPreview fieldset input,.identityPreview fieldset select{opacity:.65}.signupError{grid-column:1/-1}
+.signupCard .signupFooter{padding:24px 0 0;background:transparent;border:0;display:grid;grid-template-columns:1fr;gap:24px}.signupFooter>div:first-child{order:2;max-width:none}.signupFooter>div:first-child p{color:#344958;font-size:10px;line-height:1.7}.signupSubmit{display:grid;gap:8px;width:100%}.signupCard .primary{background:#101415;color:#fff;min-height:48px;border-radius:var(--control-radius);border:0}.signupCard .primary:hover{background:#293b44}.signupCard .confirmationCard{max-width:520px}.confirmationCard>[data-slot=card-content]{display:grid;gap:16px}
+@media(max-width:700px){.signupPage{--card-radius:40px;--card-padding:24px}.signupCard .signupGrid{grid-template-columns:1fr;gap:24px}.signupExtras{grid-column:auto;grid-row:auto}.identityPreview{grid-column:auto;grid-row:3}.identityPreview fieldset{grid-template-columns:1fr}.signupCard h1{font-size:22px}}
+
+.authLayout:has([data-sky-account]) [data-slot=card]{--foreground:#172630;--card-foreground:#172630;--muted-foreground:#344958;--primary:#172630;--primary-foreground:#fff;--destructive:#a11924;--ring:#326c8b;--card-spacing:32px;margin-inline:auto;max-width:560px;background:#ffffffb3;color:#172630;backdrop-filter:blur(24px);border-radius:48px;box-shadow:0 12px 24px -8px #518ec13d,0 32px 64px -20px #3168a242}
+.authLayout:has([data-sky-account]) [data-slot=card] p{color:#405969}
+.authLayout:has([data-sky-account]) [data-slot=card] input{border-radius:16px;color:#172630;background:#f8fbfb}
+@media(max-width:600px){.authLayout:has([data-sky-account]) [data-slot=card]{--card-spacing:24px;border-radius:40px}}
+
+.signupCard:focus-within .shade,.signupCard:hover .shade{transform:translateY(-100%)}
+
+.accountState{max-width:560px;margin-inline:auto;display:grid;gap:24px;padding:32px;border-radius:48px;background:#ffffffd9;color:#172630;backdrop-filter:blur(24px);box-shadow:0 12px 24px -8px #518ec13d,0 32px 64px -20px #3168a242}.accountState h1{font-size:24px;font-weight:500;line-height:1.3}.accountState a{display:inline-flex;align-items:center;min-height:44px;color:#172630;text-underline-offset:4px}@media(max-width:600px){.accountState{padding:24px;border-radius:40px}}
+
+.signupJourneySurface{width:min(880px,100%)}
+.signupJourney .stage{min-height:640px}
+:global(.dark) .sky{background-image:url('/images/auth/night-sky.webp');background-color:#081426}
+:global(.dark) .sky:after{background:linear-gradient(180deg,#0814260d,#0d203326 70%,#0b1c3433)}
+:global(.dark) .cloudStrip span{background-image:url('/images/auth/night-sky.webp')}
+:global(.dark) .windowView{background:#10233b}
+:global(.dark) .windowMark{background:#dae5f1;box-shadow:0 2px 8px #06122455,0 0 16px #bddef51a}
+:global(.dark) .shade{background:#dce6f0}
+:global(.dark) .card,:global(.dark) .signupPage .signupCard{background:rgb(232 241 250 / 91%);box-shadow:0 2px 8px #06122440,0 16px 40px -12px #02091666,0 40px 88px -24px #06234980}
+:global(.dark) .journey .previewButton{color:#e0ebf5;background:#132c45b3}
+:global(.dark) .previewButton span{color:#d1dfed}
+
+.arrivalButton{display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;background:#101415;color:#fff;border:0;border-radius:var(--control-radius);font-size:14px;cursor:pointer}

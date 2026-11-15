@@ -1,3 +1,5 @@
+import { AuthAtmosphere } from "./auth-atmosphere";
+import styles from "./login/login-sky.module.css";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Brand, PrototypeNotice } from "@/components/brand";
@@ -6,7 +8,7 @@ import { CookieSettingsTrigger } from "@/components/cookie-settings-trigger";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-svh items-center justify-center border-t-4 border-t-(--brand-red) bg-surface px-4 py-4 sm:px-6 lg:px-10">
+    <div className={`${styles.authLayout} flex min-h-svh items-center justify-center border-t-4 border-t-(--brand-red) bg-surface px-4 py-4 sm:px-6 lg:px-10`}>
       <main className="w-full max-w-[1440px]">
         <header className="mb-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
           <Link href="/" aria-label="AlumniKonneQt home" className="inline-flex min-h-11 items-center focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
@@ -16,6 +18,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <ArrowLeft className="size-4" aria-hidden="true" />Back to home
           </Link>
         </header>
+        <AuthAtmosphere />
         {children}
         <footer className="mt-6 flex flex-col items-center justify-center gap-3 text-xs text-muted-foreground">
           <nav aria-label="Auth page footer navigation" className="flex flex-wrap items-center justify-center gap-4">

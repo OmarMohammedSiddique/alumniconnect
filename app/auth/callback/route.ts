@@ -23,7 +23,8 @@ export async function GET(request: Request) {
     reason = await finishGoogleSignIn(url.searchParams, supabase.auth);
   } catch { /* Return a fixed error, never provider descriptions or tokens. */ }
 
-  const target = reason ? new URL("/login", origin) : new URL(next, origin);
+  const target = new URL(reason ? "/login" : "/arrival", origin);
+  if (!reason) target.searchParams.set("next", next);
   if (reason) {
     target.searchParams.set("oauth_error", reason);
     target.searchParams.set("next", next);
