@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Launch video project with bundled third-party scripts, not app source.
+    "brag-output/**",
   ]),
 ]);
 
