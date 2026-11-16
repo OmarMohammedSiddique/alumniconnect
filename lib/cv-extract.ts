@@ -236,20 +236,34 @@ export function detectCvKind(bytes: Uint8Array, fileName: string): CvFileKind | 
   return null;
 }
 
-/** Turns Word document XML into plain text with paragraph line breaks. */
-export function docxXmlToText(xml: string): string {
-  // Every pattern stops at the next "<", so crafted input cannot cause slow backtracking.
+/** Decodes the XML entities Word uses in text runs; invalid code points become nothing. */
+function decodeEntities(text: string): string {
   const codePoint = (value: number) => (value > 0 && value <= 0x10ffff ? String.fromCodePoint(value) : "");
-  return xml
-    .replace(/<w:(delText|instrText)\b[^<>]*>[^<]*<\/w:\1>/g, "")
-    .replace(/<w:tab\b[^<>]*\/>/g, " ")
-    .replace(/<w:br\b[^<>]*\/>/g, "\n")
-    .replace(/<\/w:p>/g, "\n")
-    .replace(/<[^<>]*>/g, "")
-    .replace(/&#x([0-9a-f]{1,6});/gi, (_, hex) => codePoint(parseInt(hex, 16)))
-    .replace(/&#(\d{1,7});/g, (_, code) => codePoint(Number(code)))
-    .replace(/&quot;/g, "\"").replace(/&apos;/g, "'")
-    .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&")
-    // The result is plain profile text; angle brackets are dropped so no markup can survive decoding.
-    .replace(/[<>]/g, " ");
+  return text.replace(/&(#x[0-9a-fA-F]{1,6}|#\d{1,7}|quot|apos|lt|gt|amp);/g, (_, entity: string) => {
+    if (entity[0] === "#") return codePoint(entity[1] === "x" || entity[1] === "X" ? parseInt(entity.slice(2), 16) : Number(entity.slice(1)));
+    return ({ quot: "\"", apos: "'", lt: "<", gt: ">", amp: "&" } as Record<string, string>)[entity];
+  });
+}
+
+/**
+ * Turns Word document XML into plain text with paragraph line breaks. A single pass walks tags and
+ * text runs (each token stops at the next "<", so crafted input cannot cause slow backtracking) and
+ * keeps only text. Deleted text and field codes are skipped, and angle brackets are never emitted.
+ */
+export function docxXmlToText(xml: string): string {
+  const parts: string[] = [];
+  let skipping = false;
+  for (const [token] of xml.matchAll(/<[^<>]*>|[^<]+|</g)) {
+    if (token.length > 1 && token[0] === "<") {
+      const name = /^<\/?([\w:.-]+)/.exec(token)?.[1];
+      const closing = token[1] === "/";
+      if (name === "w:delText" || name === "w:instrText") skipping = !closing && !token.endsWith("/>");
+      else if (name === "w:tab") parts.push(" ");
+      else if (name === "w:br" || (name === "w:p" && closing)) parts.push("\n");
+      continue;
+    }
+    if (token === "<" || skipping) continue;
+    parts.push(decodeEntities(token).replace(/[<>]/g, " "));
+  }
+  return parts.join("");
 }
