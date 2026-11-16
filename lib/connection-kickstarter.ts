@@ -3,7 +3,11 @@ export interface KickstarterOptions {
   partnerName: string;
   partnerIndustry?: string;
   preferredContact?: string;
+  /** The other person's shared email address, used as the mailto recipient when valid. */
+  recipient?: string | null;
 }
+
+const RECIPIENT_EMAIL = /^[^\s@,;?&]+@[^\s@,;?&]+\.[^\s@,;?&]+$/;
 
 /**
  * Generates an actionable, professional introductory message template
@@ -49,5 +53,7 @@ export function buildKickstarterMailto(options: KickstarterOptions): string {
   const partner = options.partnerName?.trim() || "Mentorship Connection";
   const subject = `AlumniKonneQt Mentorship Introduction: ${partner}`;
   const body = buildKickstarterMessage(options);
-  return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const to = options.recipient?.trim();
+  const address = to && RECIPIENT_EMAIL.test(to) ? encodeURIComponent(to) : "";
+  return `mailto:${address}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
