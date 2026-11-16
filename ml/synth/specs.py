@@ -132,8 +132,43 @@ def select_occupations(taxonomy, seed, other_occupations=OTHER_OCCUPATIONS):
                          and not {other[:7] for other in weights} & {code[:7]}
                          and not set(taxonomy[code]["related"]) & set(weights))
     orphans = sorted(rng.sample(orphan_pool, min(ORPHAN_OCCUPATIONS, len(orphan_pool))))
+    # Orphans whose cluster is not held out for any split. See `retarget_orphans`.
+    hidden = {name for names in held.values() for name in names}
+    # Any family qualifies here (a chef or a fitness instructor is a fair "nobody in this network
+    # does that" target), as long as the occupation has no taxonomy link to a Mentor occupation.
+    clean_pool = sorted(code for code, item in taxonomy.items()
+                        if item["job_zone"] >= 3 and code not in weights and code not in linked
+                        and cluster(code) not in hidden and not {other[:7] for other in weights} & {code[:7]}
+                        and not set(item["related"]) & set(weights))
+    clean = sorted(random.Random(seed + 2).sample(clean_pool, min(20, len(clean_pool))))
     return {"weights": dict(sorted(weights.items())), "held_out": {k: sorted(v) for k, v in held.items()},
-            "orphans": orphans}
+            "orphans": orphans, "clean_orphans": clean}
+
+
+def retarget_orphans(specs, selection, taxonomy, seed):
+    """Move orphan-target Mentees out of clusters that are held out for a later split.
+
+    The first full generation let a training or validation Mentee aim for an orphan occupation
+    inside a cluster reserved as unseen for validation or test, which would have put that
+    cluster's vocabulary into earlier splits (the validation gate caught it). Those Mentees get
+    a new orphan target from clusters no split holds out. Each is re-drawn with its own random
+    stream so that every other specification stays exactly as first generated.
+    """
+    held = selection["held_out"]
+    forbidden = {"train": set(held["test"]) | set(held["validation"]), "validation": set(held["test"]), "test": set()}
+    moved = []
+    for spec in specs:
+        if spec["role"] != "mentee" or not spec["orphan_target"] or cluster(spec["target"]) not in forbidden[spec["split"]]:
+            continue
+        if not selection["clean_orphans"]:
+            raise ValueError("no clean orphan occupation is available")
+        rng = random.Random(f"{seed}:{spec['person_id']}")
+        target = rng.choice(selection["clean_orphans"])
+        spec.update({"target": target, "want_skills": sample_skills(rng, taxonomy, target, 2, 4),
+                     "have_skills": sample_skills(rng, taxonomy, target, 1, 4) if spec["have_skills"] else [],
+                     "sector": sector_for(rng, target)})
+        moved.append(spec["person_id"])
+    return moved
 
 
 def sector_for(rng, code):
@@ -256,4 +291,5 @@ def generate(taxonomy, seed=20261117, size="target", other_occupations=OTHER_OCC
         for code, orphan in targets:
             add(mentee_spec(rng, taxonomy, code, rng.choice(styles), allowed, orphan), split)
     selection["train_occupations"] = train_mentor_codes
+    selection["retargeted_orphans"] = retarget_orphans(specs, selection, taxonomy, seed)
     return selection, specs
