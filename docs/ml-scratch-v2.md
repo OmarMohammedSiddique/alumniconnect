@@ -23,15 +23,17 @@ share no exact skill strings with validation Mentors (character n-grams are what
   inside every cross-validation fold.
 - Selection: a grid fixed before the first run, five folds on the training split, five seeds (42 to 46), best
   mean epoch. Folds hold out Mentees **and** drop fit pairs that use a Mentor from the held-out fold, so neither
-  side of a held-out pair is seen in training (`fold_split`). One epoch is one full-batch Adam step over every
-  judged pool. Unjudged combinations are never used as negatives.
+  side of a held-out pair is seen in training (`fold_split`). On the real data each fold fits on 37 to 43 of
+  the 60 pairs; the final model then trains on all 60 for the chosen number of epochs. One epoch is one
+  full-batch Adam step over every judged pool. Unjudged combinations are never used as negatives.
 - The validation split is scored only after selection, once per seed. Tests prove that changing validation
   grades changes neither the selection nor the trained weights, that only the four training and validation files
   are opened, and that runs are identical for the same seed.
 - Code: `ml/train_scratch_v2.py`, `ml/train_reweighted_tfidf.py`; tests in `ml/training_tests/test_scratch_v2.py`,
   `test_reweighted_tfidf.py` and `test_v2_protocol.py`. Runs (ignored, private): `ml/runs/scratch-v2-disjoint-2026-11-16`
   and `ml/runs/reweighted-tfidf-disjoint-2026-11-16`, recorded from commit `392afe7` with a clean tree
-  (implementation SHA-256 prefixes `cba454837b2a` and `fa076f7b992e`). Each run keeps its metrics, selection
+  (implementation SHA-256 prefixes `cba454837b2a` and `fa076f7b992e`; the dirty-tree flag covers the `ml/`
+  folder). Each run keeps its metrics, selection
   curves, every validation ranking and score, data hashes, timings and the trained checkpoint.
 
 **Disclosure: validation was scored twice for each experiment.** The first runs (kept as
@@ -98,9 +100,9 @@ than 0.05. The checkpoint stores its vocabulary and idf values and reloads on it
 | Relevant hit@5 | 1.000 | 1.000 |
 
 In cross-validation B scored 0.9846 against TF-IDF's 0.9834 in the same folds. That figure is the best epoch of
-the best of three settings, so it is optimistic; the selection curves start at the TF-IDF level (about 0.982)
-and stay within a few thousandths of it, and with anchor 0.1 longer training falls below TF-IDF (0.977 at 40
-epochs).
+the best of three settings, so it is optimistic. The selection curves start at the TF-IDF level (about 0.982);
+with anchor 1 and 10 they stay within a few thousandths of it, while with anchor 0.1 longer training falls
+below TF-IDF (as low as 0.973, ending at 0.977 after 40 epochs).
 
 What this shows:
 
