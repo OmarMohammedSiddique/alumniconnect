@@ -19,7 +19,8 @@ insert into public.connections(id, request_id, mentor_id, mentee_id) values
 do $$ begin
   if has_function_privilege('anon', 'public.set_first_conversation(uuid, boolean)', 'execute')
      or has_function_privilege('anon', 'public.is_connection_participant(uuid)', 'execute')
-     or has_table_privilege('anon', 'public.connection_contacts', 'select') then
+     or has_table_privilege('anon', 'public.connection_contacts', 'select')
+     or has_table_privilege('anon', 'public.connection_contacts', 'insert') then
     raise exception 'FAIL 0: anon can reach the connection journey';
   end if;
 end $$;
