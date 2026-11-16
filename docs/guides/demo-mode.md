@@ -9,7 +9,7 @@ Only accounts created as fictional fixtures (`app_metadata.fictional = true`) ca
 | Variable | Purpose |
 | --- | --- |
 | `DEMO_SWITCHER_ENABLED` | Must be `true` for demo mode to exist. |
-| `DEMO_SWITCHER_KEY` | Presenter key, at least 16 characters. Without it demo mode stays off. Generate one with `openssl rand -base64 24` and keep it out of chats, slides and screenshots. |
+| `DEMO_SWITCHER_KEY` | Presenter key, at least 16 characters. Without it demo mode stays off. It must be random, because guesses are not rate limited: generate one with `openssl rand -base64 24` and keep it out of chats, slides and screenshots. |
 
 Both are server only. Changing them on Vercel needs a redeploy to take effect.
 
@@ -37,8 +37,9 @@ Both are server only. Changing them on Vercel needs a redeploy to take effect.
    node --env-file=.env.local scripts/end-demo-sessions.mjs --apply
    ```
 
-   The first command is a dry run that lists the accounts. Point the environment file at the hosted project to clean up the live site.
+   The first command is a dry run that lists the accounts. Point the environment file at the hosted project to clean up the live site. Sessions can no longer be refreshed after this, but an access token already issued stays valid until it expires (one hour by default).
 3. Set `DEMO_SWITCHER_ENABLED=false` and redeploy if demo mode is no longer needed.
+4. If the presenter key may have been seen, rotate `DEMO_SWITCHER_KEY`. Changing the key locks out every browser that was unlocked with the old one.
 
 ## Known limitation
 
