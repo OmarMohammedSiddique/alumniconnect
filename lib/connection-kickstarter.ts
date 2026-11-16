@@ -9,7 +9,6 @@ export interface KickstarterOptions {
   recipient?: string | null;
 }
 
-
 /**
  * Generates an actionable, professional introductory message template
  * tailored to the participant's mentorship role, connection context,

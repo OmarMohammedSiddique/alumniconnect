@@ -118,7 +118,8 @@ export const SAFE_EMAIL = /^[^\s@,;?&%/:<>"]+@[^\s@,;?&%/:<>"]+\.[^\s@,;?&%/:<>"
 export function contactHref(contact: string | null | undefined): string | null {
   const text = contact?.trim();
   if (!text) return null;
-  if (SAFE_EMAIL.test(text)) return `mailto:${encodeURIComponent(text)}`;
+  // SAFE_EMAIL excludes every character that could add headers, so no encoding is needed.
+  if (SAFE_EMAIL.test(text)) return `mailto:${text}`;
   try {
     const url = new URL(text);
     return url.protocol === "https:" ? url.toString() : null;
