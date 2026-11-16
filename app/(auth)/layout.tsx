@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { Brand, PrototypeNotice } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { CookieSettingsTrigger } from "@/components/cookie-settings-trigger";
+import { NairobiClock } from "@/components/nairobi-clock";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -12,6 +13,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <Link href="/" aria-label="AlumniKonneQt home" className="inline-flex min-h-11 items-center focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
             <Brand imageClassName="h-11 sm:h-12" />
           </Link>
+          <NairobiClock className="order-last basis-full text-muted-foreground sm:order-none sm:basis-auto" />
           <Link href="/" className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
             <ArrowLeft className="size-4" aria-hidden="true" />Back to home
           </Link>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { NairobiClock } from "@/components/nairobi-clock";
 import styles from "./cabin-intro.module.css";
 
 type Phase = "preload" | "cabin" | "lowering" | "dark" | "done";
@@ -22,7 +23,6 @@ export function CabinIntro({ onFinished }: { onFinished?: () => void }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const hintRef = useRef<HTMLButtonElement>(null);
   const hintTextRef = useRef<HTMLSpanElement>(null);
-  const clockRef = useRef<HTMLSpanElement>(null);
 
   const lowerShade = useCallback(() => {
     setPhase(current => (current === "cabin" ? "lowering" : current));
@@ -88,21 +88,6 @@ export function CabinIntro({ onFinished }: { onFinished?: () => void }) {
     };
   }, [phase]);
 
-  // Local time at the airline's home base, ticking in the top bar.
-  useEffect(() => {
-    const format = new Intl.DateTimeFormat("en-GB", {
-      timeZone: "Africa/Nairobi",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-    const tick = () => {
-      if (clockRef.current) clockRef.current.textContent = format.format(new Date());
-    };
-    tick();
-    const interval = window.setInterval(tick, 1000);
-    return () => window.clearInterval(interval);
-  }, []);
 
   // Whatever the visitor does next lowers the shade.
   useEffect(() => {
@@ -168,12 +153,7 @@ export function CabinIntro({ onFinished }: { onFinished?: () => void }) {
           <img src="/images/logo-white.png" alt="AlumniKonneQt" />
           <span className={styles.tagline} aria-hidden="true">Alumni mentorship network</span>
         </div>
-        <p className={styles.clock} aria-hidden="true">
-          <span className={styles.place}>Nairobi / Kenya </span>
-          <span className={styles.placeShort}>Nairobi </span>
-          <span ref={clockRef} className={styles.time} />
-          <span className={styles.zone}> · UTC+03</span>
-        </p>
+        <NairobiClock className={styles.clock} />
         <p className={styles.sections} aria-hidden="true">
           <span>How it works</span>
           <span>Community</span>

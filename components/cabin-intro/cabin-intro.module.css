@@ -75,44 +75,55 @@
   to { translate: 0 0; }
 }
 
-/* A distant airliner on the same heading, slowly overtaking and trailing a
-   contrail. It loops for as long as the visitor stays; the negative delay
-   starts it already in view. */
+/* A distant airliner crossing the middle of the window from left to right,
+   drawing a bright contrail. It loops for as long as the visitor stays; the
+   negative delay starts it already in view. */
 .plane {
   position: absolute;
-  top: 40%;
+  top: 50%;
   left: 0;
   width: 100%;
-  animation: cross 90s linear -25s infinite;
+  animation: cross 90s linear -30s infinite;
 }
 .jet {
   position: relative;
   display: block;
   width: 10%;
-  rotate: 4deg;
-  /* The artwork is drawn nose right; mirror it to match the direction of flight. */
-  transform: scaleX(-1);
+  translate: 0 -50%;
+  rotate: -3deg;
 }
 .jet svg {
+  position: relative;
   display: block;
   width: 100%;
   height: auto;
   /* Keeps the white fuselage readable where it passes in front of cloud. */
   filter: drop-shadow(0 1px 1.5px #1d3f6b99);
 }
+/* Contrail: a crisp bright core streaming from the engines, with a soft
+   haze around it that widens and fades with distance from the jet. */
 .trail {
   position: absolute;
-  right: 86%;
-  top: 46%;
-  width: 520%;
-  height: 9%;
+  right: 80%;
+  top: 44%;
+  width: 600%;
+  height: 16%;
   border-radius: 99px;
-  background: linear-gradient(90deg, transparent, #ffffff59 55%, #ffffffe6);
-  filter: blur(0.5px);
+  background: linear-gradient(90deg, transparent, #ffffffa6 45%, #ffffff 92%, #ffffffcc);
+  box-shadow: 0 0 2px #ffffffb3;
+  filter: drop-shadow(0 0 1px #1d3f6b66);
+}
+.trail::before {
+  content: "";
+  position: absolute;
+  inset: -130% 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, #ffffff40 40%, #ffffff66 100%);
+  filter: blur(3px);
 }
 @keyframes cross {
-  from { transform: translateX(100%); }
-  to { transform: translateX(-65%); }
+  from { transform: translateX(-12%); }
+  to { transform: translateX(165%); }
 }
 
 .shade {
@@ -201,16 +212,9 @@
 .tagline {
   opacity: 0.7;
 }
-.clock {
-  text-align: center;
-}
-.time {
-  display: inline-block;
-  min-width: 8ch;
-  font-variant-numeric: tabular-nums;
-}
-.placeShort {
-  display: none;
+.topbar .clock {
+  font: inherit;
+  letter-spacing: inherit;
 }
 .sections {
   display: flex;
@@ -309,15 +313,13 @@
   }
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1180px) {
   .tagline, .sections { display: none; }
   .topbar { grid-template-columns: 1fr auto; }
 }
 @media (max-width: 600px) {
   .topbar { grid-template-columns: 1fr auto; padding: 16px 18px; font-size: 10px; letter-spacing: 0.12em; }
   .brand img { height: 24px; }
-  .place, .zone { display: none; }
-  .placeShort { display: inline; }
   .hint { font-size: 11px; letter-spacing: 0.12em; }
 }
 

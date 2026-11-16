@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ClockStrip } from "@/components/nairobi-clock";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -26,6 +27,7 @@ export default function AboutDeveloperPage() {
     <div className="min-h-svh bg-background text-foreground">
       {/* Top Identity & Navigation Header */}
       <header className="border-b border-border bg-card">
+        <ClockStrip />
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <Link href="/" aria-label="AlumniKonneQt home" className="inline-flex items-center">
             <Brand imageClassName="h-10 sm:h-11" />
