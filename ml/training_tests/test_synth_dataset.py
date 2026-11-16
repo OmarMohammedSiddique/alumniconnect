@@ -224,6 +224,13 @@ class PipelineTests(unittest.TestCase):
                 self.assertIn(pair['mentee_id'], train_ids)
                 self.assertIn(pair['mentor_id'], train_ids)
                 self.assertEqual(pair['relevance_score'] == 0, pair['sampling'] in ('hard', 'random'))
+            matrix = json.loads((folder / 'train_grades.json').read_text())
+            self.assertEqual(len(matrix['rows']), len(matrix['mentees']))
+            self.assertEqual({len(row) for row in matrix['rows']}, {len(matrix['mentors'])})
+            lookup = {(q, m): int(matrix['rows'][i][j]) for i, q in enumerate(matrix['mentees']) for j, m in enumerate(matrix['mentors'])}
+            for pair in load('train_pairs.jsonl'):
+                self.assertEqual(lookup[(pair['mentee_id'], pair['mentor_id'])], pair['relevance_score'])
+            self.assertIn('train_grades.json', manifest['files'])
             for person in load('train_profiles.jsonl'):
                 self.assertEqual(set(person), {'person_id', 'role', 'split', 'headline', 'bio', 'skills', 'industry'})
             sheet = (folder / 'human_review_sheet.csv').read_text()

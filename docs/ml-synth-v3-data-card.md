@@ -185,13 +185,17 @@ and their text was rewritten. The first-generation specifications are kept besid
   12 hard negatives (grade 0 with a nearby field, the right kind of help or a shared skill) and 8 random
   negatives (grade3 5,871, grade2 8,639, grade1 7,906, hard 10,200, random 6,800). Pairs outside this file are unjudged for
   training purposes and are never used as negatives.
+- **Complete training grades.** `train_grades.json` holds the rule's grade for every training Mentee against
+  every training Mentor (850 by 1,700). The trainer uses it to look up the true grade of any Mentor that
+  shares a batch with a Mentee, so batches can supply many more negatives than the sampled pair file
+  without ever guessing a label. It agrees with the pair file wherever both have a pair (checked on load).
 - **Validation and test pools are complete**: every Mentee is graded against every Mentor of its split.
 - Validation Mentee tags: career changer 30, no suitable mentor 23, seen occupation 100, sparse 23, unseen occupation 41, vocabulary mismatch 29.
 - Test Mentee tags: career changer 40, no suitable mentor 20, seen occupation 124, sparse 41, unseen occupation 72, vocabulary mismatch 38. Tags can overlap. `no suitable mentor` means the best
   grade in the pool is 0 or 1.
 - Mentor occupations present: train 99, validation 105, test 123.
 
-File hashes are in `ml/data/synth-v3/manifest.json` (manifest SHA-256 prefix `a8ba1ef29af4`).
+File hashes are in `ml/data/synth-v3/manifest.json` (manifest SHA-256 prefix `355ff8977a29`).
 
 ## Machine audit of label quality (not human review)
 

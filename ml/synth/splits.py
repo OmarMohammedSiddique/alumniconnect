@@ -55,6 +55,17 @@ def train_pairs(mentees, mentors, related, seed=SEED):
     return pairs
 
 
+def grade_matrix(mentees, mentors, related):
+    """Every training Mentee against every training Mentor, one string of digits per Mentee.
+
+    The pair file above is the sample used to build training batches. This matrix lets the
+    trainer look up the true grade of any other Mentor that happens to be in the same batch,
+    so no ungraded pair is ever treated as a negative.
+    """
+    return {"mentees": [mentee["person_id"] for mentee in mentees], "mentors": [mentor["person_id"] for mentor in mentors],
+            "rows": ["".join(str(grade(mentee, mentor, related)) for mentor in mentors) for mentee in mentees]}
+
+
 def complete_pairs(mentees, mentors, related):
     return [(mentee["person_id"], mentor["person_id"], grade(mentee, mentor, related), "complete")
             for mentee in mentees for mentor in mentors]
@@ -143,6 +154,10 @@ def build(taxonomy, data_dir, seed=SEED):
             "relevance_score": score, "sampling": kind, "annotation_status": STATUS}) + "\n"
             for number, (mentee_id, mentor_id, score, kind) in enumerate(pairs, 1)), encoding="utf-8")
         files += [profile_path, pair_path]
+        if split == "train":
+            matrix_path = data_dir / "train_grades.json"
+            matrix_path.write_text(json.dumps(grade_matrix(mentees, mentors, related)) + "\n")
+            files.append(matrix_path)
         per_mentee = defaultdict(list)
         for mentee_id, _, score, _ in pairs:
             per_mentee[mentee_id].append(score)
