@@ -1,11 +1,9 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useState } from "react";
 import { Check, Copy, Mail } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -18,11 +16,16 @@ import {
   buildKickstarterMessage,
 } from "@/lib/connection-kickstarter";
 import { SafetyActionsMenu } from "@/components/safety/safety-actions-menu";
+import { JourneyTracker } from "./journey-tracker";
+import { ContactShareForm, FirstConversationToggle, PartnerContact } from "./journey-controls";
 
 interface ConnectionCardProps {
   connectionId: string;
   isMentor: boolean;
   connectedSince: string;
+  myContact: string | null;
+  partnerContact: string | null;
+  firstConversationAt: string | null;
   partner: {
     id?: string;
     fullName: string;
@@ -34,15 +37,17 @@ interface ConnectionCardProps {
 }
 
 export function ConnectionCard({
+  connectionId,
   isMentor,
   connectedSince,
+  myContact,
+  partnerContact,
+  firstConversationAt,
   partner,
 }: ConnectionCardProps) {
   const [copied, setCopied] = useState(false);
   const [open, setOpen] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
-  const [preferredContact, setPreferredContact] = useState("");
-  const contactInputId = useId();
   const isAvailable = partner.available !== false;
 
   if (isBlocked) return null;
@@ -51,14 +56,15 @@ export function ConnectionCard({
     isMentor,
     partnerName: partner.fullName,
     partnerIndustry: partner.industry,
-    preferredContact,
+    preferredContact: myContact ?? "",
   });
 
   const mailtoHref = buildKickstarterMailto({
     isMentor,
     partnerName: partner.fullName,
     partnerIndustry: partner.industry,
-    preferredContact,
+    preferredContact: myContact ?? "",
+    recipient: partnerContact,
   });
 
   const handleCopy = async () => {
@@ -119,9 +125,22 @@ export function ConnectionCard({
           </p>
         ) : (
           <>
+            <JourneyTracker
+              requestStatus="accepted"
+              viewer={isMentor ? "mentor" : "mentee"}
+              partnerName={partner.fullName}
+              myContact={myContact}
+              partnerContact={partnerContact}
+              firstConversationAt={firstConversationAt}
+            />
+            <div className="grid gap-3 rounded-md border p-3">
+              <PartnerContact name={partner.fullName} contact={partnerContact} />
+              <ContactShareForm connectionId={connectionId} partnerName={partner.fullName} myContact={myContact} />
+            </div>
+            <FirstConversationToggle connectionId={connectionId} heldAt={firstConversationAt} />
             <div>
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h4 className="text-sm font-medium">Next step: Arrange your first conversation</h4>
+                <h4 className="text-sm font-medium">Need help with a first message?</h4>
                 <Button
                   type="button"
                   variant="outline"
@@ -134,31 +153,16 @@ export function ConnectionCard({
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
                 {isMentor
-                  ? "Introduce yourself, add the contact channel you choose to share, and offer initial availability."
-                  : "Share your top mentorship goals, include your preferred contact details, and suggest 2–3 suitable times."}
+                  ? "A short template to introduce yourself and offer initial availability."
+                  : "A short template to share your top goals and suggest two or three suitable times."}
               </p>
             </div>
 
             {open && (
               <div className="grid gap-3 rounded-md border bg-muted/30 p-3 text-xs leading-relaxed">
-                <div className="grid gap-1.5">
-                  <Label htmlFor={contactInputId} className="text-xs font-medium">
-                    Contact details you choose to share (optional)
-                  </Label>
-                  <Input
-                    id={contactInputId}
-                    value={preferredContact}
-                    onChange={(e) => setPreferredContact(e.target.value)}
-                    placeholder="e.g. your email address, calendar link, or video call link"
-                    className="h-8 text-xs"
-                  />
-                  <p className="text-[11px] text-muted-foreground">
-                    {preferredContact.trim()
-                      ? "Included in your introduction note below."
-                      : "No contact detail entered yet. Add the email or meeting link you agree to share with this connection."}
-                  </p>
-                </div>
-
+                <p className="text-[11px] text-muted-foreground">
+                  {myContact ? "Includes the contact detail you shared above." : "Share a contact detail above and it is added to this note."}
+                </p>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="font-medium text-foreground">Suggested introduction note</span>
                   <div className="flex flex-wrap items-center gap-2">

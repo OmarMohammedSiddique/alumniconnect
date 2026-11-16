@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { GoogleSignIn } from "./google-sign-in";
@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { StatusMessage } from "@/components/ui/status-message";
+import { CaptchaTokenInput, TurnstileWidget } from "@/components/turnstile-widget";
 import {
   Card,
   CardContent,
@@ -23,6 +24,7 @@ const initialState: AuthState = { error: null };
 
 export function LoginForm({ emailOtpEnabled = false, accountEmailEnabled = false }: { emailOtpEnabled?: boolean; accountEmailEnabled?: boolean }) {
   const [state, formAction, pending] = useActionState(signIn, initialState);
+  const [captchaToken, setCaptchaToken] = useState("");
   const params = useSearchParams();
   const next = params.get("next") ?? "";
   const passwordReset = params.get("password_reset") === "1";
@@ -37,6 +39,7 @@ export function LoginForm({ emailOtpEnabled = false, accountEmailEnabled = false
       <form action={formAction} aria-busy={pending}>
         <CardContent className="grid gap-5 sm:grid-cols-2">
           <input type="hidden" name="next" value={next} />
+          <CaptchaTokenInput token={captchaToken} />
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
             <Input id="email" name="email" type="email" required autoComplete="email" />
@@ -50,6 +53,7 @@ export function LoginForm({ emailOtpEnabled = false, accountEmailEnabled = false
               autoComplete="current-password"
             />
           </div>
+          <div className="sm:col-span-2"><TurnstileWidget action="login" onToken={setCaptchaToken} resetKey={state} /></div>
           {state.error && (
             <div className="sm:col-span-2"><StatusMessage tone="error">{state.error}</StatusMessage></div>
           )}

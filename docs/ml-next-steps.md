@@ -7,6 +7,18 @@ pilot. Preparation and actual local training are now verified in
 `ml-pilot-training.md`. The review-first sequence below remains the path to
 research-ready evidence, not a blocker on the explicitly unreviewed pilot.
 
+**Update, 15 November 2026:** A gradient boosted decision tree ranker pilot
+(#98) is recorded in [`ml-gbdt-ranker.md`](ml-gbdt-ranker.md). It is a negative
+result: on the machine-labelled validation pools the ranker scored below the
+TF-IDF baseline. It does not change the steps below; reviewed labels still come
+first.
+
+**Update, 16 November 2026:** Two from-scratch v2 experiments are recorded in
+[`ml-scratch-v2.md`](ml-scratch-v2.md). A bag-of-features neural encoder
+collapsed and scored below random (negative result). A learned reweighting of
+TF-IDF matched TF-IDF on five validation queries. Reviewed, larger labels
+remain the next step.
+
 ## Where you are
 
 You have a structurally consistent small synthetic dataset with separate pools.

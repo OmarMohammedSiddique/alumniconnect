@@ -127,6 +127,8 @@ The first embedding request downloads the model and requires internet access.
 | `NEXT_PUBLIC_SUPABASE_URL` | Public | Supabase API URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public | Browser-safe anonymous key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server only | Embedding and privileged database operations |
+| `DEMO_SWITCHER_ENABLED` | Server only | When `true` (and a key is set), a presenter can unlock one-click switching between fictional demo accounts at `/demo`. Only accounts with `app_metadata.fictional = true` can be reached. See [demo mode](docs/guides/demo-mode.md) |
+| `DEMO_SWITCHER_KEY` | Server only | Presenter key for demo mode, at least 16 characters |
 
 Use [.env.example](.env.example) as the template. `.env.local` is ignored by
 Git and must never be committed.
@@ -142,7 +144,8 @@ Git and must never be committed.
 | `npm test` | Run the application unit/regression tests (`lib/*.test.mjs`); exits nonzero on failure |
 | `npm run check` | Run lint, type checking, unit tests, and the production build |
 | `npm run smoke:local` | Verify the local HTTP/API/database mentorship workflow using disposable accounts |
-| `node scripts/seed-dev.mjs` | Add local mentor profiles and embeddings |
+| `node scripts/seed-dev.mjs` | Add fictional local Mentor and Mentee profiles with embeddings (marked for the demo switcher) |
+| `node scripts/end-demo-sessions.mjs` | After a demo, sign fictional demo accounts out everywhere (dry run unless `--apply`) |
 | `node scripts/eval/run-eval.mjs` | Reproduce the matching evaluation |
 
 ## Verification

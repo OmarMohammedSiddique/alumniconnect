@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { updateMentorshipRequest, type RequestState } from "@/lib/mentorship-request";
 import { MAX_INTRODUCTION_LENGTH } from "@/lib/form-limits";
 import { isValidUuid } from "@/lib/profile-privacy";
+import { normaliseContact } from "@/lib/connection-journey";
 
 export type { RequestState } from "@/lib/mentorship-request";
 
@@ -88,4 +89,87 @@ export async function respondRequest(
     revalidatePath("/discover");
   }
   return result;
+}
+
+export interface JourneyActionState {
+  error: string | null;
+  ok: boolean;
+}
+
+/** Shares or updates the signed-in member's contact detail on a connection (#107). */
+export async function shareConnectionContact(
+  _prev: JourneyActionState,
+  formData: FormData,
+): Promise<JourneyActionState> {
+  const connectionId = String(formData.get("connection_id") ?? "").trim();
+  if (!isValidUuid(connectionId)) return { error: "Choose a valid connection and try again.", ok: false };
+  const contact = normaliseContact(formData.get("contact"));
+  if (!contact.ok) return { error: contact.error, ok: false };
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated.", ok: false };
+
+  // RLS limits this to the member's own row on a connection they belong to.
+  const { error } = await supabase
+    .from("connection_contacts")
+    .upsert({ connection_id: connectionId, user_id: user.id, contact: contact.value });
+  if (error) {
+    return {
+      error: error.code === "42501"
+        ? "This connection is not available for sharing contact details."
+        : "We couldn't save your contact detail right now. Please try again.",
+      ok: false,
+    };
+  }
+  revalidatePath("/requests");
+  return { error: null, ok: true };
+}
+
+/** Removes the signed-in member's shared contact detail from a connection. */
+export async function removeConnectionContact(
+  _prev: JourneyActionState,
+  formData: FormData,
+): Promise<JourneyActionState> {
+  const connectionId = String(formData.get("connection_id") ?? "").trim();
+  if (!isValidUuid(connectionId)) return { error: "Choose a valid connection and try again.", ok: false };
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated.", ok: false };
+
+  const { error } = await supabase
+    .from("connection_contacts")
+    .delete()
+    .eq("connection_id", connectionId)
+    .eq("user_id", user.id);
+  if (error) return { error: "We couldn't remove your contact detail right now. Please try again.", ok: false };
+  revalidatePath("/requests");
+  return { error: null, ok: true };
+}
+
+/** Records (or undoes) that the first conversation has happened. */
+export async function setFirstConversation(
+  _prev: JourneyActionState,
+  formData: FormData,
+): Promise<JourneyActionState> {
+  const connectionId = String(formData.get("connection_id") ?? "").trim();
+  if (!isValidUuid(connectionId)) return { error: "Choose a valid connection and try again.", ok: false };
+  const held = formData.get("held") === "true";
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_first_conversation", {
+    p_connection_id: connectionId,
+    p_held: held,
+  });
+  if (error) {
+    return {
+      error: error.code === "42501"
+        ? "This connection is not available right now."
+        : "We couldn't update the conversation status. Please try again.",
+      ok: false,
+    };
+  }
+  revalidatePath("/requests");
+  return { error: null, ok: true };
 }
