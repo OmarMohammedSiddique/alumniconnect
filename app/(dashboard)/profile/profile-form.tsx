@@ -5,6 +5,7 @@ import { ChevronDown } from "lucide-react";
 import { updateProfile, type ProfileState } from "./actions";
 import Link from "next/link";
 import { ProfileSetup } from "./profile-setup";
+import { CvImport } from "./cv-import";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -217,6 +218,7 @@ export function ProfileForm({
     <div className="grid max-w-2xl gap-6">
       <Link href="/profile/photo" className="inline-flex min-h-11 items-center justify-self-start font-medium text-primary underline underline-offset-4">View or change your profile picture</Link>
       {showSetup && <ProfileSetup isMentor={isMentor} status={embedStatus} saving={pending} unsaved={hasUnsavedChanges} />}
+      <CvImport draft={draft} onApply={(patch) => setDraft((current) => ({ ...current, ...patch }))} />
     <Card>
       <CardHeader>
         <CardTitle><h2>Professional details</h2></CardTitle>
