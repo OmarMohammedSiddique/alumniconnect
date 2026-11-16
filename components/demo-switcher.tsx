@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { usePathname } from "next/navigation";
 import { ArrowRightLeft, Presentation } from "lucide-react";
-import { switchDemoAccount, type DemoSwitchState } from "@/app/(auth)/demo-actions";
+import { lockDemoMode, switchDemoAccount, type DemoSwitchState } from "@/app/(auth)/demo-actions";
 import { Button } from "@/components/ui/button";
 import { type DemoAccount, demoDisplayName } from "@/lib/demo-switcher";
 
@@ -60,9 +60,14 @@ export function DemoSwitcher({ accounts, currentId, variant }: DemoSwitcherProps
           </Button>
         ))}
       </form>
-      <p className="mt-2 text-xs text-muted-foreground" role="status">
-        {pending ? "Switching account…" : state.error ?? "Demo accounts are fictional people for demonstrations only."}
-      </p>
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs text-muted-foreground" role="status">
+          {pending ? "Switching account…" : state.error ?? "Demo accounts are fictional people for demonstrations only."}
+        </p>
+        <form action={lockDemoMode}>
+          <Button type="submit" variant="ghost" size="xs">End demo mode</Button>
+        </form>
+      </div>
     </section>
   );
 }
