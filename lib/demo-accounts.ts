@@ -1,23 +1,58 @@
 import "server-only";
+import { createHash, timingSafeEqual } from "node:crypto";
+import { cookies } from "next/headers";
+import { connection } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   type DemoAccount,
+  DEMO_PRESENTER_COOKIE,
   isDemoRole,
   isDemoSwitcherEnabled,
   isFictionalDemoUser,
+  isUsableDemoKey,
   sortDemoAccounts,
 } from "@/lib/demo-switcher";
 
+/** On only when the setting is true and a long enough presenter key is configured. */
 export function demoSwitcherEnabled(): boolean {
-  return isDemoSwitcherEnabled(process.env.DEMO_SWITCHER_ENABLED);
+  return isDemoSwitcherEnabled(process.env.DEMO_SWITCHER_ENABLED)
+    && isUsableDemoKey(process.env.DEMO_SWITCHER_KEY);
+}
+
+function digest(value: string): Buffer {
+  return createHash("sha256").update(value).digest();
+}
+
+/** The value stored in the presenter cookie: a digest, never the key itself. */
+export function presenterCookieValue(): string | null {
+  const key = process.env.DEMO_SWITCHER_KEY;
+  return isUsableDemoKey(key) ? digest(`presenter:${key}`).toString("hex") : null;
+}
+
+/** Constant-time comparison of a submitted presenter key with the configured one. */
+export function matchesPresenterKey(submitted: string): boolean {
+  const key = process.env.DEMO_SWITCHER_KEY;
+  if (!isUsableDemoKey(key)) return false;
+  return timingSafeEqual(digest(submitted), digest(key));
+}
+
+/** True when this browser has unlocked demo mode with the presenter key. */
+export async function isDemoPresenter(): Promise<boolean> {
+  if (!demoSwitcherEnabled()) return false;
+  const expected = presenterCookieValue();
+  const actual = (await cookies()).get(DEMO_PRESENTER_COOKIE)?.value;
+  if (!expected || !actual || actual.length !== expected.length) return false;
+  return timingSafeEqual(Buffer.from(actual), Buffer.from(expected));
 }
 
 /**
  * Lists the fictional demo accounts a presenter can switch into. Returns an
- * empty list when the switcher is off, so callers can render nothing.
+ * empty list unless the switcher is on and this browser holds the presenter
+ * cookie. Always evaluated per request, never at build time.
  */
 export async function listDemoAccounts(): Promise<DemoAccount[]> {
-  if (!demoSwitcherEnabled()) return [];
+  await connection();
+  if (!(await isDemoPresenter())) return [];
   const admin = createAdminClient();
   const { data, error } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
   if (error) return [];

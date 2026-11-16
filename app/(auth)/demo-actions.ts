@@ -1,67 +1,87 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { fetchAuthWithDeadline } from "@/lib/supabase/auth-fetch";
 import { getSafeSignInRedirect } from "@/lib/auth-redirect";
-import { demoSwitcherEnabled } from "@/lib/demo-accounts";
-import { canUseDemoSwitcher, isDemoRole, isFictionalDemoUser } from "@/lib/demo-switcher";
+import {
+  demoSwitcherEnabled,
+  isDemoPresenter,
+  matchesPresenterKey,
+  presenterCookieValue,
+} from "@/lib/demo-accounts";
+import {
+  DEMO_PRESENTER_COOKIE,
+  DEMO_PRESENTER_SECONDS,
+  DEMO_UNAVAILABLE,
+  runDemoSwitch,
+} from "@/lib/demo-switcher";
 
 export interface DemoSwitchState {
   error: string | null;
 }
 
-const UNAVAILABLE = "Demo accounts are not available right now.";
+/** Unlocks demo mode in this browser for a presenter who knows the key (#106). */
+export async function unlockDemoMode(
+  _prev: DemoSwitchState,
+  formData: FormData,
+): Promise<DemoSwitchState> {
+  if (!demoSwitcherEnabled()) return { error: DEMO_UNAVAILABLE };
+  const submitted = String(formData.get("presenter_key") ?? "");
+  const value = presenterCookieValue();
+  if (!value || !matchesPresenterKey(submitted)) {
+    return { error: "That presenter key is not correct." };
+  }
+  (await cookies()).set(DEMO_PRESENTER_COOKIE, value, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: DEMO_PRESENTER_SECONDS,
+  });
+  const supabase = await createClient(fetchAuthWithDeadline);
+  const { data: { user } } = await supabase.auth.getUser();
+  redirect(user ? "/requests" : "/login");
+}
+
+/** Ends demo mode in this browser. Existing sessions are revoked separately. */
+export async function lockDemoMode(): Promise<void> {
+  (await cookies()).delete(DEMO_PRESENTER_COOKIE);
+  redirect("/demo");
+}
 
 /**
- * Signs the presenter in as a fictional demo account (#106). Every rule is
- * checked here on the server: the setting must be on, the visitor must be
- * signed out or already in a demo account, and the target must be a fictional
- * Mentee or Mentor. Real member accounts can never be reached.
+ * Signs the presenter in as a fictional demo account. The decision lives in
+ * runDemoSwitch (unit tested); this action only supplies the real services.
  */
 export async function switchDemoAccount(
   _prev: DemoSwitchState,
   formData: FormData,
 ): Promise<DemoSwitchState> {
-  if (!demoSwitcherEnabled()) return { error: UNAVAILABLE };
-
   const targetId = String(formData.get("account_id") ?? "");
   const next = getSafeSignInRedirect(String(formData.get("next") ?? "/requests"));
-  if (!targetId) return { error: "Choose a demo account." };
-
   const supabase = await createClient(fetchAuthWithDeadline);
-  const { data: { user: current } } = await supabase.auth.getUser();
-  if (!canUseDemoSwitcher(current)) {
-    return { error: "Sign out of your own account before using a demo account." };
-  }
-  if (current?.id === targetId) redirect(next);
-
   const admin = createAdminClient();
-  const { data: target, error: lookupError } = await admin.auth.admin.getUserById(targetId);
-  if (lookupError || !isFictionalDemoUser(target.user)) return { error: UNAVAILABLE };
 
-  const { data: profile } = await admin
-    .from("profiles")
-    .select("role")
-    .eq("id", targetId)
-    .single();
-  if (!isDemoRole(profile?.role)) return { error: UNAVAILABLE };
+  const result = await runDemoSwitch({
+    enabled: demoSwitcherEnabled(),
+    presenter: await isDemoPresenter(),
+    getCurrentUser: async () => (await supabase.auth.getUser()).data.user,
+    getUserById: async (id) => (await admin.auth.admin.getUserById(id)).data.user ?? null,
+    getProfileRole: async (id) =>
+      (await admin.from("profiles").select("role").eq("id", id).single()).data?.role,
+    // A one-time token issued on the server. Nothing is emailed and the token
+    // never reaches the browser.
+    issueSignInToken: async (email) => {
+      const { data, error } = await admin.auth.admin.generateLink({ type: "magiclink", email });
+      return error ? null : data.properties?.hashed_token ?? null;
+    },
+    exchangeSignInToken: async (token) =>
+      !(await supabase.auth.verifyOtp({ type: "magiclink", token_hash: token })).error,
+  }, targetId);
 
-  // A one-time sign-in token issued on the server. Nothing is emailed and the
-  // token never reaches the browser; it is exchanged for a session right away.
-  const { data: link, error: linkError } = await admin.auth.admin.generateLink({
-    type: "magiclink",
-    email: target.user.email!,
-  });
-  if (linkError || !link.properties?.hashed_token) return { error: UNAVAILABLE };
-
-  if (current) await supabase.auth.signOut({ scope: "local" });
-  const { error: verifyError } = await supabase.auth.verifyOtp({
-    type: "magiclink",
-    token_hash: link.properties.hashed_token,
-  });
-  if (verifyError) return { error: "The demo sign-in did not complete. Try again." };
-
+  if (!result.ok) return { error: result.error };
   redirect(next);
 }
