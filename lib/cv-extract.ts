@@ -177,7 +177,7 @@ function extractSkills(skillLines: string[], fullText: string): string[] {
     for (const item of splitItems(line.replace(/^[^:]{2,30}:\s*/, ""))) add(item);
   }
   for (const skill of KNOWN_SKILLS) {
-    const escaped = skill.replace(/[.+#]/g, "\\$&");
+    const escaped = skill.replace(/[.*+?^${}()|[\]\\#]/g, "\\$&");
     // One and two letter skills (R, Go) need clear separators, so "R&D" is not "R".
     const pattern = skill.length <= 2
       ? new RegExp(`(^|[\\s,;/(])${escaped}($|[\\s,;/)])`, "m")
@@ -249,5 +249,7 @@ export function docxXmlToText(xml: string): string {
     .replace(/&#x([0-9a-f]{1,6});/gi, (_, hex) => codePoint(parseInt(hex, 16)))
     .replace(/&#(\d{1,7});/g, (_, code) => codePoint(Number(code)))
     .replace(/&quot;/g, "\"").replace(/&apos;/g, "'")
-    .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+    .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&")
+    // The result is plain profile text; angle brackets are dropped so no markup can survive decoding.
+    .replace(/[<>]/g, " ");
 }
