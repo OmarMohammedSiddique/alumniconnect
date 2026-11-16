@@ -17,8 +17,9 @@ export const CV_FIELD_LABELS: Record<CvField, string> = {
 export interface CvOffer {
   field: CvField;
   label: string;
-  /** The value the field would hold if the member accepts. */
+  /** The replacement value; for skills, the skills to add. */
   value: string;
+  addSkills?: string[];
   description: string;
 }
 
@@ -57,10 +58,7 @@ export function planCvApply(draft: ProfileDraftFields, suggestions: CvSuggestion
       const room = Math.max(0, MAX_PROFILE_SKILLS - existing.length);
       const added = extra.slice(0, room);
       if (added.length) {
-        plan.offers.push({
-          field, label, value: [...existing, ...added].join(", "),
-          description: `Add ${added.join(", ")}`,
-        });
+        plan.offers.push({ field, label, value: added.join(", "), addSkills: added, description: `Add ${added.join(", ")}` });
       }
       continue;
     }
@@ -69,4 +67,26 @@ export function planCvApply(draft: ProfileDraftFields, suggestions: CvSuggestion
     }
   }
   return plan;
+}
+
+/**
+ * Applies automatic fills to the form as it is now, not as it was when the CV
+ * was uploaded: a field the member has typed into since then is left alone.
+ */
+export function applyCvFill(current: ProfileDraftFields, fill: Partial<ProfileDraftFields>): ProfileDraftFields {
+  const next = { ...current };
+  for (const [field, value] of Object.entries(fill) as [CvField, string][]) {
+    if (!current[field].trim()) next[field] = value;
+  }
+  return next;
+}
+
+/** Applies an accepted offer to the current form; skill offers only ever add. */
+export function applyCvOffer(current: ProfileDraftFields, offer: CvOffer): ProfileDraftFields {
+  if (offer.field !== "skills") return { ...current, [offer.field]: offer.value };
+  const existing = normalizeSkills(current.skills);
+  const known = new Set(existing.map((skill) => skill.toLowerCase()));
+  const room = Math.max(0, MAX_PROFILE_SKILLS - existing.length);
+  const added = (offer.addSkills ?? []).filter((skill) => !known.has(skill.toLowerCase())).slice(0, room);
+  return { ...current, skills: [...existing, ...added].join(", ") };
 }

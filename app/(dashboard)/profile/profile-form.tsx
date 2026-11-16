@@ -218,7 +218,7 @@ export function ProfileForm({
     <div className="grid max-w-2xl gap-6">
       <Link href="/profile/photo" className="inline-flex min-h-11 items-center justify-self-start font-medium text-primary underline underline-offset-4">View or change your profile picture</Link>
       {showSetup && <ProfileSetup isMentor={isMentor} status={embedStatus} saving={pending} unsaved={hasUnsavedChanges} />}
-      <CvImport draft={draft} onApply={(patch) => setDraft((current) => ({ ...current, ...patch }))} />
+      <CvImport draft={draft} onApply={(update) => setDraft((current) => ({ ...current, ...update(current) }))} />
     <Card>
       <CardHeader>
         <CardTitle><h2>Professional details</h2></CardTitle>
