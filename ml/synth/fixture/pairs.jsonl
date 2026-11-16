@@ -1,0 +1,8 @@
+{"mentee_id": "MTE-FIX-0001", "mentor_id": "MTR-FIX-0001", "relevance_score": 3, "why": "same occupation and offers licence guidance"}
+{"mentee_id": "MTE-FIX-0001", "mentor_id": "MTR-FIX-0002", "relevance_score": 0, "why": "unrelated field, offers career-change advice only"}
+{"mentee_id": "MTE-FIX-0001", "mentor_id": "MTR-FIX-0003", "relevance_score": 0, "why": "unrelated field, offers leadership coaching only"}
+{"mentee_id": "MTE-FIX-0001", "mentor_id": "MTR-FIX-0004", "relevance_score": 1, "why": "same occupation in a sparse profile that does not offer licence guidance"}
+{"mentee_id": "MTE-FIX-0002", "mentor_id": "MTR-FIX-0001", "relevance_score": 0, "why": "unrelated field"}
+{"mentee_id": "MTE-FIX-0002", "mentor_id": "MTR-FIX-0002", "relevance_score": 2, "why": "linked occupation and offers career-change advice; a different starting career"}
+{"mentee_id": "MTE-FIX-0002", "mentor_id": "MTR-FIX-0003", "relevance_score": 0, "why": "unrelated field and a different kind of help"}
+{"mentee_id": "MTE-FIX-0002", "mentor_id": "MTR-FIX-0004", "relevance_score": 0, "why": "unrelated field"}
