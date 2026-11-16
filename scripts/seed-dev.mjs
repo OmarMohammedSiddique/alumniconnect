@@ -58,17 +58,35 @@ const MENTORS = [
   },
 ];
 
-for (const m of MENTORS) {
+// A fictional Mentee so the demo switcher (#106) can show both sides locally.
+const DEMO_MENTEE = {
+  email: "explorer.mentee@seed.local",
+  role: "mentee",
+  full_name: "Career Explorer",
+  headline: "Aspiring data engineer seeking career guidance",
+  bio: "Fictional local demonstration account. Interested in data infrastructure, machine learning and professional development.",
+  skills: ["Python", "SQL", "Public Speaking"],
+  industry: "Technology",
+  graduation_year: 2026,
+};
+
+// Every seeded account is fictional; the marker lets the demo switcher reach it.
+const FICTIONAL = { fictional: true, fixture: "alumnikonneqt-local-seed" };
+
+for (const m of [...MENTORS.map((mentor) => ({ ...mentor, role: "mentor" })), DEMO_MENTEE]) {
   const { data: existing } = await admin.auth.admin.listUsers();
-  if (existing.users.some((u) => u.email === m.email)) {
-    console.log("skip (exists):", m.email);
+  const found = existing.users.find((u) => u.email === m.email);
+  if (found) {
+    await admin.auth.admin.updateUserById(found.id, { app_metadata: { ...found.app_metadata, ...FICTIONAL } });
+    console.log("skip (exists, marked fictional):", m.email);
     continue;
   }
   const { data, error } = await admin.auth.admin.createUser({
     email: m.email,
     password: "seed-password-123",
     email_confirm: true,
-    user_metadata: { role: "mentor", full_name: m.full_name },
+    app_metadata: FICTIONAL,
+    user_metadata: { role: m.role, full_name: m.full_name },
   });
   if (error) throw error;
   const text = `${m.headline}\n${m.bio}\nSkills: ${m.skills.join(", ")}\nIndustry: ${m.industry}\nGraduated: ${m.graduation_year}`;
@@ -76,7 +94,7 @@ for (const m of MENTORS) {
     (await extractor(text, { pooling: "mean", normalize: true })).data,
   );
   const fields = Object.fromEntries(
-    Object.entries(m).filter(([key]) => key !== "email"),
+    Object.entries(m).filter(([key]) => key !== "email" && key !== "role"),
   );
   const { error: e2 } = await admin
     .from("profiles")
