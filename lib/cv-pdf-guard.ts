@@ -1,5 +1,12 @@
 // Decompression budget for uploaded PDFs (#108). No server-only imports, so it is unit tested.
-import { constants, inflateRawSync } from "node:zlib";
+//
+// The guard decides from the bytes, not from stream dictionaries: dictionaries can be disguised
+// (wrong /Length, indirect or escaped filter names, comments, padding) in ways the PDF library
+// still understands. At every stream, if the data starts with a valid zlib header (the only data
+// the PDF library will Flate-decode), it is inflated with a hard running cap, whatever the
+// dictionary claims. Expanding filters ordinary CV exports never use are refused wherever their
+// names appear, including inside compressed object streams.
+import { Inflate } from "fflate";
 
 /** Total decompressed size allowed across a PDF's streams before the PDF library sees it. */
 export const MAX_PDF_INFLATED_BYTES = 32 * 1024 * 1024;
@@ -7,72 +14,84 @@ export const MAX_PDF_INFLATED_BYTES = 32 * 1024 * 1024;
 export class CvReadError extends Error {}
 
 const STREAM = Buffer.from("stream");
-const END_STREAM = Buffer.from("endstream");
-const OBJ = Buffer.from(" obj");
-const DICTIONARY_LOOKBACK = 4096;
-// Filters that expand data and that ordinary CV exports never use. Abbreviations are the inline forms.
-const REFUSED_FILTERS = /\/(ASCII85Decode|ASCIIHexDecode|LZWDecode|RunLengthDecode|A85|AHx|LZW|RL)\b/;
-const FLATE = /\/(FlateDecode|Fl)\b/;
+const SLICE = 1024; // compressed bytes per step
+// Deflate expands at most about 1032 to 1, so a slice whose output is lost to a decode error is charged this much.
+const WORST_CASE_SLICE_OUTPUT = SLICE * 1032;
+const MAX_EOL_SKIP = 4;
+// A PDF delimiter must follow the name, which keeps chance matches in binary data very rare.
+const REFUSED_FILTERS = /\/(ASCII85Decode|ASCIIHexDecode|LZWDecode|RunLengthDecode|A85|AHx|LZW|RL)(?=[\s/\]>])/;
 
-function dictionaryBefore(buffer: Buffer, streamStart: number): string {
-  const from = Math.max(0, streamStart - DICTIONARY_LOOKBACK);
-  const objStart = buffer.lastIndexOf(OBJ, streamStart);
-  return buffer.subarray(objStart >= from ? objStart : from, streamStart).toString("latin1");
+/** PDF names may escape characters as #xx; undo that so disguised filter names are still found. */
+function unescapeNames(text: string): string {
+  return text.replace(/#([0-9a-fA-F]{2})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
 }
 
-/** Bytes inflated from one Flate stream, counted even with a bad checksum, truncation or trailing bytes. */
-function inflatedSize(data: Buffer, limit: number): number {
-  // Skip a valid zlib header if present; raw inflate then ignores the adler32 trailer and anything after the final block.
-  const hasHeader = data.length >= 2 && (data[0] & 0x0f) === 8 && ((data[0] << 8) | data[1]) % 31 === 0;
-  return inflateRawSync(hasHeader ? data.subarray(2) : data, {
-    finishFlush: constants.Z_SYNC_FLUSH,
-    maxOutputLength: limit,
-  }).length;
+function isZlibHeader(buffer: Buffer, at: number): boolean {
+  if (at + 2 > buffer.length) return false;
+  const cmf = buffer[at];
+  const flg = buffer[at + 1];
+  return (cmf & 0x0f) === 8 && (cmf >> 4) <= 7 && ((cmf << 8) | flg) % 31 === 0 && (flg & 0x20) === 0;
 }
 
 /**
- * Rejects PDFs whose compressed streams would expand beyond a fixed budget
- * ("decompression bombs"), or that use expanding filters ordinary CVs never
- * use. Every Flate stream is inflated with a hard output cap, so this check
- * itself can never use more than the budget.
+ * Inflates raw deflate data from `start` to the end of the buffer in small slices, counting output and
+ * scanning it for refused filter names. Stops at the final block, on a decode error, or past `limit`.
+ * Returns the number of bytes produced; output past the limit is never kept.
+ */
+function countInflated(buffer: Buffer, start: number, limit: number): number {
+  let produced = 0;
+  let finished = false;
+  let tail = "";
+  const inflater = new Inflate((chunk, final) => {
+    produced += chunk.length;
+    if (produced > limit) throw new CvReadError("too-large");
+    const text = tail + Buffer.from(chunk.buffer, chunk.byteOffset, chunk.byteLength).toString("latin1");
+    if (REFUSED_FILTERS.test(unescapeNames(text))) throw new CvReadError("too-large");
+    tail = text.slice(-24);
+    if (final) finished = true;
+  });
+  try {
+    for (let at = start; at < buffer.length && !finished; at += SLICE) {
+      const end = Math.min(at + SLICE, buffer.length);
+      inflater.push(buffer.subarray(at, end), end === buffer.length);
+    }
+  } catch (error) {
+    if (error instanceof CvReadError) throw error;
+    // A decode error ends the stream. Earlier slices are counted; the failed slice's output was
+    // not reported, so charge its worst case (the PDF library may have decoded it before failing).
+    produced += WORST_CASE_SLICE_OUTPUT;
+  }
+  return produced;
+}
+
+/**
+ * Rejects PDFs whose compressed data would expand beyond a fixed budget ("decompression bombs"),
+ * or that use expanding filters ordinary CVs never use. This check never holds more than one
+ * slice of output at a time.
  */
 export function assertPdfInflationWithinBudget(bytes: Uint8Array, budget = MAX_PDF_INFLATED_BYTES): void {
   const buffer = Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  if (REFUSED_FILTERS.test(unescapeNames(buffer.toString("latin1")))) throw new CvReadError("too-large");
+
   let remaining = budget;
   let from = 0;
   for (;;) {
-    const start = buffer.indexOf(STREAM, from);
-    if (start < 0) return;
-    // Ignore the "stream" inside an "endstream" keyword.
-    if (start >= 3 && buffer.toString("latin1", start - 3, start) === "end") {
-      from = start + STREAM.length;
-      continue;
+    const keyword = buffer.indexOf(STREAM, from);
+    if (keyword < 0) return;
+    from = keyword + STREAM.length;
+    // The "stream" inside an "endstream" keyword starts nothing.
+    if (keyword >= 3 && buffer.toString("latin1", keyword - 3, keyword) === "end") continue;
+    // Allow the usual end of line (and a little stray whitespace) before the data.
+    let dataStart = -1;
+    for (let skip = 0; skip <= MAX_EOL_SKIP; skip += 1) {
+      if (isZlibHeader(buffer, from + skip)) {
+        dataStart = from + skip;
+        break;
+      }
+      if (![0x0d, 0x0a, 0x20, 0x09, 0x0c, 0x00].includes(buffer[from + skip])) break;
     }
-    let dataStart = start + STREAM.length;
-    if (buffer[dataStart] === 0x0d) dataStart += 1;
-    if (buffer[dataStart] === 0x0a) dataStart += 1;
-
-    const dictionary = dictionaryBefore(buffer, start);
-    const filter = dictionary.match(/\/Filter\s*(\[[^\]]*\]|\/\w+)/)?.[1] ?? "";
-    // A direct /Length tells us where the data really ends, so "endstream" bytes inside it cannot cut it short.
-    const length = dictionary.match(/\/Length\s+(\d+)\b(?!\s+\d+\s+R)/)?.[1];
-    const declaredEnd = length ? dataStart + Number(length) : -1;
-    const end = declaredEnd > dataStart && declaredEnd <= buffer.length ? declaredEnd : buffer.indexOf(END_STREAM, dataStart);
-    if (end < 0) return;
-    from = end;
-
-    if (REFUSED_FILTERS.test(filter)) throw new CvReadError("too-large");
-    if (filter.startsWith("[") && !/^\[\s*\/(FlateDecode|Fl)\s*\]$/.test(filter)) throw new CvReadError("too-large");
-    if (!FLATE.test(filter)) continue; // Unfiltered data or images (DCT, JPX, CCITT) do not expand in text extraction.
-
-    let size: number;
-    try {
-      size = inflatedSize(buffer.subarray(dataStart, end), remaining + 1);
-    } catch {
-      // Too large for the budget, or not decodable as declared: refuse rather than let the PDF library try.
-      throw new CvReadError("too-large");
-    }
-    remaining -= size;
+    if (dataStart < 0) continue; // Not zlib data, so the PDF library will not Flate-decode it.
+    remaining -= countInflated(buffer, dataStart + 2, remaining);
     if (remaining < 0) throw new CvReadError("too-large");
   }
 }
