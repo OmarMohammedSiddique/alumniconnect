@@ -69,8 +69,8 @@ export function getNextStep(input: NextStepInput): NextStep {
   }
   if (ended === "cancelled") {
     return input.viewer === "mentee"
-      ? { title: "You withdrew this request", body: `${name} will not see it any more. You can send a new request later if you change your mind.` }
-      : { title: "Request withdrawn", body: `${name} withdrew this request. No action is needed.` };
+      ? { title: "You cancelled this request", body: `${name} will not see it any more. You can send a new request later if you change your mind.` }
+      : { title: "Request cancelled", body: `${name} cancelled this request. No action is needed.` };
   }
 
   switch (current) {
@@ -79,7 +79,7 @@ export function getNextStep(input: NextStepInput): NextStep {
         ? { title: `Waiting for ${name} to respond`, body: `${name} can accept or decline your introduction. If they accept, a connection appears below for both of you with the next steps. You can cancel while the request is pending.` }
         : { title: "Your response is needed", body: `Accept to start a connection with ${name}. You will both then be able to share contact details and arrange a first conversation. If you decline, ${name} is told so they can approach someone else.` };
     case "contact":
-      return { title: "Share how to reach you", body: `Add an email address or a meeting link below. ${name} sees it here, and you will see theirs when they share it. Nothing is shared until you add it.` };
+      return { title: "Share how to reach you", body: `Add an email address, phone number or meeting link below. ${name} sees it here, and you will see theirs when they share it. Nothing is shared until you add it.` };
     case "conversation":
       if (input.partnerContact) {
         return input.viewer === "mentee"
@@ -95,6 +95,8 @@ export function getNextStep(input: NextStepInput): NextStep {
 }
 
 export const CONTACT_MIN = 3;
+/** Control characters and text-direction overrides, which can disguise a link. */
+const HIDDEN_CHARACTERS = /[\u0000-\u001f\u007f-\u009f\u202a-\u202e\u2066-\u2069]/;
 export const CONTACT_MAX = 200;
 
 /** Trims a shared contact and rejects empty, oversized or control-character input. */
@@ -102,17 +104,21 @@ export function normaliseContact(value: unknown): { ok: true; value: string } | 
   const text = typeof value === "string" ? value.trim() : "";
   if (text.length < CONTACT_MIN) return { ok: false, error: "Enter an email address, phone number or meeting link." };
   if (text.length > CONTACT_MAX) return { ok: false, error: `Keep the contact detail to ${CONTACT_MAX} characters or fewer.` };
-  if (/[\u0000-\u001f\u007f]/.test(text)) return { ok: false, error: "Remove line breaks or hidden characters from the contact detail." };
+  if (HIDDEN_CHARACTERS.test(text)) return { ok: false, error: "Remove line breaks or hidden characters from the contact detail." };
   return { ok: true, value: text };
 }
 
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+/**
+ * A plain email address with none of the characters that could add mailto
+ * headers (cc, subject, body) or change how the link is read.
+ */
+export const SAFE_EMAIL = /^[^\s@,;?&%/:<>"]+@[^\s@,;?&%/:<>"]+\.[^\s@,;?&%/:<>"]+$/;
 
 /** A safe link for a shared contact: mailto for emails, https links as given, otherwise none. */
 export function contactHref(contact: string | null | undefined): string | null {
   const text = contact?.trim();
   if (!text) return null;
-  if (EMAIL.test(text)) return `mailto:${text}`;
+  if (SAFE_EMAIL.test(text)) return `mailto:${encodeURIComponent(text)}`;
   try {
     const url = new URL(text);
     return url.protocol === "https:" ? url.toString() : null;

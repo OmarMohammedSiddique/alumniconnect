@@ -1,3 +1,5 @@
+import { SAFE_EMAIL } from "./connection-journey.ts";
+
 export interface KickstarterOptions {
   isMentor: boolean;
   partnerName: string;
@@ -7,7 +9,6 @@ export interface KickstarterOptions {
   recipient?: string | null;
 }
 
-const RECIPIENT_EMAIL = /^[^\s@,;?&]+@[^\s@,;?&]+\.[^\s@,;?&]+$/;
 
 /**
  * Generates an actionable, professional introductory message template
@@ -54,6 +55,6 @@ export function buildKickstarterMailto(options: KickstarterOptions): string {
   const subject = `AlumniKonneQt Mentorship Introduction: ${partner}`;
   const body = buildKickstarterMessage(options);
   const to = options.recipient?.trim();
-  const address = to && RECIPIENT_EMAIL.test(to) ? encodeURIComponent(to) : "";
+  const address = to && SAFE_EMAIL.test(to) ? encodeURIComponent(to) : "";
   return `mailto:${address}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
