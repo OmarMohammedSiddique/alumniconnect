@@ -10,9 +10,11 @@ character n-gram should count, separately for the Mentee (query) side and the Me
 w_q and w_m start at 1 plus small random noise, so the untrained model ranks almost exactly like TF-IDF.
 A penalty pulls them back towards 1, so the model departs from TF-IDF only where the labels support it.
 No pretrained weights or external components are used; the TF-IDF statistics are fitted on training
-profiles only. Selection uses grouped cross-validation on the training split; validation is scored once.
+profiles only. Selection uses Mentee and Mentor disjoint cross-validation on the training split (see
+train_scratch_v2.fold_split); validation is scored once per seed. One epoch is one full-batch Adam step.
 """
 import argparse
+import time
 from datetime import datetime, timezone
 import hashlib
 import itertools
@@ -34,7 +36,7 @@ sys.path.insert(0, str(ML_DIR))
 from ranker_features import fit_vectoriser, load_jsonl  # noqa: E402
 from train_gbdt_ranker import check_split, grouped_folds, mean_ndcg5, ordered, tfidf_scores  # noqa: E402
 from train_scratch_pilot import evaluate, text  # noqa: E402
-from train_scratch_v2 import pools, summarise  # noqa: E402
+from train_scratch_v2 import fold_split, git_state, pools, summarise  # noqa: E402
 
 RUNS_ROOT = ML_DIR / 'runs'
 FOLDS = 5
@@ -113,14 +115,9 @@ def pool_scores(model, vectoriser, profiles):
 
 
 def cross_validate(profiles, pairs, config, seed):
-    lookup = {p['person_id']: p for p in profiles}
     curves, untrained = [], []
     for held_out in grouped_folds([pair['mentee_id'] for pair in pairs], FOLDS, seed):
-        held = set(held_out)
-        fit_pairs = [pair for pair in pairs if pair['mentee_id'] not in held]
-        held_pairs = [pair for pair in pairs if pair['mentee_id'] in held]
-        fit_profiles = [lookup[i] for i in sorted({pair[k] for pair in fit_pairs for k in ('mentee_id', 'mentor_id')})]
-        held_profiles = [lookup[i] for i in sorted({pair[k] for pair in held_pairs for k in ('mentee_id', 'mentor_id')})]
+        fit_profiles, fit_pairs, held_profiles, held_pairs = fold_split(pairs, profiles, held_out)
         model, vectoriser, curve = train(fit_profiles, fit_pairs, config, seed, EPOCHS, (held_profiles, held_pairs))
         curves.append(curve)
         baseline_vectoriser = fit_vectoriser(fit_profiles)
@@ -152,6 +149,7 @@ def run(data_dir, output_dir, runs_root=RUNS_ROOT, seeds=SEEDS, allow_machine_la
     torch.set_num_threads(1)
     torch.use_deterministic_algorithms(True)
 
+    started = time.perf_counter()
     selection = []
     for values in itertools.product(*GRID.values()):
         config = dict(zip(GRID, values))
@@ -162,23 +160,25 @@ def run(data_dir, output_dir, runs_root=RUNS_ROOT, seeds=SEEDS, allow_machine_la
                           'cv_tfidf_ndcg5': statistics.fmean(r[1] for r in results), 'cv_curve': mean_curve})
     chosen = max(selection, key=lambda row: (round(row['cv_mean_ndcg5'], 9), row['config']['anchor']))
 
+    selection_seconds = time.perf_counter() - started
     output.mkdir(parents=True)
     runs = []
     for seed in seeds:
         model, vectoriser, _ = train(train_profiles, train_pairs, chosen['config'], seed, chosen['best_epoch'])
         result = evaluate(val_profiles, val_pairs, pool_scores(model, vectoriser, val_profiles))
-        runs.append({'seed': seed, 'aggregate': result['aggregate'], 'per_query': result['per_query']})
+        runs.append({'seed': seed, 'aggregate': result['aggregate'], 'per_query': result['per_query'],
+                     'predictions': result['predictions']})
         if seed == seeds[0]:
+            # The fitted preprocessing travels with the weights, so the checkpoint can be reloaded on its own.
             torch.save({'state_dict': model.state_dict(), 'config': chosen['config'], 'epochs': chosen['best_epoch'],
-                        'seed': seed}, output / 'model.pt')
+                        'seed': seed, 'vocabulary': {k: int(v) for k, v in vectoriser.vocabulary_.items()},
+                        'idf': vectoriser.idf_.tolist(), 'tfidf_settings': {'analyzer': 'char', 'ngram_range': [3, 5],
+                                                                          'lowercase': True}}, output / 'model.pt')
             changed = float(((model.query_weight - 1).abs() > 0.05).float().mean())
             features = len(vectoriser.vocabulary_)
     tfidf = evaluate(val_profiles, val_pairs, tfidf_scores(val_profiles, fit_vectoriser(train_profiles)))
     metrics = ('ndcg5', 'p1', 'p3', 'p5', 'mrr5', 'hit5')
-    try:
-        commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True, cwd=ML_DIR).strip()
-    except (subprocess.SubprocessError, OSError):
-        commit = 'unknown'
+    commit, dirty = git_state()
     summary = {
         'engineering_pilot_only': True, 'human_reviewed': False, 'test_performance_accessed': False,
         'created_at': datetime.now(timezone.utc).isoformat(timespec='seconds'),
@@ -193,7 +193,10 @@ def run(data_dir, output_dir, runs_root=RUNS_ROOT, seeds=SEEDS, allow_machine_la
         'validation': {'reweighted_tfidf': {m: summarise([r['aggregate'][m] for r in runs]) for m in metrics},
                        'tfidf': tfidf['aggregate']},
         'validation_queries': len({p['mentee_id'] for p in val_pairs}),
-        'code_commit': commit, 'implementation_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        'seconds': {'selection': selection_seconds, 'total': time.perf_counter() - started},
+        'data_sha256': {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in
+                        ('train_profiles.jsonl', 'train_pairs.jsonl', 'validation_profiles.jsonl', 'validation_pairs.jsonl')},
+        'code_commit': commit, 'working_tree_dirty': dirty, 'implementation_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         'python': platform.python_version(), 'torch': torch.__version__,
         'caveat': '60 unreviewed training pairs and 5 validation queries; designed after seeing the v2 result.',
     }

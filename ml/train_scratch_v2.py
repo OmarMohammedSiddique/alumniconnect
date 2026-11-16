@@ -12,13 +12,16 @@ What changes from the v1 character CNN, and why (see docs/ml-scratch-v2.md):
    No labels are used in this stage.
 4. Supervised loss: listwise. Each mentee's judged candidates are ranked together, matching how
    the model is used, instead of v1's pointwise regression of one pair at a time.
-5. Selection: configuration and epoch count are chosen by five-fold cross-validation grouped by
-   mentee on the training split. The validation split is scored once, after selection.
+5. Selection: configuration and epoch count are chosen by five-fold cross-validation on the training
+   split. Folds hold out Mentees, and fit pairs whose Mentor also appears in the held-out fold are
+   dropped, so held-out Mentees and Mentors are both unseen. The validation split is scored once per
+   seed, after selection. One epoch is one full-batch Adam step over every judged pool.
 
 Unjudged mentee and mentor combinations are never treated as negatives.
 """
 import argparse
 from collections import Counter
+import time
 from datetime import datetime, timezone
 import hashlib
 import itertools
@@ -74,18 +77,21 @@ def raw_features(profile):
     return features
 
 
+PAD = '<PAD>'  # index 0: an empty bag maps here and contributes a zero vector
+
+
 def fit_vocabulary(train_profiles, min_count=1):
     """Feature vocabulary from training profiles only. Refuses any profile from another split."""
     if any(profile['split'] != 'train' for profile in train_profiles):
         raise ValueError('The vocabulary may only be fitted on training profiles')
     counts = Counter(feature for profile in train_profiles for feature in set(raw_features(profile)))
     kept = sorted(feature for feature, count in counts.items() if count >= min_count)
-    return {feature: index for index, feature in enumerate(kept)}
+    return {PAD: 0, **{feature: index + 1 for index, feature in enumerate(kept)}}
 
 
 def feature_ids(profile, vocabulary):
-    """Known feature ids for a profile; unseen features are dropped, never added."""
-    return [vocabulary[feature] for feature in raw_features(profile) if feature in vocabulary]
+    """Known feature ids for a profile (never the padding index); unseen features are dropped, never added."""
+    return [vocabulary[feature] for feature in raw_features(profile) if feature in vocabulary and feature != PAD]
 
 
 class BagEncoder(nn.Module):
@@ -93,8 +99,10 @@ class BagEncoder(nn.Module):
 
     def __init__(self, vocabulary_size, dimension):
         super().__init__()
-        self.embedding = nn.EmbeddingBag(vocabulary_size, dimension, mode='mean')
+        self.embedding = nn.EmbeddingBag(vocabulary_size, dimension, mode='mean', padding_idx=0)
         nn.init.normal_(self.embedding.weight, std=0.1)
+        with torch.no_grad():
+            self.embedding.weight[0].zero_()
         self.query_head = nn.Linear(dimension, dimension)
         self.mentor_head = nn.Linear(dimension, dimension)
         self.log_scale = nn.Parameter(torch.tensor(np.log(10.0), dtype=torch.float32))
@@ -201,24 +209,47 @@ def pool_scores(model, vocabulary, profiles):
     return (q @ m.T).numpy()
 
 
-def cross_validate(profiles, pairs, config, seed):
-    """Per-epoch mean nDCG@5 over folds grouped by mentee. Each fold refits the vocabulary."""
+def fold_split(pairs, profiles, held_out):
+    """One cross-validation fold. Held-out Mentees and every Mentor judged for them are kept out of
+    fitting: fit pairs that use a held-out Mentor are dropped, so neither side is seen in training."""
     lookup = {profile['person_id']: profile for profile in profiles}
+    held = set(held_out)
+    held_pairs = [pair for pair in pairs if pair['mentee_id'] in held]
+    held_mentors = {pair['mentor_id'] for pair in held_pairs}
+    fit_pairs = [pair for pair in pairs if pair['mentee_id'] not in held and pair['mentor_id'] not in held_mentors]
+    fit_ids = {pair[key] for pair in fit_pairs for key in ('mentee_id', 'mentor_id')}
+    held_ids = {pair[key] for pair in held_pairs for key in ('mentee_id', 'mentor_id')}
+    if fit_ids & held_ids:
+        raise ValueError('Fold overlap')
+    return ([lookup[i] for i in sorted(fit_ids)], fit_pairs, [lookup[i] for i in sorted(held_ids)], held_pairs)
+
+
+def cross_validate(profiles, pairs, config, seed):
+    """Per-epoch mean nDCG@5 over Mentee and Mentor disjoint folds. Each fold refits the vocabulary."""
     curves = []
     for held_out in grouped_folds([pair['mentee_id'] for pair in pairs], FOLDS, seed):
-        held = set(held_out)
-        fit_pairs = [pair for pair in pairs if pair['mentee_id'] not in held]
-        held_pairs = [pair for pair in pairs if pair['mentee_id'] in held]
-        # Profiles of held-out mentees (and mentors only they were judged against) stay out of fitting.
-        fit_ids = {pair[key] for pair in fit_pairs for key in ('mentee_id', 'mentor_id')}
-        fit_profiles = [lookup[i] for i in sorted(fit_ids)]
-        held_ids = {pair[key] for pair in held_pairs for key in ('mentee_id', 'mentor_id')}
-        held_profiles = [lookup[i] for i in sorted(held_ids)]
+        fit_profiles, fit_pairs, held_profiles, held_pairs = fold_split(pairs, profiles, held_out)
         _, _, curve = train(fit_profiles, fit_pairs, config, seed, EPOCHS, (held_profiles, held_pairs))
         curves.append(curve)
     mean_curve = [statistics.fmean(values) for values in zip(*curves)]
     best_epoch = max(range(len(mean_curve)), key=lambda i: (round(mean_curve[i], 9), -i)) + 1
     return {'mean_curve': mean_curve, 'best_epoch': best_epoch, 'best_mean_ndcg5': mean_curve[best_epoch - 1]}
+
+
+def query_independent_share(scores):
+    """Share of score variance explained by each Mentor's mean score (1.0 = every Mentee gets the same order)."""
+    scores = np.asarray(scores, dtype=float)
+    total = scores.var()
+    return float(np.broadcast_to(scores.mean(axis=0, keepdims=True), scores.shape).var() / total) if total else 1.0
+
+
+def git_state():
+    try:
+        commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True, cwd=ML_DIR).strip()
+        dirty = bool(subprocess.check_output(['git', 'status', '--porcelain', '--', '.'], text=True, cwd=ML_DIR).strip())
+    except (subprocess.SubprocessError, OSError):
+        commit, dirty = 'unknown', True
+    return commit, dirty
 
 
 def summarise(values):
@@ -246,6 +277,7 @@ def run(data_dir, output_dir, runs_root=RUNS_ROOT, seeds=SEEDS, allow_machine_la
     torch.set_num_threads(1)
     torch.use_deterministic_algorithms(True)
 
+    started = time.perf_counter()
     # 1. Selection on the training split only.
     configs = [dict(zip(GRID, values)) for values in itertools.product(*GRID.values())]
     selection = []
@@ -261,10 +293,16 @@ def run(data_dir, output_dir, runs_root=RUNS_ROOT, seeds=SEEDS, allow_machine_la
     # 2. Final fits on all training data with the chosen settings; validation scored once per seed.
     runs = []
     output.mkdir(parents=True)
+    selection_seconds = time.perf_counter() - started
     for seed in seeds:
         model, vocabulary, _ = train(train_profiles, train_pairs, chosen['config'], seed, chosen['best_epoch'])
-        result = evaluate(val_profiles, val_pairs, pool_scores(model, vocabulary, val_profiles))
-        runs.append({'seed': seed, 'aggregate': result['aggregate'], 'per_query': result['per_query']})
+        scores = pool_scores(model, vocabulary, val_profiles)
+        result = evaluate(val_profiles, val_pairs, scores)
+        # Ranking by each Mentor's mean score alone, ignoring the Mentee: a collapse diagnostic.
+        flat = evaluate(val_profiles, val_pairs, np.broadcast_to(scores.mean(axis=0, keepdims=True), scores.shape))
+        runs.append({'seed': seed, 'aggregate': result['aggregate'], 'per_query': result['per_query'],
+                     'predictions': result['predictions'], 'query_independent_share': query_independent_share(scores),
+                     'mentor_mean_only_ndcg5': flat['aggregate']['ndcg5']})
         if seed == seeds[0]:
             torch.save({'state_dict': model.state_dict(), 'vocabulary': vocabulary, 'config': chosen['config'],
                         'epochs': chosen['best_epoch'], 'seed': seed}, output / 'model.pt')
@@ -274,10 +312,7 @@ def run(data_dir, output_dir, runs_root=RUNS_ROOT, seeds=SEEDS, allow_machine_la
     vectoriser = fit_vectoriser(train_profiles)
     tfidf = evaluate(val_profiles, val_pairs, tfidf_scores(val_profiles, vectoriser))
     metrics = ('ndcg5', 'p1', 'p3', 'p5', 'mrr5', 'hit5')
-    try:
-        commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True, cwd=ML_DIR).strip()
-    except (subprocess.SubprocessError, OSError):
-        commit = 'unknown'
+    commit, dirty = git_state()
     summary = {
         'engineering_pilot_only': True, 'human_reviewed': False, 'test_performance_accessed': False,
         'created_at': datetime.now(timezone.utc).isoformat(timespec='seconds'),
@@ -294,8 +329,13 @@ def run(data_dir, output_dir, runs_root=RUNS_ROOT, seeds=SEEDS, allow_machine_la
             'scratch_v2': {metric: summarise([r['aggregate'][metric] for r in runs]) for metric in metrics},
             'tfidf': tfidf['aggregate'],
         },
+        'collapse_diagnostic': {
+            'query_independent_share': summarise([r['query_independent_share'] for r in runs]),
+            'mentor_mean_only_ndcg5': summarise([r['mentor_mean_only_ndcg5'] for r in runs]),
+        },
+        'seconds': {'selection': selection_seconds, 'total': time.perf_counter() - started},
         'validation_queries': len({pair['mentee_id'] for pair in val_pairs}),
-        'code_commit': commit, 'implementation_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        'code_commit': commit, 'working_tree_dirty': dirty, 'implementation_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         'data_sha256': {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in
                         ('train_profiles.jsonl', 'train_pairs.jsonl', 'validation_profiles.jsonl', 'validation_pairs.jsonl')},
         'python': platform.python_version(), 'torch': torch.__version__,
