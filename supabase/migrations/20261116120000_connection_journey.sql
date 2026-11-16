@@ -61,6 +61,9 @@ create table if not exists public.connection_contacts (
   connection_id uuid not null references public.connections (id) on delete cascade,
   user_id uuid not null references public.profiles (id) on delete cascade,
   contact text not null check (char_length(btrim(contact)) between 3 and 200),
+  -- No control characters or text-direction overrides, which can disguise links.
+  constraint connection_contacts_no_hidden_characters
+    check (contact !~ '[[:cntrl:]\u0080-\u009f\u202a-\u202e\u2066-\u2069]'),
   updated_at timestamptz not null default now(),
   primary key (connection_id, user_id)
 );
