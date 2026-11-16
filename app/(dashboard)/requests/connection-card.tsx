@@ -18,11 +18,16 @@ import {
   buildKickstarterMessage,
 } from "@/lib/connection-kickstarter";
 import { SafetyActionsMenu } from "@/components/safety/safety-actions-menu";
+import { JourneyTracker } from "./journey-tracker";
+import { ContactShareForm, FirstConversationToggle, PartnerContact } from "./journey-controls";
 
 interface ConnectionCardProps {
   connectionId: string;
   isMentor: boolean;
   connectedSince: string;
+  myContact: string | null;
+  partnerContact: string | null;
+  firstConversationAt: string | null;
   partner: {
     id?: string;
     fullName: string;
@@ -34,14 +39,18 @@ interface ConnectionCardProps {
 }
 
 export function ConnectionCard({
+  connectionId,
   isMentor,
   connectedSince,
+  myContact,
+  partnerContact,
+  firstConversationAt,
   partner,
 }: ConnectionCardProps) {
   const [copied, setCopied] = useState(false);
   const [open, setOpen] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
-  const [preferredContact, setPreferredContact] = useState("");
+  const [preferredContact, setPreferredContact] = useState(myContact ?? "");
   const contactInputId = useId();
   const isAvailable = partner.available !== false;
 
@@ -59,6 +68,7 @@ export function ConnectionCard({
     partnerName: partner.fullName,
     partnerIndustry: partner.industry,
     preferredContact,
+    recipient: partnerContact,
   });
 
   const handleCopy = async () => {
@@ -119,9 +129,22 @@ export function ConnectionCard({
           </p>
         ) : (
           <>
+            <JourneyTracker
+              requestStatus="accepted"
+              viewer={isMentor ? "mentor" : "mentee"}
+              partnerName={partner.fullName}
+              myContact={myContact}
+              partnerContact={partnerContact}
+              firstConversationAt={firstConversationAt}
+            />
+            <div className="grid gap-3 rounded-md border p-3">
+              <PartnerContact name={partner.fullName} contact={partnerContact} />
+              <ContactShareForm connectionId={connectionId} partnerName={partner.fullName} myContact={myContact} />
+            </div>
+            <FirstConversationToggle connectionId={connectionId} heldAt={firstConversationAt} />
             <div>
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h4 className="text-sm font-medium">Next step: Arrange your first conversation</h4>
+                <h4 className="text-sm font-medium">Need help with a first message?</h4>
                 <Button
                   type="button"
                   variant="outline"
@@ -134,8 +157,8 @@ export function ConnectionCard({
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
                 {isMentor
-                  ? "Introduce yourself, add the contact channel you choose to share, and offer initial availability."
-                  : "Share your top mentorship goals, include your preferred contact details, and suggest 2–3 suitable times."}
+                  ? "A short template to introduce yourself and offer initial availability."
+                  : "A short template to share your top goals and suggest two or three suitable times."}
               </p>
             </div>
 
