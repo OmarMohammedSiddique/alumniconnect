@@ -25,7 +25,7 @@ export function JourneyTracker(props: JourneyTrackerProps) {
           const current = progress.current === stage.key;
           const endedHere = progress.ended && index === 1;
           const Icon = done ? Check : current ? CircleDot : endedHere ? CircleSlash : Circle;
-          const label = endedHere ? (progress.ended === "declined" ? "Declined" : "Withdrawn") : stage.label;
+          const label = endedHere ? (progress.ended === "declined" ? "Declined" : "Cancelled") : stage.label;
           return (
             <li
               key={stage.key}

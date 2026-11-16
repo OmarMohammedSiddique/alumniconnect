@@ -1,11 +1,9 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useState } from "react";
 import { Check, Copy, Mail } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -50,8 +48,6 @@ export function ConnectionCard({
   const [copied, setCopied] = useState(false);
   const [open, setOpen] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
-  const [preferredContact, setPreferredContact] = useState(myContact ?? "");
-  const contactInputId = useId();
   const isAvailable = partner.available !== false;
 
   if (isBlocked) return null;
@@ -60,14 +56,14 @@ export function ConnectionCard({
     isMentor,
     partnerName: partner.fullName,
     partnerIndustry: partner.industry,
-    preferredContact,
+    preferredContact: myContact ?? "",
   });
 
   const mailtoHref = buildKickstarterMailto({
     isMentor,
     partnerName: partner.fullName,
     partnerIndustry: partner.industry,
-    preferredContact,
+    preferredContact: myContact ?? "",
     recipient: partnerContact,
   });
 
@@ -164,24 +160,9 @@ export function ConnectionCard({
 
             {open && (
               <div className="grid gap-3 rounded-md border bg-muted/30 p-3 text-xs leading-relaxed">
-                <div className="grid gap-1.5">
-                  <Label htmlFor={contactInputId} className="text-xs font-medium">
-                    Contact details you choose to share (optional)
-                  </Label>
-                  <Input
-                    id={contactInputId}
-                    value={preferredContact}
-                    onChange={(e) => setPreferredContact(e.target.value)}
-                    placeholder="e.g. your email address, calendar link, or video call link"
-                    className="h-8 text-xs"
-                  />
-                  <p className="text-[11px] text-muted-foreground">
-                    {preferredContact.trim()
-                      ? "Included in your introduction note below."
-                      : "No contact detail entered yet. Add the email or meeting link you agree to share with this connection."}
-                  </p>
-                </div>
-
+                <p className="text-[11px] text-muted-foreground">
+                  {myContact ? "Includes the contact detail you shared above." : "Share a contact detail above and it is added to this note."}
+                </p>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="font-medium text-foreground">Suggested introduction note</span>
                   <div className="flex flex-wrap items-center gap-2">

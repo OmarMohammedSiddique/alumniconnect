@@ -8,6 +8,7 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
+import { StatusMessage } from "@/components/ui/status-message";
 import { PageHeading } from "@/components/ui/page-heading";
 import { SafetyActionsMenu } from "@/components/safety/safety-actions-menu";
 import {
@@ -96,13 +97,13 @@ export default async function RequestsPage() {
   // connections the member belongs to (never staff-wide), and hides the other
   // person's row while either has blocked the other.
   const connectionIds = (connections ?? []).map((c) => c.id);
-  const { data: contacts } = connectionIds.length
+  const { data: contacts, error: contactsError } = connectionIds.length
     ? await supabase
         .from("connection_contacts")
         .select("connection_id, user_id, contact")
         .in("connection_id", connectionIds)
         .returns<{ connection_id: string; user_id: string; contact: string }[]>()
-    : { data: [] };
+    : { data: [], error: null };
   const contactFor = (connectionId: string, userId: string) =>
     contacts?.find((row) => row.connection_id === connectionId && row.user_id === userId)?.contact ?? null;
 
@@ -180,6 +181,11 @@ export default async function RequestsPage() {
           <EmptyState title="Room for your first connection" headingLevel={3}>
             Accepted mentorship requests become connections. You can follow their progress in the request list above.
           </EmptyState>
+        )}
+        {contactsError && (
+          <StatusMessage tone="error" className="mb-4">
+            Shared contact details could not be loaded just now. Refresh the page to try again.
+          </StatusMessage>
         )}
         <div className="grid gap-4">
           {connections?.map((c) => {
