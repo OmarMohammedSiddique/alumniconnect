@@ -1,107 +1,128 @@
 # From-scratch model, version 2 · 16 November 2026
 
-**Two experiments. The first (a bag-of-features neural encoder) is a negative result. The second (a learned
-reweighting of TF-IDF) is the first trained model in this project that does not fall below the TF-IDF
-baseline on the machine-labelled validation pools, by a margin too small to call an improvement.**
+**Two experiments on the machine-labelled pilot data. A (a bag-of-features neural encoder trained from random
+weights) collapsed and scored below random. B (a learned reweighting of TF-IDF) matches the TF-IDF baseline;
+its small edge is not evidence of improvement.**
 
-Both are engineering pilots on unreviewed machine labels, with five validation queries. Neither is research
+Both are engineering pilots on unreviewed machine labels with five validation queries. Neither is research
 evidence, neither selects a final model, and the test split was not opened.
 
 ## Why this work
 
-After the sprint demo, the advice was to make the model better. The recorded v1 pilot (a character CNN
-trained from random weights) scored well below TF-IDF on validation, and the GBDT ranker pilot (#98) was also
-below TF-IDF. Before trying anything new, the v1 trainer was read for causes:
+After the sprint demo, the advice was to make the model better. The recorded v1 pilot (a character CNN from
+random weights) and the GBDT ranker (#98) both scored below TF-IDF. Reading the v1 trainer suggested four
+causes worth testing: a weak architecture for matching related wording, a pointwise mean squared error loss,
+checkpoint selection by that loss rather than by ranking quality, and the GBDT finding that validation Mentees
+share no exact skill strings with validation Mentors (character n-grams are what let TF-IDF still match them).
 
-1. A 32-filter character CNN with max pooling has a weak bias for matching related wording.
-2. It learned with mean squared error on one pair at a time, which is not how ranking is used.
-3. Checkpoints were chosen by that validation loss, not by ranking quality.
-4. The GBDT write-up found that validation Mentees share **no exact skill strings** with validation Mentors.
-   TF-IDF still works because character n-grams match related words.
+## Protocol
 
-## Shared protocol
-
-- Data: `pilot-machine-v1` (60 training pairs over 20 Mentees with 3 candidates each; 5 validation Mentees
-  each judged against all 10 validation Mentors). Inputs are headline, bio, skills and industry only.
-- Learned preprocessing (vocabularies, TF-IDF statistics) is fitted on training profiles only, and refitted
+- Data: `pilot-machine-v1`. Training: 60 judged pairs, 20 Mentees with 3 candidates each. Validation: 5 Mentees,
+  each judged against all 10 validation Mentors. Inputs are headline, bio, skills and industry only.
+- Learned preprocessing (feature vocabulary, TF-IDF statistics) is fitted on training profiles only and refitted
   inside every cross-validation fold.
-- Selection: a small grid fixed before running, five-fold cross-validation grouped by Mentee on the training
-  split, five seeds (42 to 46), best mean epoch. The validation split is scored once per seed after
-  selection. Unjudged combinations are never used as negatives. `load_jsonl` refuses any test file.
-- Code: `ml/train_scratch_v2.py` and `ml/train_reweighted_tfidf.py`, with tests in
-  `ml/training_tests/test_scratch_v2.py` and `test_reweighted_tfidf.py`. Runs are in the ignored
-  `ml/runs/scratch-v2-2026-11-16` and `ml/runs/reweighted-tfidf-2026-11-16`, each with `metrics.json`,
-  per-seed validation results, selection curves and a copy of the implementation (SHA-256 prefixes
-  `c43a21dbb48c` and `6a90b73c60f2`).
+- Selection: a grid fixed before the first run, five folds on the training split, five seeds (42 to 46), best
+  mean epoch. Folds hold out Mentees **and** drop fit pairs that use a Mentor from the held-out fold, so neither
+  side of a held-out pair is seen in training (`fold_split`). One epoch is one full-batch Adam step over every
+  judged pool. Unjudged combinations are never used as negatives.
+- The validation split is scored only after selection, once per seed. Tests prove that changing validation
+  grades changes neither the selection nor the trained weights, that only the four training and validation files
+  are opened, and that runs are identical for the same seed.
+- Code: `ml/train_scratch_v2.py`, `ml/train_reweighted_tfidf.py`; tests in `ml/training_tests/test_scratch_v2.py`,
+  `test_reweighted_tfidf.py` and `test_v2_protocol.py`. Runs (ignored, private): `ml/runs/scratch-v2-disjoint-2026-11-16`
+  and `ml/runs/reweighted-tfidf-disjoint-2026-11-16`, recorded from commit `392afe7` with a clean tree
+  (implementation SHA-256 prefixes `cba454837b2a` and `fa076f7b992e`). Each run keeps its metrics, selection
+  curves, every validation ranking and score, data hashes, timings and the trained checkpoint.
 
-## Experiment A: bag-of-features neural encoder (negative)
+**Disclosure: validation was scored twice for each experiment.** The first runs (kept as
+`ml/runs/scratch-v2-2026-11-16` and `reweighted-tfidf-2026-11-16`) grouped folds by Mentee only, so most held-out
+Mentors were also in the fit folds, which `ml-experiment-protocol.md` forbids. Review found this, the folds were
+fixed, and both experiments were rerun with the same grids. No setting was changed in response to either
+validation result. Experiment B itself was designed after seeing experiment A's first validation result.
+
+## Baselines on the same validation pools
+
+| Validation (5 queries) | Random (mean of 100 seeds) | TF-IDF | v1 character CNN |
+| --- | ---: | ---: | ---: |
+| nDCG@5 | 0.324875 | 0.853932 | 0.502278 |
+| Precision@1 | 0.136 | 0.800 | 0.200 |
+| MRR@5 | 0.276 | 0.840 | 0.433 |
+| Relevant hit@5 | 0.568 | 1.000 | 0.800 |
+
+Random and TF-IDF figures are from `ml-gbdt-ranker.md`. On the 3-candidate training pools, random ordering has an
+expected nDCG@5 of about 0.774 and TF-IDF scores about 0.983 in these folds, so cross-validation numbers sit in a
+narrow, high band and must be read against those two references.
+
+## Experiment A: bag-of-features neural encoder (collapsed, below random)
 
 | Part | Choice |
 | --- | --- |
-| Input | Word unigrams and bigrams plus character 3 to 5 grams (13,192 training features) |
-| Encoder | Randomly initialised `EmbeddingBag` (mean), separate Mentee and Mentor heads, L2 normalised |
+| Input | Word unigrams and bigrams plus character 3 to 5 grams fitted on training profiles, with a padding index |
+| Encoder | Randomly initialised `EmbeddingBag` (mean, std 0.1), separate Mentee and Mentor linear heads, L2 normalised |
 | Warm-up | Optional contrastive training on two thinned views of each training profile (no labels) |
-| Loss | ListNet over each Mentee's judged pool |
+| Loss and optimiser | ListNet over each Mentee's judged pool; Adam, learning rate 0.005, feature dropout 0.2 |
 | Grid | Dimension 32 or 64; warm-up on or off |
-| Chosen | Dimension 32, no warm-up, 23 epochs (424,257 parameters) |
+| Chosen | Dimension 32, no warm-up, 8 epochs (424,289 parameters); cross-validation nDCG@5 0.852 |
 
-Cross-validation on the training split looked strong (mean nDCG@5 about 0.80 for every setting), but training
-pools have only three candidates, so that number is easy to reach. On validation the model failed:
+| Validation | A (mean of 5 seeds, sd) |
+| --- | ---: |
+| nDCG@5 | 0.301 (0.049) |
+| Precision@1 | 0.080 (0.110) |
+| MRR@5 | 0.244 (0.074) |
+| Relevant hit@5 | 0.560 (0.089) |
 
-| Validation (5 queries) | TF-IDF | v1 character CNN | A: bag encoder (mean of 5 seeds, sd) |
-| --- | ---: | ---: | ---: |
-| nDCG@5 | 0.853932 | 0.502278 | 0.278 (0.033) |
-| Precision@1 | 0.800 | 0.200 | 0.040 (0.089) |
-| MRR@5 | 0.840 | 0.433 | 0.197 (0.045) |
-| Relevant hit@5 | 1.000 | 0.800 | 0.440 (0.089) |
+A is below random on every measure. The run's collapse diagnostic explains why: 98.6% of the variance in its
+scores comes from each Mentor's average score, and ranking Mentors by that average alone, ignoring the Mentee,
+gives exactly the same nDCG@5 (0.301). In other words the model gives every Mentee nearly the same Mentor order.
+A likely cause is that the averaged feature vectors are small next to the biases of the linear heads, and a few
+full-batch updates on 60 pairs mostly learn a Mentor-level preference. This is a failure of this architecture
+and training setup on this data, not only a data limit, and it is kept as a negative result. The contrastive
+warm-up did not help.
 
-The likely reason is scale: one vector per feature cannot be learned from 60 judged pairs, and features seen
-only in validation profiles are dropped. The contrastive warm-up did not help. This result is kept.
+## Experiment B: learned TF-IDF reweighting (matches TF-IDF)
 
-## Experiment B: learned TF-IDF reweighting (no worse than TF-IDF)
+`score = cosine(w_q * tfidf(mentee), w_m * tfidf(mentor))`, with the recorded baseline's TF-IDF settings
+(character 3 to 5 grams, fitted on training profiles). The model learns one non-negative weight per n-gram for
+each side (40,038 weights), starting at 1 plus noise of standard deviation 0.01, so the untrained model ranks
+almost exactly like TF-IDF. A penalty (`anchor`, applied to the mean squared distance of the weights from 1)
+pulls them back towards TF-IDF. ListNet loss with a fixed logit scale of 10; Adam, learning rate 0.05; 40-epoch
+budget. Grid: anchor 0.1, 1 or 10. Chosen: anchor 1, 25 epochs; about 23% of Mentee-side weights moved by more
+than 0.05. The checkpoint stores its vocabulary and idf values and reloads on its own.
 
-Designed **after** seeing experiment A, which is disclosed here because it means this design was informed
-by a validation result.
-
-`score = cosine(w_q * tfidf(mentee), w_m * tfidf(mentor))`. The TF-IDF settings are the recorded baseline's
-(character 3 to 5 grams, fitted on training profiles). The model learns one non-negative weight per n-gram
-for each side (40,038 weights), starting at 1 plus small random noise, so the untrained model ranks almost
-exactly like TF-IDF. A penalty (`anchor`) pulls weights back towards 1. Loss is ListNet. Grid: anchor 0.1, 1
-or 10. Chosen: anchor 0.1, 9 epochs; about 47% of Mentee-side weights moved by more than 0.05.
-
-| Validation (5 queries) | TF-IDF | B: reweighted TF-IDF (5 seeds) |
+| Validation (5 queries) | TF-IDF | B (5 seeds, identical rankings) |
 | --- | ---: | ---: |
-| nDCG@5 | 0.853932 | 0.870903 |
+| nDCG@5 | 0.853932 | 0.862697 |
 | Precision@1 | 0.800 | 0.800 |
 | Precision@3 | 0.267 | 0.267 |
 | MRR@5 | 0.840 | 0.850 |
 | Relevant hit@5 | 1.000 | 1.000 |
 
-All five seeds gave identical rankings (the initial noise is too small to change the order). In
-cross-validation the learned weights also edged TF-IDF (0.9897 against 0.9872).
+In cross-validation B scored 0.9846 against TF-IDF's 0.9834 in the same folds. That figure is the best epoch of
+the best of three settings, so it is optimistic; the selection curves start at the TF-IDF level (about 0.982)
+and stay within a few thousandths of it, and with anchor 0.1 longer training falls below TF-IDF (0.977 at 40
+epochs).
 
-What this does and does not show:
+What this shows:
 
-- It is the first trained model here that does not score below TF-IDF on these pools.
-- The gain (+0.017 nDCG@5, +0.01 MRR, no change in Precision@1) is far too small to separate from noise with
-  five queries and machine labels. It is **not** evidence that the model is better than TF-IDF.
-- It is trained from scratch in the sense that it loads no pretrained weights or components. It is not
-  randomly initialised in the usual sense: it deliberately starts from TF-IDF behaviour. **Whether this
-  counts as "own model trained from scratch" for the assessment (#1, #25) is a decision for the student and
-  supervisor**, not something this document settles.
+- B is the first trained model here that does not score below TF-IDF on these pools.
+- The differences (+0.009 nDCG@5, +0.01 MRR, no change in Precision@1) are far too small to separate from noise
+  with five queries and machine labels. **B matches TF-IDF; it is not shown to be better.**
+- B loads no pretrained weights or components, but it deliberately starts from TF-IDF behaviour rather than from
+  random weights in the usual sense. **Whether it counts as "own model trained from scratch" for the assessment
+  (#1, #25) is a decision for the student and supervisor.**
 
 ## What would actually make the model better
 
-Both results point the same way as the earlier pilots: the limit is the data, not the architecture.
-
-1. **Reviewed, larger labels.** 60 machine-graded training pairs and 5 validation queries cannot support or
-   measure a learned model. The human review under #3 and a larger, more varied labelled set come first.
-2. **Validation pools that look like use.** Training pools have 3 candidates and validation pools 10, with
-   very different grade mixes, so cross-validation on training is optimistic.
-3. Only then: repeat experiment B (and any graph contribution from #27) with a locked protocol, and open the
-   test split once.
+1. **Reviewed, larger labels (#3).** 60 machine-graded training pairs cannot train a neural encoder from random
+   weights (experiment A), and 5 validation queries cannot measure a small improvement (experiment B).
+2. **Training pools that look like use.** Training pools have 3 candidates and validation pools 10, with very
+   different grade mixes, so cross-validation on training is optimistic and compressed near the top.
+3. **If a neural encoder from random weights is still wanted:** fix A's collapse first (for example, remove or
+   regularise the head biases and check the query-independence diagnostic before reading any metric), then
+   retest on the reviewed data.
+4. Only then: lock one model and protocol, and open the test split once.
 
 ## Status
 
-- Not integrated into the live app. The experimental comparison still serves the v1 checkpoint.
+- Not integrated into the live app; the experimental comparison still serves the v1 checkpoint.
 - No hosted change, no test-split access, no participant data.
