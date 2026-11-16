@@ -1,8 +1,12 @@
+import { SAFE_EMAIL } from "./connection-journey.ts";
+
 export interface KickstarterOptions {
   isMentor: boolean;
   partnerName: string;
   partnerIndustry?: string;
   preferredContact?: string;
+  /** The other person's shared email address, used as the mailto recipient when valid. */
+  recipient?: string | null;
 }
 
 /**
@@ -49,5 +53,7 @@ export function buildKickstarterMailto(options: KickstarterOptions): string {
   const partner = options.partnerName?.trim() || "Mentorship Connection";
   const subject = `AlumniKonneQt Mentorship Introduction: ${partner}`;
   const body = buildKickstarterMessage(options);
-  return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const to = options.recipient?.trim();
+  const address = to && SAFE_EMAIL.test(to) ? encodeURIComponent(to) : "";
+  return `mailto:${address}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }

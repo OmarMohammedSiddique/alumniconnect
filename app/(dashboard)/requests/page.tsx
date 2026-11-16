@@ -2,10 +2,13 @@ import { redirect } from "next/navigation";
 import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { RequestActions } from "./request-actions";
 import { ConnectionCard } from "./connection-card";
+import { JourneyTracker } from "./journey-tracker";
+import type { RequestStatus } from "@/lib/connection-journey";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
+import { StatusMessage } from "@/components/ui/status-message";
 import { PageHeading } from "@/components/ui/page-heading";
 import { SafetyActionsMenu } from "@/components/safety/safety-actions-menu";
 import {
@@ -39,6 +42,7 @@ interface ConnectionProfile {
 interface ConnectionRow {
   id: string;
   created_at: string;
+  first_conversation_at: string | null;
   mentee_id: string;
   mentor_id: string;
   mentee: ConnectionProfile | null;
@@ -79,7 +83,7 @@ export default async function RequestsPage() {
       supabase
         .from("connections")
         .select(
-          `id, created_at, mentee_id, mentor_id,
+          `id, created_at, first_conversation_at, mentee_id, mentor_id,
            mentee:profiles!connections_mentee_id_fkey(full_name, role, headline, industry),
            mentor:profiles!connections_mentor_id_fkey(full_name, role, headline, industry)`,
         )
@@ -88,6 +92,20 @@ export default async function RequestsPage() {
         .returns<ConnectionRow[]>(),
     ]);
   const isMentor = profile?.role === "mentor";
+
+  // Contact details shared on these connections. RLS returns only rows for
+  // connections the member belongs to (never staff-wide), and hides the other
+  // person's row while either has blocked the other.
+  const connectionIds = (connections ?? []).map((c) => c.id);
+  const { data: contacts, error: contactsError } = connectionIds.length
+    ? await supabase
+        .from("connection_contacts")
+        .select("connection_id, user_id, contact")
+        .in("connection_id", connectionIds)
+        .returns<{ connection_id: string; user_id: string; contact: string }[]>()
+    : { data: [], error: null };
+  const contactFor = (connectionId: string, userId: string) =>
+    contacts?.find((row) => row.connection_id === connectionId && row.user_id === userId)?.contact ?? null;
 
   return (
     <div className="grid max-w-4xl gap-10">
@@ -131,11 +149,23 @@ export default async function RequestsPage() {
                     <CardDescription className="mt-3 whitespace-pre-wrap break-words">“{req.message}”</CardDescription>
                   )}
                 </CardHeader>
-                {req.status === "pending" && (
-                  <CardContent>
+                <CardContent className="grid gap-4">
+                  {req.status === "accepted" ? (
+                    <p className="text-sm text-muted-foreground">
+                      Accepted. Your connection with {counterpartName} and its next steps are under{" "}
+                      <a href="#connections" className="font-medium text-primary underline-offset-4 hover:underline">Your connections</a>.
+                    </p>
+                  ) : (
+                    <JourneyTracker
+                      requestStatus={req.status as RequestStatus}
+                      viewer={isIncoming ? "mentor" : "mentee"}
+                      partnerName={counterpartName}
+                    />
+                  )}
+                  {req.status === "pending" && (
                     <RequestActions requestId={req.id} isMentor={isIncoming} />
-                  </CardContent>
-                )}
+                  )}
+                </CardContent>
               </Card>
             );
           })}
@@ -152,6 +182,11 @@ export default async function RequestsPage() {
             Accepted mentorship requests become connections. You can follow their progress in the request list above.
           </EmptyState>
         )}
+        {contactsError && (
+          <StatusMessage tone="error" className="mb-4">
+            Shared contact details could not be loaded just now. Refresh the page to try again.
+          </StatusMessage>
+        )}
         <div className="grid gap-4">
           {connections?.map((c) => {
             const isConnectionMentor = c.mentor_id === user.id;
@@ -163,6 +198,9 @@ export default async function RequestsPage() {
                 connectionId={c.id}
                 connectedSince={c.created_at}
                 isMentor={isConnectionMentor}
+                myContact={contactFor(c.id, user.id)}
+                partnerContact={contactFor(c.id, partnerId)}
+                firstConversationAt={c.first_conversation_at}
                 partner={{
                   id: partnerId,
                   fullName: partner?.full_name ?? "Unavailable member",
