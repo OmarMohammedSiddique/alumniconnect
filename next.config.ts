@@ -5,7 +5,8 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["@huggingface/transformers", "onnxruntime-node", "onnxruntime-common"],
   outputFileTracingIncludes: {
     "/api/match/compare": [
-      "./ml/models/scratch-pilot-v1/encoder.onnx",
+      "./ml/models/scratch-v3/encoder.onnx",
+      "./ml/models/scratch-v3/tokenizer.json",
       "./node_modules/onnxruntime-node/**/*",
       "./node_modules/onnxruntime-common/**/*",
     ],

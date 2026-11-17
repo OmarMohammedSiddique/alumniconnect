@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import { createServerClient } from "@supabase/ssr";
-import { generateScratchEmbeddings } from "../lib/scratch-model.ts";
+import { generateScratchEmbeddings, SCRATCH_DIMENSIONS, SCRATCH_MODEL_ID } from "../lib/scratch-model.ts";
 import { comparisonText, cosineSimilarity } from "../lib/model-comparison.ts";
 
 const appUrl = new URL(process.env.COMPARISON_APP_URL ?? "http://localhost:3000");
@@ -68,7 +68,13 @@ try {
     assert.ok(model.matches.every((match) => ![hidden.id, incomingBlock.id, viewer.id].includes(match.id)));
     assert.ok(model.matches.every((match) => Number.isFinite(match.similarity)));
   }
-  const scratch = first.body.models.find((model) => model.dimensions === 64);
+  const scratch = first.body.models.find((model) => model.id.startsWith("scratch-"));
+  assert.equal(scratch.id, SCRATCH_MODEL_ID, "The route must serve the exported v3 artefact");
+  assert.equal(scratch.dimensions, SCRATCH_DIMENSIONS);
+  assert.equal(scratch.name, "Your trained model (v3)");
+  const minilm = first.body.models.find((model) => !model.id.startsWith("scratch-"));
+  assert.notDeepEqual(scratch.matches.map((match) => match.id), minilm.matches.map((match) => match.id),
+    "The two models are expected to rank this pool differently");
   const query = ok(await viewer.sdk.from("profiles").select(profileFields).eq("id", viewer.id).single());
   const candidates = ok(await viewer.sdk.from("profiles").select(profileFields).in("id", scratch.matches.map((match) => match.id)));
   const vectors = await generateScratchEmbeddings([comparisonText(query), ...candidates.map(comparisonText)]);
@@ -106,12 +112,12 @@ try {
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
     await page.goto(new URL("/discover", appUrl).href);
-    await page.getByRole("heading", { name: "Your trained model · Experimental" }).waitFor({ timeout: 60_000 });
+    await page.getByRole("heading", { name: "Your trained model (v3) · Experimental" }).waitFor({ timeout: 60_000 });
     await page.getByRole("heading", { name: "MiniLM · Pretrained" }).waitFor();
     assert.equal(await page.getByRole("button", { name: "Compare models", exact: true }).getAttribute("aria-pressed"), "true");
-    assert.ok(await page.getByRole("region", { name: "Your trained model results", exact: true }).locator("ol > li").count() > 0);
+    assert.ok(await page.getByRole("region", { name: "Your trained model (v3) results", exact: true }).locator("ol > li").count() > 0);
     // Open one request form in each column without sending any messages.
-    for (const name of ["MiniLM results", "Your trained model results"]) {
+    for (const name of ["MiniLM results", "Your trained model (v3) results"]) {
       const button = page.getByRole("region", { name, exact: true }).getByRole("button", { name: "Request mentorship", exact: true }).first();
       if (await button.count()) await button.click();
     }
@@ -119,10 +125,12 @@ try {
     assert.equal(new Set(inputIds).size, inputIds.length, "Parallel request forms need unique input IDs");
     const a11y = await new AxeBuilder({ page }).include('[aria-label="Live model comparison"]').analyze();
     assert.deepEqual(a11y.violations.map(({ id }) => id), []);
-    await page.screenshot({ path: "/private/tmp/alumniconnect-comparison-desktop.png", fullPage: true });
+    await page.screenshot({ path: process.env.COMPARISON_SCREENSHOT_DIR
+      ? `${process.env.COMPARISON_SCREENSHOT_DIR}/model-comparison-v3-desktop.png` : "/private/tmp/alumniconnect-comparison-desktop.png", fullPage: true });
     await page.setViewportSize({ width: 390, height: 844 });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth), false);
-    await page.screenshot({ path: "/private/tmp/alumniconnect-comparison-mobile.png", fullPage: true });
+    await page.screenshot({ path: process.env.COMPARISON_SCREENSHOT_DIR
+      ? `${process.env.COMPARISON_SCREENSHOT_DIR}/model-comparison-v3-mobile.png` : "/private/tmp/alumniconnect-comparison-mobile.png", fullPage: true });
     assert.deepEqual(errors, []);
     console.log("PASS: authenticated desktop/mobile comparison, no horizontal overflow, accessibility scan, no browser errors");
   }

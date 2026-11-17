@@ -1,45 +1,56 @@
 # Live model comparison
 
-Issue #26 · 5 November 2026 · experimental pilot integration
+Issue #26 · updated 17 November 2026 · experimental integration of scratch model v3
 
 Discover opens in **Compare models** mode. The two columns show the top five
-mentors ranked by frozen MiniLM and the student's saved scratch-trained pilot.
-Recommended and Keyword search remain available. This is an engineering preview,
-not final model selection, a new training run, or a claim of matching accuracy.
+mentors ranked by frozen MiniLM and by the model trained from scratch, version 3.
+Recommended and Keyword search remain available and unchanged. This is an
+experimental preview. It is not a claim of matching accuracy for real members:
+the v3 model was trained and tested on synthetic profiles with generated labels
+that no person has reviewed (see [`ml-scratch-v3.md`](ml-scratch-v3.md)).
+
+**What changed on 17 November 2026:** the v3 model replaced the v1 pilot in the
+scratch column. Nothing else changed: no production database change, no change
+to the default Recommended list and no stored-vector migration. The v1 artefact
+stays in `ml/models/scratch-pilot-v1/` for the record.
 
 ## Model identity and serving
 
-The scratch artifact is exported from the selected `checkpoint-1.pt` in the
-verified 2 November run. It retains the random-initialized character CNN's learned
-weights, training vocabulary, 512-codepoint casefold/truncation/padding contract,
-and distinct normalized 64-value query and mentor projection heads.
+The artefact is exported from the locked checkpoint of run
+`v3-grid-conv-w128-pre-s42` (convolutional encoder, width 128, 597,632
+parameters, every one trained from random initialisation). It has a byte-pair
+tokeniser learned from training text and distinct normalised 64-value Mentee
+(query) and Mentor heads.
 
-- Checkpoint SHA-256: `235d1a1a4ff0c37fd76ec9f2c99c4a3365dc136768e9757f1a3f4f6279486409`
-- ONNX SHA-256: `1ed9ed95cc33cf63e5c3f4db020248975fdd841573b56615b197df58df3a24e7`
-- Version: `scratch-pilot-v1:1ed9ed95cc33`
+- Checkpoint SHA-256: `fec862f8d00bd3c988413bb0140784c01b39ce84601a31e4ac3e86fad155d8df`
+- ONNX SHA-256: `8c918ddf78e3a54503215db2bfae2f52cd83f024233105a6f002d2513595ff71`
+- Tokeniser SHA-256: `20ad3b6a94b26f3f1f78d22887701a21b82cfcbbf48a59544931246d8c8f34a0`
+- Lock file SHA-256: `a891014b2db38f669bc67a3c55b752d8402165621b808b4a563fb5cba92f9556`
+- Version shown in the interface: `scratch-v3:8c918ddf78e3`
 - Runtime: pinned `onnxruntime-node` 1.30.0, CPU, one intra-operation thread.
-- Artifact: `ml/models/scratch-pilot-v1/encoder.onnx`, approximately 46 KiB.
+- Artefact: `ml/models/scratch-v3/` (`encoder.onnx` 2.29 MB, `tokenizer.json`,
+  `manifest.json`, `parity.json`).
 
-Node loads the local artifact once per process, verifies its hash, and executes
-both heads in one batched inference. A failed model load can be retried. No
-Python service, new database column, profile-vector migration, external scratch
-model download, or new training is required. The model and private training
-profiles are separate: only the export, character vocabulary/casefold map and
-invented reference fixtures are committed. The original checkpoint/run stay private.
+Node loads the tokeniser and the model from local files once per process and
+checks both SHA-256 hashes against the manifest before use. Nothing is fetched
+from a model hub for the scratch model. Text is tokenised by
+`lib/scratch-tokenizer.ts`, which mirrors `ml/bpe_tokenizer.py` exactly: only
+ASCII letters are lower-cased and only ASCII white space splits words, input is
+truncated to 160 tokens and an empty text becomes one unknown token. Both heads
+run in one batched inference. A failed load can be retried.
 
-Export reproducibly using the pilot Python environment and `requirements-export.txt`:
+Export and check:
 
 ```sh
-python ml/export_scratch_pilot.py \
-  ml/runs/scratch-verified-2026-11-02/checkpoint-1.pt \
-  ml/models/scratch-pilot-v1
+python ml/export_scratch_v3.py ml/runs/v3-grid-conv-w128-pre-s42/checkpoint_best.pt \
+  ml/models/scratch-v3 --lock ml/runs/v3-grid-conv-w128-pre-s42/LOCK.json
 node --experimental-strip-types --test lib/scratch-model.test.mjs
 ```
 
-The exporter explicitly uses PyTorch's legacy ONNX export for this fixed simple
-graph (opset 17, dynamic batch, fixed sequence length). Its deprecation warning is
-expected; exported outputs are independently checked against PyTorch within
-absolute tolerance `1e-5`. Python is needed for export, not app inference.
+The exporter uses PyTorch's legacy ONNX export (opset 17, dynamic batch, fixed
+sequence length). Exported outputs are checked against PyTorch within `1e-4`;
+the measured largest difference on the parity fixtures is `1.8e-7`. Python is
+needed for export, not for application inference.
 
 ## Comparison contract
 
@@ -77,33 +88,57 @@ The comparison has a per-user three-request/minute guard and two active jobs per
 server process. Timed-out native work retains its slot until it finishes. These
 are process-local protections, not a distributed scalability guarantee. Responses
 are private/no-store; no profile text or raw embeddings are returned in metadata.
-Next's output trace explicitly includes the local ONNX artifact, and the native
+Next's output trace explicitly includes the local ONNX artefact and tokeniser file, and the native
 runtime is externalized for Node. Hosted platform limits still need verification.
 
 ## Verification and remaining acceptance
 
-The automated parity fixtures cover both heads, empty/sparse text, Unicode and
-unfamiliar characters, long input, batch and single-row execution. Additional
-tests cover invalid batches/vectors, complete output, input-field exclusions,
-cosine ranking and ties. The existing final test dataset is never loaded.
+Automated tests (`lib/scratch-model.test.mjs`) cover tokeniser parity with
+Python on plain, mixed-case, symbol, Unicode, empty and over-long text; both
+heads within `1e-4`; batch and single-row execution; invalid batches; a missing
+model file; an altered model or tokeniser file; and that the v1 artefact is
+still present. The test split of the training data is never loaded by the app.
 
 The local integration runner creates disposable accounts only against loopback
-Supabase, checks real HTTP inference against the artifact, authentication, blank
-profiles, hidden/block filtering, changed-profile behavior and rate limiting,
-and deletes the accounts in `finally`:
+Supabase, checks real HTTP inference against the artefact, the served version
+and name, that the two models rank the pool differently, authentication, blank
+profiles, hidden and blocked profile filtering, changed-profile behaviour and
+rate limiting, and deletes the accounts in `finally`:
 
 ```sh
-node --env-file=.env.local --experimental-strip-types \
-  scripts/verify-model-comparison.mjs --browser
+COMPARISON_APP_URL=http://localhost:3100 COMPARISON_SCREENSHOT_DIR=docs/verification/ml-scratch-v3 \
+  node --env-file=.env.local --experimental-strip-types scripts/verify-model-comparison.mjs --browser
+node --env-file=.env.local --experimental-strip-types scripts/measure-comparison-latency.mjs 24
 ```
 
-The optional browser stage checks authenticated rendering, desktop/mobile layout,
-an accessibility scan and browser errors using installed Chrome. Screenshots go
-to `/private/tmp`, not public issues. Local verification does not establish CI,
-deployment, final human-reviewed quality, or the complete request/acceptance
-journey. Issue #26 remains open for those required acceptance gates. #25/#3 still
-own improved training and reviewed evaluation; this pilot does not close them.
+**Local evidence, 17 November 2026** (production build served with `next start`
+against the local Supabase stack):
 
-To stop the temporary comparison, change Discover's initial mode back to
-`semantic` and remove its comparison button. Existing stored MiniLM vectors and
-the Recommended API are preserved, so no reverse database migration is needed.
+- Both runner stages passed, including the browser stage (desktop and mobile
+  layout, accessibility scan, no browser errors).
+- Screenshots: `docs/verification/ml-scratch-v3/model-comparison-v3-desktop.png`
+  and `model-comparison-v3-mobile.png`. They show both columns, different
+  rankings, the version `scratch-v3:8c918ddf78e3` and per-model timings.
+- Single run on the screenshot: scratch v3 8 ms, MiniLM 27 ms, pool of 7 Mentors.
+- 24 requests from 12 disposable accounts, pool of 5 seeded Mentors: scratch
+  model median 10 ms, 95th percentile 13 ms, maximum 18 ms; first request after
+  server start 68 ms including model loading. MiniLM median 26 ms. Whole HTTP
+  request median 51 ms, 95th percentile 62 ms.
+- Model alone on a full batch of 51 profiles (the route maximum): median 33 ms.
+
+**If the model file is missing or altered** the scratch column shows "Your
+trained model (v3) is unavailable. Please retry the comparison." while the
+MiniLM column still shows its results. No other model is substituted.
+
+Local verification does not establish hosted behaviour. The signed-in check on
+the hosted site is left for the project owner. Issue #26 remains open: the
+scratch model does not drive the default Recommended list, stored vectors were
+not migrated, and the full request and acceptance journey with the scratch
+model has not been verified. Human review of labels (#115) and supervisor
+acceptance (#25, #3) are also still open.
+
+To stop the comparison, change Discover's initial mode back to `semantic` and
+remove its comparison button. To go back to the v1 pilot, point
+`lib/scratch-model.ts` at the earlier artefact (see the Git history of that
+file). Stored MiniLM vectors and the Recommended API are untouched, so no
+database change is needed either way.

@@ -19,6 +19,18 @@ collapsed and scored below random (negative result). A learned reweighting of
 TF-IDF matched TF-IDF on five validation queries. Reviewed, larger labels
 remain the next step.
 
+**Update, 17 November 2026:** From-scratch version 3 is recorded in
+[`ml-scratch-v3.md`](ml-scratch-v3.md), with its dataset in the
+[data card](ml-synth-v3-data-card.md). Because reviewed real data was not
+available, a larger synthetic dataset (`synth-v3`) was generated and a model was
+trained from random weights, locked and tested once. On the synthetic test it is
+better than MiniLM, level with TF-IDF and worse than both on occupations it never
+saw. That result is on generated labels only. **Your next step is now concrete:
+grade the blind review sheet** `ml/data/synth-v3/human_review_sheet.csv`
+(instructions beside it, issue #115), then take the result and the open questions
+in section 9 of the v3 write-up to your supervisor. Steps 1 to 7 below describe
+the original small pilot and remain the path for any real, reviewed data.
+
 ## Where you are
 
 You have a structurally consistent small synthetic dataset with separate pools.

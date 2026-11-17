@@ -10,6 +10,8 @@ The current application uses a pretrained sentence embedding model at inference 
 
 The live route requires authentication and a working Supabase project. The local `npm run ml:walkthrough` command demonstrates the same text builder and embedding function plus cosine ranking without Supabase. Its scores are illustrative and are not evidence of mentor suitability.
 
+**Update, 17 November 2026:** version 3 of the from-scratch model is recorded in [`ml-scratch-v3.md`](ml-scratch-v3.md). It was trained from random weights on the synthetic `synth-v3` dataset ([data card](ml-synth-v3-data-card.md)), selected on validation, locked, and scored once on a held-out synthetic test split: nDCG@5 0.337 against 0.332 for TF-IDF and 0.271 for frozen MiniLM (better than MiniLM by the paired interval, not distinguishable from TF-IDF, and worse than both on occupations never seen in training). Labels are generated and not human-reviewed. In the application it replaces the v1 pilot **only** in the experimental side-by-side comparison ([`live-model-comparison.md`](live-model-comparison.md)); the pipeline described below, the default Recommended list and the stored 384-value vectors are unchanged. Where this guide calls the from-scratch work a "character-CNN engineering pilot", that is the earlier v1; it is kept as a historical result.
+
 ## File-by-file pipeline
 
 Read the arrows as data flow, not as a single synchronous transaction. In particular, the browser starts embedding only **after** the profile save succeeds. A successful row save can therefore be followed by an embedding failure.
@@ -98,7 +100,7 @@ The evaluation is small, synthetic, English-oriented, and based on same-domain g
 | Why normalize the vector? | It makes the L2 norm near 1, so cosine comparison depends on direction instead of length. |
 | How is cosine similarity used? | pgvector orders by cosine distance `<=>`; the RPC reports `1 - distance` as similarity. |
 | Does adding a profile train the model? | No. It creates or refreshes a stored vector using frozen weights. |
-| Has this project trained anything from scratch? | Yes, a separate random-initialized character-CNN engineering pilot; it is not the current app model and is not research-ready. |
+| Has this project trained anything from scratch? | Yes. Version 3 (17 November 2026) is a convolutional encoder with 597,632 parameters trained from random weights on synthetic data; see `ml-scratch-v3.md`. It is served only in the experimental comparison, it is not the default app model, and its labels are not human-reviewed. The earlier v1 character CNN and v2 experiments are historical results. |
 | What exactly was evaluated? | Same-domain retrieval for 24 synthetic mentees against 40 synthetic mentors under four matching conditions, with P@1/3/5, MRR, and coverage. |
 | What is the strongest current result? | Overall P@1 is 0.917 for keyword+category versus 0.833 for semantic-full on the recorded synthetic set. |
 | What are the limitations? | Domain labels are not suitability judgments; the set is small and synthetic, and real-user performance and cold-start success remain unmeasured. |
