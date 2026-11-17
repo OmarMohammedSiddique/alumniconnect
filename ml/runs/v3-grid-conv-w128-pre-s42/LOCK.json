@@ -1,0 +1,89 @@
+{
+ "locked_utc": "2026-11-17T00:26:14+00:00",
+ "run": "v3-grid-conv-w128-pre-s42",
+ "model": {
+  "checkpoint": "checkpoint_best.pt",
+  "sha256": "fec862f8d00bd3c988413bb0140784c01b39ce84601a31e4ac3e86fad155d8df",
+  "tokenizer_sha256": "20ad3b6a94b26f3f1f78d22887701a21b82cfcbbf48a59544931246d8c8f34a0",
+  "config": {
+   "encoder": "conv",
+   "width": 128,
+   "pretrain": true
+  },
+  "settings": {
+   "output": 64,
+   "layers": 2,
+   "heads": 4,
+   "vocabulary_size": 3000,
+   "max_length": 160,
+   "dropout": 0.1,
+   "token_dropout": 0.1,
+   "learning_rate": 0.002,
+   "weight_decay": 0.01,
+   "batch_queries": 16,
+   "epochs": 40,
+   "patience": 8,
+   "logit_scale": 16.0,
+   "warmup_steps": 50,
+   "pretrain_epochs": 10,
+   "pretrain_batch": 64,
+   "mask_rate": 0.15,
+   "time_limit_minutes": 24,
+   "loss": "listwise",
+   "pooling": "attention"
+  },
+  "seed": 42,
+  "best_epoch": 35,
+  "parameters": 597632,
+  "training_commit": "6508376fa00332d0eaa31afd8bcf4283b57c9599"
+ },
+ "lock_commit_parent": "ac2f158473f9808826227fac451d0d8c8b7a6658",
+ "data": {
+  "dataset": "synth-v3",
+  "manifest_sha256": "355ff8977a291ebdc7546abc9b3b1cd3361fd3b06c983e38f8a4d28a9f377105",
+  "test_files": {
+   "test_profiles.jsonl": "62d5493e16227280978d306f9a8d383534969257ab4239133c665f2b34599304",
+   "test_pairs.jsonl": "9bef3bb49b0d3da21d07958f1eb233cf0b5826ffec26dd46832e6876a92bce34",
+   "test_queries.jsonl": "18d19cef0a3928b04219d59102c12ad048f90cfc0a1708374fef5a44d9d88684"
+  }
+ },
+ "selection_sha256": "9681b660ec0b18ff2500529153e1990baf0ee872bd650c2cc0535150b93916a2",
+ "validation_ndcg5": 0.4417089502680701,
+ "protocol": {
+  "systems": [
+   "random (100 seeds)",
+   "tfidf char 3 to 5 grams fitted on training profiles",
+   "bm25 fitted on training profiles",
+   "minilm frozen, as deployed (Xenova/all-MiniLM-L6-v2, q8)",
+   "scratch-v3 locked checkpoint"
+  ],
+  "pool": "every test Mentee against every test Mentor (complete judgements)",
+  "metrics": [
+   "ndcg5",
+   "ndcg10",
+   "mrr5",
+   "p1",
+   "p5",
+   "hit5"
+  ],
+  "primary_metric": "ndcg5",
+  "relevant_grade": 2,
+  "undefined_queries": "left out of the mean of a metric that is undefined for them; counts reported",
+  "intervals": "percentile bootstrap over Mentees, 10000 resamples, seed 20261117",
+  "paired_differences": [
+   "scratch-v3 minus minilm",
+   "scratch-v3 minus tfidf"
+  ],
+  "wording_rule": "'better than' only when the paired 95% interval excludes zero, otherwise 'not distinguishable'",
+  "subsets": [
+   "all",
+   "seen_occupation",
+   "unseen_occupation",
+   "vocabulary_mismatch",
+   "sparse",
+   "career_changer",
+   "no_suitable_mentor"
+  ],
+  "test_split_use": "scored exactly once, after this file is committed"
+ }
+}
