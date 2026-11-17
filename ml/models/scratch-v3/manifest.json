@@ -1,0 +1,27 @@
+{
+  "id": "scratch-v3",
+  "dimensions": 64,
+  "max_length": 160,
+  "vocabulary_size": 3000,
+  "encoder": "conv",
+  "width": 128,
+  "self_supervised_pretraining": true,
+  "seed": 42,
+  "epoch": 35,
+  "parameters": 597632,
+  "checkpoint_sha256": "fec862f8d00bd3c988413bb0140784c01b39ce84601a31e4ac3e86fad155d8df",
+  "onnx_sha256": "8c918ddf78e3a54503215db2bfae2f52cd83f024233105a6f002d2513595ff71",
+  "onnx_bytes": 2401443,
+  "tokenizer_sha256": "20ad3b6a94b26f3f1f78d22887701a21b82cfcbbf48a59544931246d8c8f34a0",
+  "input_fields": [
+    "headline",
+    "bio",
+    "skills",
+    "industry"
+  ],
+  "trained_from_random_initialisation": true,
+  "pretrained_components": [],
+  "training_data": "synth-v3 (synthetic, generated labels, not human-reviewed)",
+  "experimental": true,
+  "lock_sha256": "a891014b2db38f669bc67a3c55b752d8402165621b808b4a563fb5cba92f9556"
+}
