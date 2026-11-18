@@ -13,3 +13,8 @@
 ## Build and review loop
 - Before saying any task is finished, use the `reviewer` subagent on the diff and fix every REQUEST CHANGES point.
 - `/autopilot <issue>` prepares a looped task. `.claude/loop/ralph.sh` runs it unattended. See `docs/guides/overnight-loop.md`.
+
+## Documentation backlog
+- GitHub issue 122 ("Bring the report up to date with features added since the Chapter 5 draft") is the running list of finished work the capstone report does not yet describe.
+- Whenever the task touches the report or other documentation (`docs/report-chapter-*.md`, the README, `docs/`), read issue 122 first with `gh issue view 122` and tell Omar which unticked items apply to what he is editing, before starting.
+- When a feature, service or architecture change is merged that the report should describe, add a checklist item to issue 122 with the PR number and the section it belongs in. Tick an item only once the report covers it, and post a dated comment saying where.
