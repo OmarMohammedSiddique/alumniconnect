@@ -1,10 +1,17 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import Link from "next/link";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusMessage } from "@/components/ui/status-message";
 
-export default function WorkspaceError({ retry }: { error: Error & { digest?: string }; retry: () => void }) {
+export default function WorkspaceError({ error, retry }: { error: Error & { digest?: string }; retry: () => void }) {
+  // The boundary swallows the error, so report it here (no-op unless Sentry is running).
+  useEffect(() => {
+    Sentry.captureException(error);
+  }, [error]);
+
   return (
     <div className="mx-auto grid max-w-xl gap-5 py-12">
       <h1 className="text-2xl font-semibold tracking-tight">We couldn’t load this page</h1>

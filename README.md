@@ -73,6 +73,7 @@ for the methodology and recorded results.
 | Recommendations | Transformers.js, MiniLM, pgvector |
 | Motion and visuals | GSAP, React Three Fiber, Three.js |
 | Quality | ESLint, TypeScript, GitHub Actions |
+| Error tracking | Sentry (errors only, optional) |
 
 ## Getting started
 
@@ -129,6 +130,8 @@ The first embedding request downloads the model and requires internet access.
 | `SUPABASE_SERVICE_ROLE_KEY` | Server only | Embedding and privileged database operations |
 | `DEMO_SWITCHER_ENABLED` | Server only | When `true` (and a key is set), a presenter can unlock one-click switching between fictional demo accounts at `/demo`. Only accounts with `app_metadata.fictional = true` can be reached. See [demo mode](docs/guides/demo-mode.md) |
 | `DEMO_SWITCHER_KEY` | Server only | Presenter key for demo mode, at least 16 characters |
+| `NEXT_PUBLIC_SENTRY_DSN` | Public | Optional Sentry DSN. When empty, error tracking is off. Browser reports also need analytics consent |
+| `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT` | Build only | Set by the Vercel Sentry integration for source map upload. Not needed locally or in CI |
 
 Use [.env.example](.env.example) as the template. `.env.local` is ignored by
 Git and must never be committed.

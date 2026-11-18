@@ -191,7 +191,7 @@ export function CookieSettingsDialog({ isOpen, onClose }: CookieSettingsDialogPr
                   </label>
                 </div>
                 <p className="text-xs leading-relaxed text-muted-foreground">
-                  Provides anonymous, aggregated traffic insights (via Vercel Web Analytics) to help evaluate prototype usability and platform stability. No personal identity is tracked.
+                  Provides anonymous, aggregated traffic insights (via Vercel Web Analytics) to help evaluate prototype usability and platform stability, and lets your browser send error reports (via Sentry) when a page fails. No personal identity is tracked.
                 </p>
               </div>
               <input
