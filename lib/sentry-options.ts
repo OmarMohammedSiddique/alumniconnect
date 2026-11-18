@@ -4,13 +4,28 @@
 
 import type { ErrorEvent } from "@sentry/nextjs";
 
+type DataCollection = NonNullable<Parameters<typeof import("@sentry/nextjs").init>[0]>["dataCollection"];
+
 type Env = Record<string, string | undefined>;
+
+// The SDK collects all of this by default, so each item is switched off
+// explicitly. `userInfo: false` also tells Sentry not to store the sender's IP
+// address or derive a location from it.
+const DATA_COLLECTION = {
+  userInfo: false,
+  cookies: false,
+  httpHeaders: false,
+  httpBodies: [],
+  urlQueryParams: false,
+  databaseQueryData: false,
+  stackFrameVariables: false,
+} as const satisfies DataCollection;
 
 export interface SentryBaseOptions {
   dsn: string | undefined;
   enabled: boolean;
   environment: string;
-  sendDefaultPii: false;
+  dataCollection: typeof DATA_COLLECTION;
   tracesSampleRate: 0;
   sendClientReports: false;
 }
@@ -29,7 +44,7 @@ export function buildSentryOptions(env: Env): SentryBaseOptions {
     enabled: dsn !== undefined,
     environment:
       env.VERCEL_ENV ?? env.NEXT_PUBLIC_VERCEL_ENV ?? env.NODE_ENV ?? "development",
-    sendDefaultPii: false,
+    dataCollection: DATA_COLLECTION,
     tracesSampleRate: 0,
     sendClientReports: false,
   };
