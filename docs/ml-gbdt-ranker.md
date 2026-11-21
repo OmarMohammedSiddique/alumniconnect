@@ -10,7 +10,7 @@ was not opened.
 
 ## Purpose
 
-Issue [#98](https://github.com/OmarMohammedSiddique/alumniconnect/issues/98)
+Issue [#98](https://github.com/OmarMohammedSiddique/alumnikonneqt/issues/98)
 asks whether a gradient boosted decision tree ranker (LightGBM with a LambdaMART
 objective) is a better fit for very small labelled data than a neural encoder.
 This pilot trains one on the existing `pilot-machine-v1` training split and

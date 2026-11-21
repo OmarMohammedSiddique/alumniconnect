@@ -31,7 +31,7 @@ Never use em-dashes (—) or double hyphens (--) in prose, UI copy, documentatio
 
 ## GitHub issue checklist and progress updates
 
-Use GitHub Issues in `OmarMohammedSiddique/alumniconnect` as the shared project
+Use GitHub Issues in `OmarMohammedSiddique/alumnikonneqt` as the shared project
 checklist for development, ML, research, documentation, testing and assessment.
 
 - Before substantive work, check the live open issues and relevant closed issues,

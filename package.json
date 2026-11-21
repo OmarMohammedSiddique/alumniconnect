@@ -5,7 +5,7 @@
   "description": "Semantic alumni mentorship matching with Next.js, Supabase, and pgvector.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/OmarMohammedSiddique/alumniconnect.git"
+    "url": "https://github.com/OmarMohammedSiddique/alumnikonneqt.git"
   },
   "engines": {
     "node": ">=20.9.0"

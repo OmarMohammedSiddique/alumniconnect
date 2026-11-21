@@ -80,7 +80,7 @@ export default function AboutDeveloperPage() {
               </a>
 
               <a
-                href="https://github.com/OmarMohammedSiddique/alumniconnect"
+                href="https://github.com/OmarMohammedSiddique/alumnikonneqt"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ring"
