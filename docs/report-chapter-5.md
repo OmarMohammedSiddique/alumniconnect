@@ -4,7 +4,7 @@
 
 ## 5.1 Introduction
 
-This chapter explains how AlumniConnect implements profile-based mentorship discovery and presents the available implementation and testing evidence. The application combines a Next.js interface, Supabase authentication, PostgreSQL records and pgvector similarity retrieval. The evidence reviewed on 5 November 2026 includes the current source, dated verification records and GitHub acceptance criteria. Historical results are identified by their original dates rather than presented as newly executed experiments.
+This chapter explains how AlumniKonneQt implements profile-based mentorship discovery and presents the available implementation and testing evidence. The application combines a Next.js interface, Supabase authentication, PostgreSQL records and pgvector similarity retrieval. The evidence reviewed on 5 November 2026 includes the current source, dated verification records and GitHub acceptance criteria. Historical results are identified by their original dates rather than presented as newly executed experiments.
 
 Two model workstreams must be distinguished. The application source uses a frozen pretrained MiniLM encoder producing 384-dimensional vectors. A separate model trained from random initialization has been executed locally and in Google Colab, but its 64-dimensional representations have not been integrated into the live recommendation workflow. Training and live use of a selected scratch-trained model remain final project requirements. The pilot demonstrates engineering feasibility, not completion of that requirement.
 
@@ -136,7 +136,7 @@ The evidence establishes an implemented profile-based platform, local mentorship
 
 ## 5.8 Evidence References and Completion Register
 
-The following project records identify the sources for this chapter. Dates refer to recorded executions, not new checks performed while writing. Repository paths are relative to the AlumniConnect source tree. Final report assembly should replace this working evidence register with the institution’s required citation and appendix format while preserving traceability.
+The following project records identify the sources for this chapter. Dates refer to recorded executions, not new checks performed while writing. Repository paths are relative to the AlumniKonneQt source tree. Final report assembly should replace this working evidence register with the institution’s required citation and appendix format while preserving traceability.
 
 Table 5.5 Sources and final evidence still required
 
