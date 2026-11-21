@@ -9,8 +9,8 @@ source of truth. Detailed evidence and gaps are recorded in
 GitHub tracking:
 
 - [Capstone roadmap](https://github.com/users/OmarMohammedSiddique/projects/1)
-- [Active issues](https://github.com/OmarMohammedSiddique/alumniconnect/issues)
-- [Sprint milestones](https://github.com/OmarMohammedSiddique/alumniconnect/milestones)
+- [Active issues](https://github.com/OmarMohammedSiddique/alumnikonneqt/issues)
+- [Sprint milestones](https://github.com/OmarMohammedSiddique/alumnikonneqt/milestones)
 
 ## How to use this checklist
 
@@ -188,7 +188,7 @@ or conclusion chapter should follow the actual institutional template.
 - [x] Mirror the priority actionable work as GitHub Issues.
 - [x] Create a public GitHub Project for roadmap status tracking.
 - [x] Track the commit-history documentation requirement in
-  [GitHub Issue #9](https://github.com/OmarMohammedSiddique/alumniconnect/issues/9).
+  [GitHub Issue #9](https://github.com/OmarMohammedSiddique/alumnikonneqt/issues/9).
 - [ ] Export the repository Insights commit graph and add a chronological
   commit, issue, pull request, CI, and sprint evidence table to Chapter 4.
 - [ ] Use issue-linked branches and focused, verified commits for remaining

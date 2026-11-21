@@ -161,7 +161,7 @@ assert len(CODE_COMMIT) == 40 and all(c in "0123456789abcdef" for c in CODE_COMM
 REPO = Path("/content/alumniconnect")
 if not REPO.exists():
     subprocess.run([
-        "git", "clone", "https://github.com/OmarMohammedSiddique/alumniconnect.git", str(REPO)
+        "git", "clone", "https://github.com/OmarMohammedSiddique/alumnikonneqt.git", str(REPO)
     ], check=True)
 subprocess.run(["git", "fetch", "origin", CODE_COMMIT], cwd=REPO, check=True)
 subprocess.run(["git", "checkout", "--detach", CODE_COMMIT], cwd=REPO, check=True)

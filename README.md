@@ -1,6 +1,6 @@
 # AlumniKonneQt
 
-[![CI](https://github.com/OmarMohammedSiddique/alumniconnect/actions/workflows/ci.yml/badge.svg)](https://github.com/OmarMohammedSiddique/alumniconnect/actions/workflows/ci.yml)
+[![CI](https://github.com/OmarMohammedSiddique/alumnikonneqt/actions/workflows/ci.yml/badge.svg)](https://github.com/OmarMohammedSiddique/alumnikonneqt/actions/workflows/ci.yml)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-pgvector-3FCF8E?logo=supabase&logoColor=white)](https://supabase.com/)
@@ -89,8 +89,8 @@ for the methodology and recorded results.
 1. Clone the repository and install dependencies.
 
    ```bash
-   git clone https://github.com/OmarMohammedSiddique/alumniconnect.git
-   cd alumniconnect
+   git clone https://github.com/OmarMohammedSiddique/alumnikonneqt.git
+   cd alumnikonneqt
    npm ci
    ```
 
